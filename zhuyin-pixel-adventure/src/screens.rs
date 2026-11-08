@@ -77,8 +77,8 @@ fn char_card(props: &CharCardProps) -> Html {
                     ctx.fill_rect(0.0, 0.0, 72.0, 96.0);
                     ctx.set_image_smoothing_enabled(false);
                     let ch = find_character(id);
-                    let grid = pixel_grid(id);
-                    let scale = 4.0;
+                    let grid = pixel_grid(id, 0);
+                    let scale = 3.5;
                     let ox = (72.0 - PIX_W as f32 * scale) / 2.0;
                     let oy = (96.0 - PIX_H as f32 * scale) / 2.0;
                     for (i, &b) in grid.as_bytes().iter().enumerate() {

@@ -144,9 +144,6 @@ function __wbg_get_imports() {
         __wbg_fillRect_e1f0b9915220348b: function(arg0, arg1, arg2, arg3, arg4) {
             arg0.fillRect(arg1, arg2, arg3, arg4);
         },
-        __wbg_fillText_89d353a9ad9f4a1a: function() { return handleError(function (arg0, arg1, arg2, arg3, arg4) {
-            arg0.fillText(getStringFromWasm0(arg1, arg2), arg3, arg4);
-        }, arguments); },
         __wbg_frequency_66f15407131f5ab1: function(arg0) {
             const ret = arg0.frequency;
             return ret;
@@ -583,12 +580,12 @@ function __wbg_get_imports() {
             return ret;
         },
         __wbindgen_generic_0000000000000001: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 704, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 705, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
             const ret = makeMutClosure(arg0, arg1, wasm_bindgen_fb34abf39e33bdef___convert__closures_____invoke___wasm_bindgen_fb34abf39e33bdef___JsValue__core_37ee0ce0c4cd57d5___result__Result_____wasm_bindgen_fb34abf39e33bdef___JsError___true_);
             return ret;
         },
         __wbindgen_generic_0000000000000002: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Ref(NamedExternref("Event"))], shim_idx: 515, ret: Unit, inner_ret: Some(Unit) }, mutable: false }) -> Externref`.
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Ref(NamedExternref("Event"))], shim_idx: 516, ret: Unit, inner_ret: Some(Unit) }, mutable: false }) -> Externref`.
             const ret = makeClosure(arg0, arg1, wasm_bindgen_fb34abf39e33bdef___convert__closures________invoke___web_sys_2aa2a605b6330f8___features__gen_Event__Event______true_);
             return ret;
         },

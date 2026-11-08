@@ -1,21 +1,25 @@
-pub const TILE: u32 = 16;
-pub const MAP_W: usize = 20;
-pub const MAP_H: usize = 14;
-pub const SPAWN_TILE: (usize, usize) = (3, 9);
+pub const TILE: u32 = 24;
+pub const MAP_W: usize = 22;
+pub const MAP_H: usize = 15;
+pub const SPAWN_TILE: (usize, usize) = (4, 12);
 
-/// 0 grass, 1 wall, 2 path, 3 chinese gate, 4 english, 5 math
+/// 0 grass, 1 rock/wall, 2 path, 3 chinese, 4 english, 5 math, 6 tree, 7 water, 8 flower
 pub const MAP: &[&str] = &[
-    "11111111111111111111",
-    "10000000022200000001",
-    "10222222222222222001",
-    "10201111111111102001",
-    "10201000000000102001",
-    "10201300004005002001",
-    "10201000000000102001",
-    "10201111111111102001",
-    "10222222222222222001",
-    "10000000022200000001",
-    "11111111111111111111",
+    "1777777777777777777777",
+    "1700006622222660000017",
+    "10622222222222222600017",
+    "1022221111111112222017",
+    "10220100088800011022017",
+    "10220103330000011022017",
+    "10220103330000011022017",
+    "10220104440005550011017",
+    "10220104440005550011017",
+    "10220100000000011022017",
+    "1022221111111112222017",
+    "10622222222222222600017",
+    "10000066222226600000017",
+    "17000000022200000000017",
+    "1777777777777777777777",
 ];
 
 pub fn tile_at(tx: i32, ty: i32) -> u8 {
@@ -30,8 +34,7 @@ pub fn tile_at(tx: i32, ty: i32) -> u8 {
 }
 
 pub fn walkable(tx: i32, ty: i32) -> bool {
-    let t = tile_at(tx, ty);
-    t == 0 || t == 2 || t == 3 || t == 4 || t == 5
+    matches!(tile_at(tx, ty), 0 | 2 | 3 | 4 | 5 | 8)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -50,14 +53,24 @@ pub fn portal_at(tx: i32, ty: i32) -> Option<Portal> {
     }
 }
 
+/// 國語建築中心（方便提示）
+pub const CHINESE_GATE: (i32, i32) = (8, 6);
+
 pub struct GateLabel;
 
 impl GateLabel {
     pub fn name(p: Portal) -> &'static str {
         match p {
-            Portal::Chinese => "國語關卡",
-            Portal::English => "英語",
-            Portal::Math => "數學",
+            Portal::Chinese => "國語小屋",
+            Portal::English => "英語燈塔",
+            Portal::Math => "數學工坊",
+        }
+    }
+
+    pub fn hint(p: Portal) -> &'static str {
+        match p {
+            Portal::Chinese => "站在橘色國語小屋前，按下方「進入國語關卡」",
+            Portal::English | Portal::Math => "這裡還在蓋，稍後再來",
         }
     }
 }

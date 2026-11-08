@@ -1,5 +1,6 @@
 use crate::input::Dir;
-use crate::sprites::{color_index, find_character, pixel_grid, CANVAS_H, CANVAS_W, PIX_H, PIX_W};
+use crate::sprites::{color_index, find_character, pixel_grid, PIX_H, PIX_W, PIXEL_SCALE, CANVAS_H, CANVAS_W};
+use crate::tile_art::draw_all;
 use crate::world::{self, Portal, TILE};
 use gloo::timers::callback::Interval;
 use wasm_bindgen::JsCast;
@@ -12,9 +13,9 @@ pub struct PixelMapProps {
     pub px: f32,
     pub py: f32,
     pub frame: u8,
-    pub hint: Option<String>,
     pub portal_near: Option<Portal>,
     pub on_enter: Callback<Portal>,
+    pub enter_label: String,
 }
 
 #[function_component(PixelMap)]
@@ -34,21 +35,27 @@ pub fn pixel_map(props: &PixelMapProps) -> Html {
         });
     }
 
+    let can_enter = props.portal_near == Some(Portal::Chinese);
+
     html! {
-        <div class="map-wrap">
+        <div class="map-frame">
             <canvas ref={canvas_ref} class="pixel-canvas" width={CANVAS_W.to_string()} height={CANVAS_H.to_string()} />
-            if let Some(h) = &props.hint {
-                <p class="map-hint"><span class="pixel-label">{ h }</span></p>
-            }
-            if let Some(portal) = props.portal_near {
-                <button type="button" class="enter-btn pixel-btn"
-                    onclick={Callback::from({
-                        let on_enter = props.on_enter.clone();
-                        move |_| on_enter.emit(portal)
-                    })}>
-                    { "進入" }
-                </button>
-            }
+            <div class="action-dock">
+                if let Some(portal) = props.portal_near {
+                    <p class="map-hint">{ world::GateLabel::hint(portal) }</p>
+                } else {
+                    <p class="map-hint muted">{"用方向鍵或下方按鈕走到橘色國語小屋前"}</p>
+                }
+                if can_enter {
+                    <button type="button" class="enter-btn pixel-btn primary pulse"
+                        onclick={Callback::from({
+                            let on_enter = props.on_enter.clone();
+                            move |_| on_enter.emit(Portal::Chinese)
+                        })}>
+                        { props.enter_label.clone() }
+                    </button>
+                }
+            </div>
         </div>
     }
 }
@@ -66,44 +73,16 @@ fn draw_map(canvas_ref: &NodeRef, character_id: &str, px: f32, py: f32, frame: u
         return;
     };
     ctx.set_image_smoothing_enabled(false);
-    for ty in 0..world::MAP_H {
-        for tx in 0..world::MAP_W {
-            let t = world::tile_at(tx as i32, ty as i32);
-            let color = match t {
-                0 => "#6fbf4a",
-                1 => "#4a6741",
-                2 => "#8ed56a",
-                3 => "#e86a3c",
-                4 => "#7a8ea3",
-                5 => "#7a8ea3",
-                _ => "#000",
-            };
-            ctx.set_fill_style(&color.into());
-            let txf = tx as f64 * TILE as f64;
-            let tyf = ty as f64 * TILE as f64;
-            let sz = TILE as f64;
-            ctx.fill_rect(txf, tyf, sz, sz);
-            if t == 3 {
-                ctx.set_fill_style(&"#fff".into());
-                ctx.fill_rect(txf + 4.0, tyf + 4.0, sz - 8.0, sz - 8.0);
-                ctx.set_fill_style(&"#c44".into());
-                ctx.fill_text("語", txf + 3.0, tyf + 12.0).ok();
-            }
-            if t == 4 || t == 5 {
-                ctx.set_fill_style(&"#dde".into());
-                ctx.fill_rect(txf + 3.0, tyf + 3.0, sz - 6.0, sz - 6.0);
-            }
-        }
-    }
+    draw_all(&ctx);
     draw_player(&ctx, character_id, px, py, frame);
 }
 
 fn draw_player(ctx: &CanvasRenderingContext2d, character_id: &str, px: f32, py: f32, frame: u8) {
     let ch = find_character(character_id);
-    let grid = pixel_grid(character_id);
-    let ox = px as f64 * TILE as f64 + TILE as f64 / 2.0 - PIX_W as f64 / 2.0;
-    let oy =
-        py as f64 * TILE as f64 + TILE as f64 - PIX_H as f64 - if frame % 2 == 1 { 1.0 } else { 0.0 };
+    let grid = pixel_grid(character_id, frame);
+    let scale = PIXEL_SCALE;
+    let ox = px as f64 * TILE as f64 + TILE as f64 / 2.0 - (PIX_W as f64) * scale / 2.0;
+    let oy = py as f64 * TILE as f64 + TILE as f64 - (PIX_H as f64) * scale - 2.0;
     let bytes = grid.as_bytes();
     for (i, &b) in bytes.iter().enumerate() {
         if i >= PIX_W * PIX_H {
@@ -116,20 +95,27 @@ fn draw_player(ctx: &CanvasRenderingContext2d, character_id: &str, px: f32, py: 
         let x = i % PIX_W;
         let y = i / PIX_W;
         ctx.set_fill_style(&color_index(&ch.palette, digit).into());
-        ctx.fill_rect(ox + x as f64, oy + y as f64, 1.0, 1.0);
+        ctx.fill_rect(ox + x as f64 * scale, oy + y as f64 * scale, scale, scale);
     }
+    ctx.set_fill_style(&"#00000044".into());
+    ctx.fill_rect(ox + 2.0, py as f64 * TILE as f64 + TILE as f64 - 2.0, PIX_W as f64 * scale - 4.0, 3.0);
 }
 
 #[derive(Properties, PartialEq)]
 pub struct TouchPadProps {
     pub on_dir: Callback<Dir>,
+    pub on_interact: Callback<()>,
 }
 
 #[function_component(TouchPad)]
 pub fn touch_pad(props: &TouchPadProps) -> Html {
     let emit = |d: Dir| {
         let cb = props.on_dir.clone();
-        Callback::from(move |_| cb.emit(d))
+        let interact = props.on_interact.clone();
+        Callback::from(move |_| {
+            interact.emit(());
+            cb.emit(d);
+        })
     };
     html! {
         <div class="touch-pad" aria-label="方向控制">
@@ -145,7 +131,7 @@ pub fn touch_pad(props: &TouchPadProps) -> Html {
 
 pub fn bind_walk_tick(on_tick: Callback<()>) {
     use_effect_with((), move |_| {
-        let handle = Interval::new(120, move || on_tick.emit(()));
+        let handle = Interval::new(280, move || on_tick.emit(()));
         move || drop(handle)
     });
 }

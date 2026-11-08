@@ -22,13 +22,14 @@ body,
 
 body {
   font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
-  background: var(--pixel-bg);
+  background: linear-gradient(180deg, #87ceeb 0%, #b8e0ff 42%, #7ad84f 42%, #5cbd3a 100%);
+  background-attachment: fixed;
   color: var(--ink);
   image-rendering: pixelated;
 }
 
 .shell-pixel {
-  max-width: 26rem;
+  width: min(100%, 28rem);
   margin: 0 auto;
   padding: 0.5rem 0.75rem 1.5rem;
   min-height: 100dvh;
@@ -86,6 +87,7 @@ body {
   box-shadow: 4px 4px 0 var(--ink);
   padding: 1rem;
   margin-top: 0.5rem;
+  background-image: radial-gradient(circle at 10% 10%, #ffffff88 0 40px, transparent 50px);
 }
 
 .pixel-title {
@@ -157,17 +159,55 @@ body {
   opacity: 0.45;
 }
 
-.map-wrap {
+.map-frame {
   text-align: center;
+  width: 100%;
 }
 
 .pixel-canvas {
+  display: block;
   width: 100%;
-  max-width: 320px;
+  max-width: min(100vw - 1.5rem, 528px);
   height: auto;
   border: 4px solid var(--ink);
-  background: #000;
+  box-shadow: 6px 6px 0 #2c3e50;
+  background: #2d5016;
   image-rendering: pixelated;
+  margin: 0 auto;
+}
+
+.action-dock {
+  margin-top: 0.65rem;
+  padding: 0.65rem;
+  background: #fff8e8ee;
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.action-dock .enter-btn {
+  margin-top: 0.5rem;
+}
+
+@keyframes pulse-btn {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.enter-btn.pulse {
+  animation: pulse-btn 1.2s ease-in-out infinite;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.map-hint.muted {
+  opacity: 0.85;
+  font-size: 0.95rem;
 }
 
 .map-hint {

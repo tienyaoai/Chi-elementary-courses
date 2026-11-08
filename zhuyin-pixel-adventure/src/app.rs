@@ -1,4 +1,4 @@
-use crate::components::{bind_walk_tick, BpmfAside, PixelMap, TouchPad};
+use crate::components::{BpmfAside, PixelMap, TouchPad};
 use crate::input::{bind_keyboard, Dir};
 use crate::progress::PixelProgress;
 use crate::screens::{ChineseLevel, CollectionScreen, SelectScreen, LEVEL_ID, REWARD_ID};
@@ -37,6 +37,7 @@ pub fn app() -> Html {
     {
         let game = game.clone();
         use_effect_with((), move |_| {
+            let game = game.clone();
             spawn_local(async move {
                 if let Ok(data) = load_game_data().await {
                     game.set(Some(data));
@@ -45,6 +46,10 @@ pub fn app() -> Html {
             || ()
         });
     }
+
+    let prime_audio = Callback::from(|_| {
+        crate::sounds::prime_audio();
+    });
 
     let move_dir = {
         let px = px.clone();
@@ -75,11 +80,12 @@ pub fn app() -> Html {
         })
     };
 
-    bind_keyboard(move_dir.clone());
-    bind_walk_tick(Callback::from({
-        let frame = frame.clone();
-        move |_| {
-            frame.set(*frame + 1);
+    bind_keyboard(Callback::from({
+        let move_dir = move_dir.clone();
+        let prime = prime_audio.clone();
+        move |dir| {
+            prime.emit(());
+            move_dir.emit(dir);
         }
     }));
 
@@ -96,11 +102,6 @@ pub fn app() -> Html {
         let ty = py.round() as i32;
         world::portal_at(tx, ty)
     };
-
-    let hint = portal_near.map(|p| match p {
-        Portal::Chinese => "站在國語門口，按進入開始".to_string(),
-        Portal::English | Portal::Math => format!("{}：即將開放", GateLabel::name(p)),
-    });
 
     let toggle_sound = {
         let progress = progress.clone();
@@ -142,7 +143,8 @@ pub fn app() -> Html {
                     </button>
                 </div>
                 <PixelMap character_id={progress.character_id.clone()} px={*px} py={*py} frame={*frame}
-                    hint={hint.clone()} portal_near={if matches!(portal_near, Some(Portal::Chinese)) { portal_near } else { None }}
+                    enter_label={ "進入國語關卡".to_string() }
+                    portal_near={portal_near}
                     on_enter={Callback::from({
                         let view = view.clone();
                         move |portal| {
@@ -154,7 +156,7 @@ pub fn app() -> Html {
                             }
                         }
                     })} />
-                <TouchPad on_dir={move_dir} />
+                <TouchPad on_dir={move_dir.clone()} on_interact={prime_audio.clone()} />
                 <div class="map-actions">
                     <button type="button" class="pixel-btn ghost" onclick={Callback::from({
                         let view = view.clone();

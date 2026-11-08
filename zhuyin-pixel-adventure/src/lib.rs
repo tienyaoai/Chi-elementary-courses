@@ -11,6 +11,7 @@ pub mod input;
 pub mod progress;
 pub mod sounds;
 pub mod sprites;
+pub mod tile_art;
 pub mod world;
 
 pub use app::App;

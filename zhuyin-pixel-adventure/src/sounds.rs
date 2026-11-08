@@ -65,3 +65,10 @@ pub fn play_reward() {
 pub fn portal_blip() {
     play_match();
 }
+
+/// 需在首個使用者操作後呼叫，以符合瀏覽器音訊政策。
+pub fn prime_audio() {
+    if let Some(ctx) = AudioContext::new().ok() {
+        let _ = ctx.resume();
+    }
+}
