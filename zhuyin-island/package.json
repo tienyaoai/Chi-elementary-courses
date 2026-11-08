@@ -1,0 +1,29 @@
+{
+  "name": "zhuyin-island",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 4731",
+    "build": "tsc -b && vite build",
+    "lint": "oxlint",
+    "preview": "vite preview --host 0.0.0.0 --port 4731",
+    "readings": "python3 scripts/build-readings.py",
+    "verify": "node --experimental-strip-types scripts/verify.ts"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.5",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "oxlint": "^1.90.0",
+    "tailwindcss": "^4.3.5",
+    "typescript": "~7.0.2",
+    "vite": "^8.3.6"
+  }
+}
