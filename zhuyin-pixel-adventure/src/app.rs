@@ -137,9 +137,9 @@ pub fn app() -> Html {
         View::Map => html! {
             <div class="map-screen">
                 <div class="hud">
-                    <BpmfAside text={ "學習冒險島".to_string() } game={game.clone()} large=true />
+                    <BpmfAside text={ "學習冒險島".to_string() } game={game.clone()} read=true />
                     <button type="button" class="hud-btn" onclick={toggle_sound.clone()}>
-                        <BpmfAside text={ if progress.sound { "關閉音效".to_string() } else { "開啟音效".to_string() } } game={game.clone()} />
+                        <BpmfAside text={ if progress.sound { "關閉音效".to_string() } else { "開啟音效".to_string() } } game={game.clone()} read=true />
                     </button>
                 </div>
                 <PixelMap character_id={progress.character_id.clone()} px={*px} py={*py} frame={*frame}
@@ -162,13 +162,13 @@ pub fn app() -> Html {
                         let view = view.clone();
                         move |_| view.set(View::Collection)
                     })}>
-                        <BpmfAside text={ "收藏".to_string() } game={game.clone()} />
+                        <BpmfAside text={ "收藏".to_string() } game={game.clone()} read=true />
                     </button>
                     <button type="button" class="pixel-btn ghost" onclick={Callback::from({
                         let view = view.clone();
                         move |_| view.set(View::Select)
                     })}>
-                        <BpmfAside text={ "換角色".to_string() } game={game.clone()} />
+                        <BpmfAside text={ "換角色".to_string() } game={game.clone()} read=true />
                     </button>
                 </div>
                 if matches!(portal_near, Some(Portal::English | Portal::Math)) {
@@ -208,13 +208,13 @@ pub fn app() -> Html {
         },
         View::Claim => html! {
             <section class="panel-pixel victory">
-                <h2><BpmfAside text={ "獲得獎勵".to_string() } game={game.clone()} large=true /></h2>
-                <p><BpmfAside text={ "國語星星與注音緞帶".to_string() } game={game.clone()} /></p>
-                <button type="button" class="pixel-btn primary" onclick={Callback::from({
+                <h2><BpmfAside text={ "獲得獎勵".to_string() } game={game.clone()} read=true /></h2>
+                <p><BpmfAside text={ "國語星星與注音緞帶".to_string() } game={game.clone()} read=true /></p>
+                <button type="button" class="pixel-btn primary big-touch" onclick={Callback::from({
                     let view = view.clone();
                     move |_| view.set(View::Map)
                 })}>
-                    <BpmfAside text={ "回地圖".to_string() } game={game.clone()} />
+                    <BpmfAside text={ "回地圖".to_string() } game={game.clone()} read=true />
                 </button>
             </section>
         },

@@ -52,7 +52,7 @@ pub fn pixel_map(props: &PixelMapProps) -> Html {
                             let on_enter = props.on_enter.clone();
                             move |_| on_enter.emit(Portal::Chinese)
                         })}>
-                        { props.enter_label.clone() }
+                        <span class="enter-label-text">{ props.enter_label.clone() }</span>
                     </button>
                 }
             </div>

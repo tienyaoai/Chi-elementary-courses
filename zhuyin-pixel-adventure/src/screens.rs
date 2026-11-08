@@ -24,8 +24,8 @@ pub struct SelectScreenProps {
 pub fn select_screen(props: &SelectScreenProps) -> Html {
     html! {
         <section class="panel-pixel">
-            <h1 class="pixel-title"><BpmfAside text={ "學習冒險島".to_string() } game={props.game.clone()} large=true /></h1>
-            <p class="pixel-sub"><BpmfAside text={ "選一位冒險夥伴".to_string() } game={props.game.clone()} /></p>
+            <h1 class="pixel-title"><BpmfAside text={ "學習冒險島".to_string() } game={props.game.clone()} read=true /></h1>
+            <p class="pixel-sub"><BpmfAside text={ "選一位冒險夥伴".to_string() } game={props.game.clone()} read=true /></p>
             <div class="char-grid">
                 { for CHARACTERS.iter().map(|ch| html! {
                     <CharCard key={ch.id} character_id={ch.id} game={props.game.clone()}
@@ -37,12 +37,12 @@ pub fn select_screen(props: &SelectScreenProps) -> Html {
                         })} />
                 })}
             </div>
-            <button type="button" class="pixel-btn primary" disabled={props.progress.character_id.is_empty()}
+            <button type="button" class="pixel-btn primary big-touch" disabled={props.progress.character_id.is_empty()}
                 onclick={props.on_start.clone()}>
-                <BpmfAside text={ "出發".to_string() } game={props.game.clone()} />
+                <BpmfAside text={ "出發".to_string() } game={props.game.clone()} read=true />
             </button>
-            <button type="button" class="pixel-btn ghost" onclick={props.on_collection.clone()}>
-                <BpmfAside text={ "看收藏".to_string() } game={props.game.clone()} />
+            <button type="button" class="pixel-btn ghost big-touch" onclick={props.on_collection.clone()}>
+                <BpmfAside text={ "看收藏".to_string() } game={props.game.clone()} read=true />
             </button>
         </section>
     }
@@ -65,8 +65,8 @@ fn char_card(props: &CharCardProps) -> Html {
         use_effect_with(id.clone(), move |_| {
             let id = id.as_str();
             if let Some(canvas) = canvas_ref.cast::<web_sys::HtmlCanvasElement>() {
-                canvas.set_width(84);
-                canvas.set_height(110);
+                canvas.set_width(98);
+                canvas.set_height(128);
                 if let Some(ctx) = canvas
                     .get_context("2d")
                     .ok()
@@ -74,13 +74,13 @@ fn char_card(props: &CharCardProps) -> Html {
                     .and_then(|c| c.dyn_into::<web_sys::CanvasRenderingContext2d>().ok())
                 {
                     ctx.set_fill_style(&"#8ed56a".into());
-                    ctx.fill_rect(0.0, 0.0, 84.0, 110.0);
+                    ctx.fill_rect(0.0, 0.0, 98.0, 128.0);
                     ctx.set_image_smoothing_enabled(false);
                     let ch = find_character(id);
                     let grid = pixel_grid(id, 0);
-                    let scale = 4.0_f32;
-                    let ox = (84.0 - PIX_W as f32 * scale) / 2.0;
-                    let oy = (110.0 - PIX_H as f32 * scale) / 2.0;
+                    let scale = 4.35_f32;
+                    let ox = (98.0 - PIX_W as f32 * scale) / 2.0;
+                    let oy = (128.0 - PIX_H as f32 * scale) / 2.0;
                     for (i, &b) in grid.as_bytes().iter().enumerate() {
                         if i >= PIX_W * PIX_H {
                             break;
@@ -107,7 +107,7 @@ fn char_card(props: &CharCardProps) -> Html {
     html! {
         <button type="button" class={classes!("char-card", props.selected.then_some("selected"))} onclick={props.onclick.clone()}>
             <canvas ref={canvas_ref} class="char-preview" />
-            <span class="pixel-name"><BpmfAside text={find_character(props.character_id).name.to_string()} game={props.game.clone()} /></span>
+                            <span class="pixel-name"><BpmfAside text={find_character(props.character_id).name.to_string()} game={props.game.clone()} read=true /></span>
         </button>
     }
 }
@@ -171,12 +171,12 @@ pub fn chinese_level(props: &ChineseLevelProps) -> Html {
         LessonPhase::Quiz => {
             let item = quiz.get(*q_idx);
             html! {
-                <section class="lesson-panel">
-                    <h2 class="lesson-head"><BpmfAside text={ "看圖找字".to_string() } game={props.game.clone()} large=true /></h2>
+                <section class="lesson-panel lesson-read">
+                    <h2 class="lesson-head"><BpmfAside text={ "看圖找字".to_string() } game={props.game.clone()} read=true /></h2>
                     if let Some(q) = item {
                         <p class="lesson-step">{ format!("{} / {}", *q_idx + 1, quiz.len()) }</p>
-                        <div class="emoji-huge">{ picture_emoji(&q.picture) }</div>
-                        <p><BpmfAside text={q.ask.clone()} game={props.game.clone()} large=true /></p>
+                        { picture_block(&q.picture) }
+                        <p class="lesson-ask"><BpmfAside text={q.ask.clone()} game={props.game.clone()} read=true /></p>
                         <div class="opt-grid">
                             { for q.options.iter().map(|opt| {
                                 let opt_c = opt.clone();
@@ -214,30 +214,32 @@ pub fn chinese_level(props: &ChineseLevelProps) -> Html {
                                                 }
                                             }
                                         })}>
-                                        <BpmfAside text={opt_c} game={props.game.clone()} />
+                                        <BpmfAside text={opt_c} game={props.game.clone()} read=true />
                                     </button>
                                 }
                             })}
                         </div>
                     }
                     if !feedback.is_empty() {
-                        <p class="feedback-soft"><BpmfAside text={(*feedback).clone()} game={props.game.clone()} /></p>
+                        <p class="feedback-soft"><BpmfAside text={(*feedback).clone()} game={props.game.clone()} read=true /></p>
                     }
-                    <button type="button" class="pixel-btn ghost" onclick={props.on_exit.clone()}>
-                        <BpmfAside text={ "回地圖".to_string() } game={props.game.clone()} />
+                    <button type="button" class="pixel-btn ghost lesson-btn" onclick={props.on_exit.clone()}>
+                        <BpmfAside text={ "回地圖".to_string() } game={props.game.clone()} read=true />
                     </button>
                 </section>
             }
         }
         LessonPhase::Order => {
             html! {
-                <section class="lesson-panel">
-                    <h2 class="lesson-head"><BpmfAside text={ "句子排排".to_string() } game={props.game.clone()} large=true /></h2>
+                <section class="lesson-panel lesson-read">
+                    <h2 class="lesson-head"><BpmfAside text={ "句子排排".to_string() } game={props.game.clone()} read=true /></h2>
                     if let Some(item) = (*order_item).clone() {
-                        <div class="emoji-huge">{ &item.emoji }</div>
+                        <div class="quiz-picture order-picture">
+                            <span class="quiz-emoji" role="img">{ &item.emoji }</span>
+                        </div>
                         <div class="sentence-pixel">
                             { for chosen.iter().map(|t| html! {
-                                <span class="chip-pixel"><BpmfAside text={t.clone()} game={props.game.clone()} /></span>
+                                <span class="chip-pixel"><BpmfAside text={t.clone()} game={props.game.clone()} read=true /></span>
                             })}
                         </div>
                         <div class="chip-row-pixel">
@@ -255,12 +257,12 @@ pub fn chinese_level(props: &ChineseLevelProps) -> Html {
                                                 chosen.set(v);
                                             }
                                         })}>
-                                        <BpmfAside text={text.clone()} game={props.game.clone()} />
+                                        <BpmfAside text={text.clone()} game={props.game.clone()} read=true />
                                     </button>
                                 }
                             })}
                         </div>
-                        <button type="button" class="pixel-btn primary"
+                        <button type="button" class="pixel-btn primary lesson-btn"
                             onclick={Callback::from({
                                 let game = props.game.clone();
                                 let chosen = chosen.clone();
@@ -285,14 +287,14 @@ pub fn chinese_level(props: &ChineseLevelProps) -> Html {
                                     }
                                 }
                             })}>
-                            <BpmfAside text={ "看看對不對".to_string() } game={props.game.clone()} />
+                            <BpmfAside text={ "看看對不對".to_string() } game={props.game.clone()} read=true />
                         </button>
                     }
                     if !feedback.is_empty() {
-                        <p class="feedback-soft"><BpmfAside text={(*feedback).clone()} game={props.game.clone()} /></p>
+                        <p class="feedback-soft"><BpmfAside text={(*feedback).clone()} game={props.game.clone()} read=true /></p>
                     }
-                    <button type="button" class="pixel-btn ghost" onclick={props.on_exit.clone()}>
-                        <BpmfAside text={ "回地圖".to_string() } game={props.game.clone()} />
+                    <button type="button" class="pixel-btn ghost lesson-btn" onclick={props.on_exit.clone()}>
+                        <BpmfAside text={ "回地圖".to_string() } game={props.game.clone()} read=true />
                     </button>
                 </section>
             }
@@ -309,11 +311,23 @@ pub fn chinese_level(props: &ChineseLevelProps) -> Html {
     }
 }
 
-fn picture_emoji(p: &zhuyin_island_wasm::data::Picture) -> String {
+fn picture_block(p: &zhuyin_island_wasm::data::Picture) -> Html {
     match p {
-        zhuyin_island_wasm::data::Picture::Emoji { emoji } => emoji.clone(),
-        zhuyin_island_wasm::data::Picture::Swatch { color } => format!("■{color}"),
-        zhuyin_island_wasm::data::Picture::Digit { digit } => digit.clone(),
+        zhuyin_island_wasm::data::Picture::Emoji { emoji } => html! {
+            <div class="quiz-picture">
+                <span class="quiz-emoji" role="img">{ emoji.clone() }</span>
+            </div>
+        },
+        zhuyin_island_wasm::data::Picture::Swatch { color } => html! {
+            <div class="quiz-picture">
+                <span class="quiz-swatch" style={format!("background-color: {color}")} role="img" aria-label="顏色" />
+            </div>
+        },
+        zhuyin_island_wasm::data::Picture::Digit { digit } => html! {
+            <div class="quiz-picture">
+                <span class="quiz-digit" role="img">{ digit.clone() }</span>
+            </div>
+        },
     }
 }
 
@@ -327,8 +341,8 @@ pub struct CollectionProps {
 #[function_component(CollectionScreen)]
 pub fn collection_screen(props: &CollectionProps) -> Html {
     html! {
-        <section class="panel-pixel">
-            <h2 class="pixel-title"><BpmfAside text={ "我的收藏".to_string() } game={props.game.clone()} large=true /></h2>
+        <section class="panel-pixel collection-panel">
+            <h2 class="pixel-title"><BpmfAside text={ "我的收藏".to_string() } game={props.game.clone()} read=true /></h2>
             <ul class="reward-list">
                 { for REWARDS.iter().map(|(id, name, desc)| {
                     let owned = props.progress.rewards.iter().any(|r| r == id);
@@ -336,16 +350,16 @@ pub fn collection_screen(props: &CollectionProps) -> Html {
                         <li class={classes!("reward-item", owned.then_some("owned"))}>
                             <span class="reward-icon">{ if owned { "★" } else { "☆" } }</span>
                             <div>
-                                <BpmfAside text={(*name).to_string()} game={props.game.clone()} />
-                                <p class="reward-desc"><BpmfAside text={(*desc).to_string()} game={props.game.clone()} /></p>
+                                <BpmfAside text={(*name).to_string()} game={props.game.clone()} read=true />
+                                <p class="reward-desc"><BpmfAside text={(*desc).to_string()} game={props.game.clone()} read=true /></p>
                             </div>
                         </li>
                     }
                 })}
             </ul>
-            <p class="pixel-sub"><BpmfAside text={ format!("角色：{}", find_character(&props.progress.character_id).name) } game={props.game.clone()} /></p>
-            <button type="button" class="pixel-btn primary" onclick={props.on_back.clone()}>
-                <BpmfAside text={ "返回".to_string() } game={props.game.clone()} />
+            <p class="pixel-sub"><BpmfAside text={ format!("角色：{}", find_character(&props.progress.character_id).name) } game={props.game.clone()} read=true /></p>
+            <button type="button" class="pixel-btn primary big-touch" onclick={props.on_back.clone()}>
+                <BpmfAside text={ "返回".to_string() } game={props.game.clone()} read=true />
             </button>
         </section>
     }

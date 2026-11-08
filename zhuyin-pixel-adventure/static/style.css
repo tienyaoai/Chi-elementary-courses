@@ -7,10 +7,17 @@
   --panel: #fff8e8;
   --accent: #e86a3c;
   --bpmf: #b45309;
+  --type-root: 1.125rem;
+  --line-body: 1.55;
 }
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 html,
@@ -22,17 +29,21 @@ body,
 
 body {
   font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  font-size: var(--type-root);
+  line-height: var(--line-body);
   background: linear-gradient(180deg, #87ceeb 0%, #b8e0ff 42%, #7ad84f 42%, #5cbd3a 100%);
   background-attachment: fixed;
   color: var(--ink);
   image-rendering: pixelated;
+  overflow-x: hidden;
 }
 
 .shell-pixel {
   width: min(100%, 28rem);
   margin: 0 auto;
-  padding: 0.5rem 0.75rem 1.5rem;
+  padding: 0.65rem 0.85rem 2rem;
   min-height: 100dvh;
+  overflow-x: hidden;
 }
 
 @media (min-width: 520px) {
@@ -51,13 +62,14 @@ body {
 .han-unit {
   display: inline-flex;
   align-items: center;
-  margin: 0 0.12em 0.08em 0;
+  margin: 0 0.16em 0.12em 0;
   vertical-align: middle;
+  gap: 0.06em;
 }
 
 .han {
-  font-size: 1.15em;
-  line-height: 1.2;
+  font-size: 1.2em;
+  line-height: 1.25;
   font-weight: 700;
 }
 
@@ -66,51 +78,76 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-left: 0.15em;
-  padding: 0.05em 0.08em;
-  font-size: 0.42em;
-  line-height: 1.05;
+  margin-left: 0.12em;
+  padding: 0.08em 0.1em;
+  font-size: 0.52em;
+  line-height: 1.12;
   color: var(--bpmf);
   font-weight: 600;
-  letter-spacing: 0;
-  min-width: 0.95em;
+  letter-spacing: 0.01em;
+  min-width: 1em;
+}
+
+.bpmf-glyph {
+  display: block;
 }
 
 .bpmf-aside-lg .han {
-  font-size: 1.35em;
+  font-size: 1.4em;
 }
 
 .bpmf-aside-lg .bpmf-col {
-  font-size: 0.45em;
+  font-size: 0.55em;
+}
+
+/* 低年級閱讀：國字與注音同步放大 */
+.bpmf-aside-read .han {
+  font-size: 1.65rem;
+  line-height: 1.22;
+}
+
+.bpmf-aside-read .bpmf-col {
+  font-size: 1.1rem;
+  min-width: 1.05rem;
+  line-height: 1.16;
+}
+
+.lesson-read .bpmf-aside-read .han {
+  font-size: 1.72rem;
+}
+
+.lesson-read .bpmf-aside-read .bpmf-col {
+  font-size: 1.14rem;
 }
 
 .han-plain {
-  margin: 0 0.05em;
+  margin: 0 0.08em;
+  font-size: 1.05em;
 }
 
 .panel-pixel {
   background: var(--panel);
   border: 4px solid var(--ink);
   box-shadow: 4px 4px 0 var(--ink);
-  padding: 1rem;
+  padding: 1.1rem 1rem 1.35rem;
   margin-top: 0.5rem;
-  background-image: radial-gradient(circle at 10% 10%, #ffffff88 0 40px, transparent 50px);
 }
 
 .pixel-title {
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.65rem;
   text-align: center;
 }
 
 .pixel-sub {
   text-align: center;
-  margin: 0.5rem 0;
+  margin: 0.65rem 0;
+  line-height: 1.5;
 }
 
 .char-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0.75rem;
+  gap: 0.85rem;
   margin: 1rem 0;
 }
 
@@ -123,9 +160,10 @@ body {
 .char-card {
   background: #fff;
   border: 3px solid var(--ink);
-  padding: 0.5rem;
+  padding: 0.55rem;
   cursor: pointer;
   box-shadow: 3px 3px 0 #0003;
+  min-height: 11rem;
 }
 
 .char-card.selected {
@@ -134,24 +172,35 @@ body {
 }
 
 .char-preview {
-  width: 84px;
-  height: 110px;
+  width: 98px;
+  height: 128px;
   image-rendering: pixelated;
   display: block;
   margin: 0 auto;
   background: #8ed56a;
 }
 
+.pixel-name {
+  display: block;
+  margin-top: 0.35rem;
+}
+
 .pixel-btn {
   display: block;
   width: 100%;
-  margin: 0.5rem 0;
-  padding: 0.65rem 1rem;
+  margin: 0.55rem 0;
+  padding: 0.85rem 1rem;
   border: 3px solid var(--ink);
   background: #fff;
-  font-size: 1rem;
+  font-size: 1.125rem;
   cursor: pointer;
   box-shadow: 3px 3px 0 var(--ink);
+  line-height: 1.35;
+}
+
+.pixel-btn.big-touch,
+.lesson-btn {
+  min-height: 3.25rem;
 }
 
 .pixel-btn.primary {
@@ -184,8 +233,8 @@ body {
 }
 
 .action-dock {
-  margin-top: 0.65rem;
-  padding: 0.65rem;
+  margin-top: 0.75rem;
+  padding: 0.85rem;
   background: #fff8e8ee;
   border: 3px solid var(--ink);
   border-radius: 12px;
@@ -193,7 +242,9 @@ body {
 }
 
 .action-dock .enter-btn {
-  margin-top: 0.5rem;
+  margin-top: 0.55rem;
+  width: 100%;
+  max-width: 100%;
 }
 
 @keyframes pulse-btn {
@@ -208,42 +259,49 @@ body {
 
 .enter-btn.pulse {
   animation: pulse-btn 1.2s ease-in-out infinite;
-  font-size: 1.15rem;
+  font-size: 1.35rem;
   font-weight: 700;
-}
-
-.map-hint.muted {
-  opacity: 0.85;
-  font-size: 0.95rem;
+  min-height: 3.25rem;
+  padding: 0.85rem 1rem;
 }
 
 .map-hint {
-  margin: 0.5rem 0;
-  font-size: 0.95rem;
+  margin: 0.45rem 0;
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+.map-hint.muted {
+  opacity: 0.9;
 }
 
 .enter-btn {
-  max-width: 12rem;
   margin: 0.5rem auto;
+}
+
+.enter-label-text {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .touch-pad {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.35rem;
-  margin-top: 0.75rem;
+  gap: 0.45rem;
+  margin-top: 0.85rem;
 }
 
 .pad-row {
   display: flex;
-  gap: 0.35rem;
+  gap: 0.45rem;
 }
 
 .pad-btn {
-  width: 3.25rem;
-  height: 3.25rem;
-  font-size: 1.25rem;
+  width: 3.65rem;
+  height: 3.65rem;
+  font-size: 1.55rem;
   border: 3px solid var(--ink);
   background: #fff;
   box-shadow: 2px 2px 0 var(--ink);
@@ -253,85 +311,153 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  gap: 0.55rem;
+  margin-bottom: 0.55rem;
 }
 
 .hud-btn {
   border: 2px solid var(--ink);
   background: #fff;
-  padding: 0.35rem 0.5rem;
-  font-size: 0.75rem;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.95rem;
+  min-height: 2.75rem;
+  line-height: 1.3;
 }
 
 .map-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.55rem;
+  margin-top: 0.25rem;
 }
 
 .map-actions .pixel-btn {
   flex: 1;
-  font-size: 0.85rem;
+  font-size: 1.05rem;
 }
 
 .locked-hint {
   text-align: center;
   background: #fff;
   border: 2px dashed #889;
-  padding: 0.5rem;
+  padding: 0.65rem;
+  font-size: 1.05rem;
+  line-height: 1.45;
 }
 
 .lesson-panel {
   background: var(--panel);
   border: 4px solid var(--ink);
   box-shadow: 4px 4px 0 var(--ink);
-  padding: 1rem;
+  padding: 1.15rem 1rem 1.35rem;
   margin-top: 0.5rem;
 }
 
+.lesson-read {
+  padding-bottom: 1.75rem;
+}
+
 .lesson-head {
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.85rem;
   text-align: center;
 }
 
-.emoji-huge {
-  font-size: 3rem;
+.lesson-step {
   text-align: center;
-  line-height: 1.2;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0.35rem 0 0.65rem;
+}
+
+.lesson-ask {
+  text-align: center;
+  margin: 0.85rem 0 1rem;
+  line-height: 1.55;
+}
+
+/* 題目圖：大字、高對比、留白 */
+.quiz-picture {
+  min-height: 8.5rem;
+  width: 100%;
+  max-width: 20rem;
+  margin: 0.5rem auto 1rem;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 4px solid var(--ink);
+  border-radius: 16px;
+  box-shadow: 4px 4px 0 #0002;
+}
+
+.quiz-picture.order-picture {
+  min-height: 7.5rem;
+}
+
+.quiz-emoji {
+  font-size: clamp(4.75rem, 20vw, 7.25rem);
+  line-height: 1;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+}
+
+.quiz-swatch {
+  display: block;
+  width: clamp(5.5rem, 42vw, 8.5rem);
+  height: clamp(5.5rem, 42vw, 8.5rem);
+  border: 4px solid var(--ink);
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 2px #00000018;
+}
+
+.quiz-digit {
+  font-size: clamp(4.25rem, 18vw, 6.75rem);
+  font-weight: 800;
+  line-height: 1;
 }
 
 .opt-grid {
   display: grid;
-  gap: 0.5rem;
-  margin: 0.75rem 0;
+  gap: 0.65rem;
+  margin: 0.85rem 0 1rem;
 }
 
 .opt-pixel {
   border: 3px solid var(--ink);
   background: #fff;
-  padding: 0.65rem;
+  padding: 0.95rem 0.9rem;
   text-align: left;
-  min-height: 3.25rem;
+  min-height: 3.85rem;
+  width: 100%;
+  line-height: 1.45;
 }
 
 .chip-row-pixel,
 .sentence-pixel {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem;
-  margin: 0.75rem 0;
+  gap: 0.55rem;
+  margin: 0.85rem 0;
+  justify-content: center;
 }
 
 .chip-pixel {
-  border: 2px solid var(--ink);
+  border: 3px solid var(--ink);
   background: #fff7df;
-  padding: 0.45rem 0.6rem;
-  line-height: 1.6;
+  padding: 0.65rem 0.85rem;
+  line-height: 1.5;
+  min-height: 3.1rem;
 }
 
 .feedback-soft {
-  color: #256;
+  color: #1a5c45;
   text-align: center;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  margin: 0.65rem 0;
+}
+
+.collection-panel .reward-item {
+  font-size: 1.05rem;
 }
 
 .reward-list {
@@ -342,11 +468,12 @@ body {
 
 .reward-item {
   display: flex;
-  gap: 0.75rem;
-  padding: 0.65rem;
-  margin-bottom: 0.5rem;
-  border: 2px solid #ccc;
+  gap: 0.85rem;
+  padding: 0.85rem;
+  margin-bottom: 0.65rem;
+  border: 3px solid #ccc;
   opacity: 0.55;
+  align-items: flex-start;
 }
 
 .reward-item.owned {
@@ -356,7 +483,14 @@ body {
 }
 
 .reward-icon {
-  font-size: 1.5rem;
+  font-size: 2.35rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.reward-desc {
+  margin: 0.35rem 0 0;
+  line-height: 1.45;
 }
 
 .victory {
@@ -367,4 +501,5 @@ body {
   text-align: center;
   color: #fff;
   padding: 3rem;
+  font-size: 1.15rem;
 }

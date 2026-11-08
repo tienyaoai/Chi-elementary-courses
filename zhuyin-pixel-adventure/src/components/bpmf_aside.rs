@@ -12,12 +12,20 @@ pub struct BpmfAsideProps {
     pub class: Classes,
     #[prop_or(false)]
     pub large: bool,
+    #[prop_or(false)]
+    pub read: bool,
 }
 
 #[function_component(BpmfAside)]
 pub fn bpmf_aside(props: &BpmfAsideProps) -> Html {
     let units = aside_units(&props.game.readings, &props.text);
-    let size = if props.large { "bpmf-aside-lg" } else { "" };
+    let size = if props.read {
+        "bpmf-aside-read"
+    } else if props.large {
+        "bpmf-aside-lg"
+    } else {
+        ""
+    };
     html! {
         <span class={classes!("bpmf-aside", size, props.class.clone())}>
             { for units.into_iter().enumerate().map(|(i, u)| {
