@@ -8,6 +8,10 @@ publish = false
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+[features]
+default = ["standalone"]
+standalone = []
+
 [dependencies]
 getrandom = { version = "0.2", features = ["js"] }
 gloo = { version = "0.11", features = ["storage", "timers", "utils"] }

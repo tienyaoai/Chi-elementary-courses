@@ -17,6 +17,7 @@ pub mod speech;
 
 pub use app::App;
 
+#[cfg(feature = "standalone")]
 #[wasm_bindgen(start)]
 pub fn start() {
     Renderer::<App>::new().render();

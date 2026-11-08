@@ -1,0 +1,21 @@
+#![allow(clippy::too_many_arguments)]
+
+use wasm_bindgen::prelude::*;
+use yew::Renderer;
+
+pub mod app;
+pub mod screens;
+pub mod bpmf_aside;
+pub mod components;
+pub mod input;
+pub mod progress;
+pub mod sounds;
+pub mod sprites;
+pub mod world;
+
+pub use app::App;
+
+#[wasm_bindgen(start)]
+pub fn start() {
+    Renderer::<App>::new().render();
+}

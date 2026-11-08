@@ -1,0 +1,18 @@
+/workspace/zhuyin-pixel-adventure/target/wasm32-unknown-unknown/debug/deps/zhuyin_pixel_adventure.d: src/lib.rs src/app.rs src/screens.rs src/bpmf_aside.rs src/components/mod.rs src/components/bpmf_aside.rs src/components/pixel_map.rs src/input.rs src/progress.rs src/sounds.rs src/sprites.rs src/world.rs
+
+/workspace/zhuyin-pixel-adventure/target/wasm32-unknown-unknown/debug/deps/zhuyin_pixel_adventure.wasm: src/lib.rs src/app.rs src/screens.rs src/bpmf_aside.rs src/components/mod.rs src/components/bpmf_aside.rs src/components/pixel_map.rs src/input.rs src/progress.rs src/sounds.rs src/sprites.rs src/world.rs
+
+/workspace/zhuyin-pixel-adventure/target/wasm32-unknown-unknown/debug/deps/libzhuyin_pixel_adventure.rlib: src/lib.rs src/app.rs src/screens.rs src/bpmf_aside.rs src/components/mod.rs src/components/bpmf_aside.rs src/components/pixel_map.rs src/input.rs src/progress.rs src/sounds.rs src/sprites.rs src/world.rs
+
+src/lib.rs:
+src/app.rs:
+src/screens.rs:
+src/bpmf_aside.rs:
+src/components/mod.rs:
+src/components/bpmf_aside.rs:
+src/components/pixel_map.rs:
+src/input.rs:
+src/progress.rs:
+src/sounds.rs:
+src/sprites.rs:
+src/world.rs:
