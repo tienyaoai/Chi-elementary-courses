@@ -65,8 +65,8 @@ fn char_card(props: &CharCardProps) -> Html {
         use_effect_with(id.clone(), move |_| {
             let id = id.as_str();
             if let Some(canvas) = canvas_ref.cast::<web_sys::HtmlCanvasElement>() {
-                canvas.set_width(72);
-                canvas.set_height(96);
+                canvas.set_width(84);
+                canvas.set_height(110);
                 if let Some(ctx) = canvas
                     .get_context("2d")
                     .ok()
@@ -74,13 +74,13 @@ fn char_card(props: &CharCardProps) -> Html {
                     .and_then(|c| c.dyn_into::<web_sys::CanvasRenderingContext2d>().ok())
                 {
                     ctx.set_fill_style(&"#8ed56a".into());
-                    ctx.fill_rect(0.0, 0.0, 72.0, 96.0);
+                    ctx.fill_rect(0.0, 0.0, 84.0, 110.0);
                     ctx.set_image_smoothing_enabled(false);
                     let ch = find_character(id);
                     let grid = pixel_grid(id, 0);
-                    let scale = 3.5;
-                    let ox = (72.0 - PIX_W as f32 * scale) / 2.0;
-                    let oy = (96.0 - PIX_H as f32 * scale) / 2.0;
+                    let scale = 4.0_f32;
+                    let ox = (84.0 - PIX_W as f32 * scale) / 2.0;
+                    let oy = (110.0 - PIX_H as f32 * scale) / 2.0;
                     for (i, &b) in grid.as_bytes().iter().enumerate() {
                         if i >= PIX_W * PIX_H {
                             break;

@@ -91,7 +91,7 @@ pub fn app() -> Html {
 
     let Some(game) = (*game).clone() else {
         return html! {
-            <main class="shell-pixel">
+            <main class="shell-pixel shell-wide">
                 <p class="loading-pixel">{"載入中…"}</p>
             </main>
         };
@@ -239,7 +239,7 @@ pub fn app() -> Html {
     };
 
     html! {
-        <main class="shell-pixel">
+        <main class="shell-pixel shell-wide">
             { body }
         </main>
     }
