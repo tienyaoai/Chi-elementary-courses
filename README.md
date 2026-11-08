@@ -4,9 +4,12 @@
 
 ## 線上練習（注注的國語島）
 
-公開網站（GitHub Pages）：**<https://tienyaoai.github.io/Chi-elementary-courses/>**
+| 版本 | 目錄 | 部署目標 |
+|------|------|----------|
+| **Rust / Wasm（正式版，開發中）** | [`zhuyin-island-wasm/`](./zhuyin-island-wasm/) | Cloudflare Pages（建置輸出 `dist/`） |
+| React / Vite（參考實作） | [`zhuyin-island/`](./zhuyin-island/) | 本機開發；GitHub Pages workflow 在 main 上，**尚未成功發布**（見下方說明） |
 
-手機或電腦瀏覽器開啟上述網址即可直接進入一年級注音練習首頁，無須安裝。
+GitHub Pages 連結 <https://tienyaoai.github.io/Chi-elementary-courses/> 目前仍為 **404**（Pages 尚未在設定中啟用 GitHub Actions 來源，部署工作流曾失敗）。Cloudflare 正式網址將於透過 Pages 專案部署 `zhuyin-island-wasm/dist` 後，由連接器另行上線。
 
 目前收錄：
 

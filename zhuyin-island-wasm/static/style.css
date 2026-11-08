@@ -1,0 +1,404 @@
+@import url("./style-base.css") layer(base);
+
+/* 移除 React 版 tailwind 依賴；以下為 Wasm 版面與觸控樣式 */
+@layer base {
+  @font-face {
+    font-family: "BpmfHuninn";
+    src: url("/fonts/BpmfHuninn-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+}
+
+.shell {
+  margin: 0 auto;
+  min-height: 100dvh;
+  max-width: 36rem;
+  padding: max(0.75rem, env(safe-area-inset-top)) 1rem 3rem;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.row-end {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.hero {
+  text-align: center;
+}
+
+.title-lg {
+  font-size: clamp(1.45rem, 4.5vw, 2.15rem);
+  line-height: 1.5;
+}
+
+.title-md {
+  font-size: clamp(1.3rem, 3.8vw, 1.55rem);
+  line-height: 1.55;
+}
+
+.title-sm {
+  font-size: 1.25rem;
+}
+
+.muted {
+  color: #5c5146;
+}
+
+.block {
+  display: block;
+}
+
+.panel {
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 1rem;
+}
+
+.card-shadow {
+  box-shadow: 0 8px 0 #e4d2b4;
+}
+
+.home-tile {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.75rem;
+  border: none;
+  border-radius: 28px;
+  background: #fff;
+  padding: 1rem;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+}
+
+.home-tile:active {
+  transform: translateY(4px);
+  box-shadow: none;
+}
+
+.tile-icon {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 999px;
+  font-size: 2rem;
+}
+
+.tile-body {
+  min-width: 0;
+  flex: 1;
+}
+
+.game-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 4rem;
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: 999px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  max-width: 100%;
+}
+
+.game-btn:active {
+  transform: translateY(4px);
+  box-shadow: none !important;
+}
+
+.game-btn:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.tone-sun {
+  background: #ffd15a;
+  box-shadow: 0 6px 0 #e0a82a;
+}
+
+.tone-white {
+  background: #fff;
+  box-shadow: 0 6px 0 #e4d2b4;
+}
+
+.tone-leaf {
+  background: #e7f8ee;
+  color: #1d6b40;
+  box-shadow: 0 6px 0 #8ed5ad;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.screen-header {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.back-btn {
+  border: none;
+  background: #fff;
+  border-radius: 999px;
+  padding: 0.5rem 0.75rem;
+  box-shadow: 0 4px 0 #e4d2b4;
+  cursor: pointer;
+}
+
+.screen-title {
+  font-size: 1.6rem;
+  margin: 0;
+}
+
+.screen-step {
+  margin: 0.25rem 0 0;
+  font-size: 1rem;
+}
+
+.sound-toggle {
+  border: none;
+  background: #fff;
+  border-radius: 999px;
+  padding: 0.4rem 0.75rem;
+  box-shadow: 0 4px 0 #e4d2b4;
+  cursor: pointer;
+}
+
+.option-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+@media (min-width: 380px) {
+  .option-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.option-btn {
+  min-height: 3.75rem;
+  padding: 0.75rem 0.65rem;
+  border: none;
+  border-radius: 24px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 1.35rem;
+  line-height: 1.85;
+  overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.option-wrong {
+  opacity: 0.55;
+}
+
+.option-ok {
+  outline: 4px solid #24945a;
+}
+
+.feedback {
+  color: #13598a;
+  margin-top: 0.5rem;
+}
+
+.picture-emoji,
+.picture-digit,
+.picture-swatch {
+  margin: 0 auto;
+  width: 9rem;
+  height: 9rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 4.5rem;
+  background: #fff;
+  box-shadow: 0 8px 0 #e4d2b4;
+}
+
+.picture-swatch {
+  border: 4px solid #fff;
+  box-shadow: inset 0 0 0 3px #e4d2b4, 0 8px 0 #e4d2b4;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip {
+  border: none;
+  border-radius: 999px;
+  padding: 0.55rem 1rem;
+  background: #fff;
+  box-shadow: 0 4px 0 #e4d2b4;
+  font-size: 1.3rem;
+  line-height: 1.85;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.85rem;
+  overflow: visible;
+  cursor: pointer;
+}
+
+.chip-active {
+  background: #ffd15a;
+}
+
+.chip.chosen {
+  background: #e5f4ff;
+}
+
+.sentence-box {
+  min-height: 4.5rem;
+  padding: 0.85rem 0.75rem;
+  margin: 1rem 0;
+  border-radius: 22px;
+  background: #fff7df;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: flex-start;
+  line-height: 1.85;
+}
+
+.cards-grid,
+.memory-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.card-tile {
+  position: relative;
+  border: none;
+  border-radius: 24px;
+  background: #fff;
+  padding: 0.85rem 0.5rem;
+  text-align: center;
+  box-shadow: 0 6px 0 #e4d2b4;
+  line-height: 1.85;
+  overflow: visible;
+  cursor: pointer;
+}
+
+.card-active {
+  outline: 4px solid #ff8a3d;
+}
+
+.stamp {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: #ffd15a;
+  display: grid;
+  place-items: center;
+}
+
+.memory-card {
+  min-height: 5.5rem;
+  border: none;
+  border-radius: 22px;
+  background: #eadfce;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.35s;
+  cursor: pointer;
+}
+
+.memory-card.is-up {
+  transform: rotateY(180deg);
+}
+
+.flip-face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0.5rem;
+  backface-visibility: hidden;
+  border-radius: 22px;
+  background: #fff;
+}
+
+.flip-back {
+  transform: rotateY(180deg);
+}
+
+.stars-row {
+  font-size: 2.5rem;
+  color: #ff8a3d;
+  letter-spacing: 0.2em;
+}
+
+.story-line {
+  font-size: 1.45rem;
+  line-height: 2;
+  margin: 0.5rem 0;
+  overflow-wrap: anywhere;
+}
+
+.mascot-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.splash {
+  min-height: 70dvh;
+  justify-content: center;
+  align-items: center;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+}
+
+.text-4xl {
+  font-size: 2.25rem;
+}
+
+.text-5xl {
+  font-size: 3rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mt-3 {
+  margin-top: 0.75rem;
+}
+
+.mb-3 {
+  margin-bottom: 0.75rem;
+}
