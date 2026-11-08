@@ -1,4 +1,4 @@
-use crate::bpmf::{plain, resolve, to_ivs};
+use crate::bpmf::plain;
 use crate::data::{GameData, Picture};
 use crate::progress::Progress;
 use std::rc::Rc;

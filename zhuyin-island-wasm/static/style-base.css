@@ -42,11 +42,19 @@ a {
 }
 
 /* 注音粉圓的每個字本身就含注音，行高留白才不會切到聲調。 */
+.bpmf-text {
+  display: inline-block;
+  max-width: 100%;
+  overflow: visible;
+  vertical-align: middle;
+}
+
 .bpmf {
   font-family: "BpmfHuninn", "PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", sans-serif;
   font-synthesis: none;
   font-weight: 400;
-  line-height: 1.8;
+  line-height: 1.85;
+  overflow: visible;
 }
 
 .emoji {
@@ -77,8 +85,10 @@ a {
 
 .ruby-fallback rt {
   color: #c2410c;
-  font-size: 0.42em;
+  font-size: 0.48em;
+  letter-spacing: 0.02em;
   user-select: none;
+  line-height: 1.1;
 }
 
 .mascot {

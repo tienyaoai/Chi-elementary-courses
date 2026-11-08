@@ -8,6 +8,7 @@ pub mod audio;
 pub mod bpmf;
 pub mod components;
 pub mod data;
+pub mod font;
 pub mod progress;
 pub mod random;
 pub mod score;

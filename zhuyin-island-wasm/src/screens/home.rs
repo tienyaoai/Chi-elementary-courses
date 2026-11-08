@@ -2,6 +2,7 @@ use crate::components::{BpmfText, GameButton, Mascot, SoundToggle};
 use crate::data::{collected_line, stamp_count, GameData};
 use crate::progress::Progress;
 use std::rc::Rc;
+use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 
 #[derive(Clone, PartialEq)]
@@ -30,6 +31,33 @@ const GAMES: [(&str, &str, &str, &str); 4] = [
 
 #[function_component(HomeScreen)]
 pub fn home_screen(props: &HomeScreenProps) -> Html {
+    let voice_missing = use_state(|| false);
+    {
+        let voice_missing = voice_missing.clone();
+        use_effect_with((), move |_| {
+            spawn_local(async move {
+                gloo_timers::future::TimeoutFuture::new(400).await;
+                if !crate::speech::synthesis_supported() {
+                    voice_missing.set(true);
+                    return;
+                }
+                for _ in 0..20 {
+                    match crate::speech::chinese_voice_ready() {
+                        Some(true) => return,
+                        Some(false) => {
+                            voice_missing.set(true);
+                            return;
+                        }
+                        None => {
+                            gloo_timers::future::TimeoutFuture::new(150).await;
+                        }
+                    }
+                }
+            });
+            || ()
+        });
+    }
+
     let ui = &props.game.ui;
     let star_sum: u8 = ["quiz", "order", "memory", "story"]
         .iter()
@@ -51,6 +79,10 @@ pub fn home_screen(props: &HomeScreenProps) -> Html {
 
             if !props.font_ok {
                 <p class="panel"><BpmfText text={ui.text("fontMissing")} game={props.game.clone()} font_ok={false} /></p>
+            }
+
+            if *voice_missing {
+                <p class="panel muted"><BpmfText text={ui.text("noVoice")} game={props.game.clone()} font_ok={props.font_ok} /></p>
             }
 
             if !props.progress.intro_seen {

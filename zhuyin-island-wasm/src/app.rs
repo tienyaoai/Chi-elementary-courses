@@ -1,4 +1,4 @@
-use crate::components::{BpmfText, Mascot};
+use crate::components::Mascot;
 use crate::data::{load_game_data, GameData};
 use crate::progress::Progress;
 use crate::screens::{
@@ -57,16 +57,10 @@ pub fn app() -> Html {
                 spawn_local({
                     let font_ok = font_ok.clone();
                     async move {
-                        gloo_timers::future::TimeoutFuture::new(100).await;
-                        let font_ready = font::wait_for_bpmf_font().await;
-                        font_ok.set(font_ready);
+                        gloo_timers::future::TimeoutFuture::new(50).await;
+                        font_ok.set(crate::font::bpmf_font_ready().await);
                     }
                 });
-                let font_ok_c = font_ok.clone();
-                gloo::timers::callback::Timeout::new(5000, move || {
-                    font_ok_c.set(true);
-                })
-                .forget();
             }
             || ()
         });
@@ -225,20 +219,3 @@ fn done_cb(view: &UseStateHandle<View>, mode: &'static str, nonce: u64) -> Callb
     })
 }
 
-mod font {
-    use wasm_bindgen_futures::JsFuture;
-    use web_sys::js_sys;
-
-    pub async fn wait_for_bpmf_font() -> bool {
-        let Some(window) = web_sys::window() else {
-            return false;
-        };
-        let document = window.document().unwrap();
-        let fonts = document.fonts();
-        let promise = fonts.load("16px BpmfHuninn");
-        if JsFuture::from(promise).await.is_ok() {
-            return fonts.check("16px BpmfHuninn").unwrap_or(false);
-        }
-        false
-    }
-}

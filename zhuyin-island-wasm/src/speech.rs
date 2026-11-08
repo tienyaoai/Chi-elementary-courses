@@ -1,11 +1,35 @@
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::JsCast;
 use wasm_bindgen_futures::JsFuture;
-use web_sys::{SpeechSynthesisUtterance, SpeechSynthesisVoice, Window};
+use web_sys::{SpeechSynthesisUtterance, SpeechSynthesisVoice};
 
 pub enum SpeakResult {
     Ok,
     Missing,
+}
+
+/// Whether the browser exposes speech synthesis at all.
+pub fn synthesis_supported() -> bool {
+    web_sys::window()
+        .and_then(|w| w.speech_synthesis().ok())
+        .is_some()
+}
+
+/// After voices are enumerated: `true` if a zh/zh-TW voice exists; `None` if voices not loaded yet.
+pub fn chinese_voice_ready() -> Option<bool> {
+    let win = web_sys::window()?;
+    let speech = win.speech_synthesis().ok()?;
+    let voices = speech.get_voices();
+    if voices.length() == 0 {
+        return None;
+    }
+    let has_zh = (0..voices.length())
+        .filter_map(|i| voice_at(&voices, i))
+        .any(|v| {
+            let lang = v.lang().to_lowercase();
+            lang.replace('_', "-").starts_with("zh-tw") || lang.starts_with("zh")
+        });
+    Some(has_zh)
 }
 
 fn voice_at(voices: &js_sys::Array, index: u32) -> Option<SpeechSynthesisVoice> {
