@@ -237,13 +237,22 @@ BUILDERS['一個背帶書包'] = build_d3ae1d
 
 def build_420170() -> tuple[list[str], Grid]:
     g = Grid()
-    # 一個藍色杯子
-    g.box(9, 8, 11, 15, 2)
-    g.fill_rect(10, 9, 9, 2, 3)
-    g.box(20, 10, 5, 9, 2)
-    g.fill_rect(22, 11, 1, 7, 0)
-    g.fill_rect(23, 12, 1, 5, 3)
-    return ['#3b82f6', '#60a5fa', '#93c5fd'], g
+    # 一個藍色杯子：寬口、杯身、C 形把手（與碗／方塊完全不同）
+    g.box(7, 7, 14, 3, 3)  # 杯口橫條
+    g.fill_rect(8, 10, 12, 12, 2)  # 杯身主色
+    g.fill_rect(8, 10, 12, 1, OUTLINE)
+    g.fill_rect(8, 21, 12, 1, OUTLINE)
+    g.fill_rect(7, 10, 1, 12, OUTLINE)
+    g.fill_rect(19, 10, 1, 12, OUTLINE)
+    g.fill_rect(9, 11, 10, 9, 3)  # 內部亮面
+  # 把手
+    g.fill_rect(20, 11, 5, 1, OUTLINE)
+    g.fill_rect(20, 19, 5, 1, OUTLINE)
+    g.fill_rect(20, 11, 1, 9, OUTLINE)
+    g.fill_rect(24, 12, 1, 7, OUTLINE)
+    g.fill_rect(21, 12, 3, 7, 2)
+    g.fill_rect(23, 13, 1, 5, 0)
+    return ["#2563eb", "#3b82f6", "#93c5fd"], g
 
 BUILDERS['一個藍色杯子'] = build_420170
 
