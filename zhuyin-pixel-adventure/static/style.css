@@ -220,6 +220,104 @@ body {
   width: 100%;
 }
 
+.island-map-shell {
+  width: 100%;
+}
+
+.island-viewport {
+  position: relative;
+  width: 100%;
+  height: min(58vh, 520px);
+  min-height: 320px;
+  overflow: hidden;
+  border: 4px solid var(--ink);
+  box-shadow: 6px 6px 0 #2c3e50;
+  background: #5ab0e8;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+
+@media (min-width: 900px) {
+  .island-viewport {
+    height: min(70vh, 680px);
+  }
+}
+
+.island-world {
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: transform;
+}
+
+.island-bg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+.island-landmark {
+  position: absolute;
+  height: auto;
+  max-height: min(32vh, 280px);
+  width: auto;
+  max-width: min(48vw, 260px);
+  transform: translate(-50%, -92%);
+  transform-origin: center bottom;
+  pointer-events: none;
+  user-select: none;
+}
+
+.island-player {
+  position: absolute;
+  max-height: 130px;
+  max-width: 120px;
+  transform-origin: center bottom;
+  pointer-events: none;
+  user-select: none;
+}
+
+.map-hint-large {
+  font-size: 1.12rem;
+  font-weight: 600;
+}
+
+.char-card-bust {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.55rem;
+  min-height: 11rem;
+}
+
+.char-bust-img {
+  width: 100%;
+  max-width: 118px;
+  height: auto;
+  max-height: 150px;
+  object-fit: contain;
+}
+
+.char-grid-12 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 520px) {
+  .char-grid-12 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 900px) {
+  .char-grid-12 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
 .pixel-canvas {
   display: block;
   width: 100%;

@@ -2,7 +2,8 @@ use crate::components::BpmfAside;
 use crate::grade1::Grade1Bank;
 use crate::progress::{reward_catalog, PixelProgress};
 use crate::sounds::{play_correct, play_reward, play_wrong};
-use crate::sprites::{color_index, find_character, pixel_grid, CHARACTERS, PIX_H, PIX_W};
+use crate::map_config::{self, bust_url, CharacterEntry};
+use crate::sprites::find_character;
 use std::rc::Rc;
 use wasm_bindgen::JsCast;
 use yew::prelude::*;
@@ -27,13 +28,13 @@ pub fn select_screen(props: &SelectScreenProps) -> Html {
         <section class="panel-pixel">
             <h1 class="pixel-title"><BpmfAside text={ "學習冒險島".to_string() } game={props.game.clone()} read=true /></h1>
             <p class="pixel-sub"><BpmfAside text={ "選一位冒險夥伴".to_string() } game={props.game.clone()} read=true /></p>
-            <div class="char-grid">
-                { for CHARACTERS.iter().map(|ch| html! {
-                    <CharCard key={ch.id} character_id={ch.id} game={props.game.clone()}
+            <div class="char-grid char-grid-12">
+                { for map_config::config().characters.iter().map(|ch| html! {
+                    <CharCard key={ch.id.clone()} entry={ch.clone()} game={props.game.clone()}
                         selected={props.progress.character_id == ch.id}
                         onclick={Callback::from({
                             let on_pick = props.on_pick.clone();
-                            let id = ch.id.to_string();
+                            let id = ch.id.clone();
                             move |_| on_pick.emit(id.clone())
                         })} />
                 })}
@@ -51,7 +52,7 @@ pub fn select_screen(props: &SelectScreenProps) -> Html {
 
 #[derive(Properties, PartialEq)]
 struct CharCardProps {
-    character_id: &'static str,
+    entry: CharacterEntry,
     game: Rc<GameData>,
     selected: bool,
     onclick: Callback<MouseEvent>,
@@ -59,56 +60,11 @@ struct CharCardProps {
 
 #[function_component(CharCard)]
 fn char_card(props: &CharCardProps) -> Html {
-    let canvas_ref = use_node_ref();
-    {
-        let canvas_ref = canvas_ref.clone();
-        let id = props.character_id.to_string();
-        use_effect_with(id.clone(), move |_| {
-            let id = id.as_str();
-            if let Some(canvas) = canvas_ref.cast::<web_sys::HtmlCanvasElement>() {
-                canvas.set_width(98);
-                canvas.set_height(128);
-                if let Some(ctx) = canvas
-                    .get_context("2d")
-                    .ok()
-                    .flatten()
-                    .and_then(|c| c.dyn_into::<web_sys::CanvasRenderingContext2d>().ok())
-                {
-                    ctx.set_fill_style(&"#8ed56a".into());
-                    ctx.fill_rect(0.0, 0.0, 98.0, 128.0);
-                    ctx.set_image_smoothing_enabled(false);
-                    let ch = find_character(id);
-                    let grid = pixel_grid(id, 0);
-                    let scale = 4.35_f32;
-                    let ox = (98.0 - PIX_W as f32 * scale) / 2.0;
-                    let oy = (128.0 - PIX_H as f32 * scale) / 2.0;
-                    for (i, &b) in grid.as_bytes().iter().enumerate() {
-                        if i >= PIX_W * PIX_H {
-                            break;
-                        }
-                        let digit = b.wrapping_sub(b'0');
-                        if digit == 0 {
-                            continue;
-                        }
-                        let x = i % PIX_W;
-                        let y = i / PIX_W;
-                        ctx.set_fill_style(&color_index(&ch.palette, digit).into());
-                        ctx.fill_rect(
-                            (ox + x as f32 * scale) as f64,
-                            (oy + y as f32 * scale) as f64,
-                            scale as f64,
-                            scale as f64,
-                        );
-                    }
-                }
-            }
-            || ()
-        });
-    }
+    let url = bust_url(&props.entry);
     html! {
-        <button type="button" class={classes!("char-card", props.selected.then_some("selected"))} onclick={props.onclick.clone()}>
-            <canvas ref={canvas_ref} class="char-preview" />
-                            <span class="pixel-name"><BpmfAside text={find_character(props.character_id).name.to_string()} game={props.game.clone()} read=true /></span>
+        <button type="button" class={classes!("char-card", "char-card-bust", props.selected.then_some("selected"))} onclick={props.onclick.clone()}>
+            <img class="char-bust-img" src={url} alt="" decoding="sync" />
+            <span class="pixel-name"><BpmfAside text={props.entry.short.clone()} game={props.game.clone()} read=true /></span>
         </button>
     }
 }
@@ -359,7 +315,7 @@ pub fn collection_screen(props: &CollectionProps) -> Html {
                     }
                 })}
             </ul>
-            <p class="pixel-sub"><BpmfAside text={ format!("角色：{}", find_character(&props.progress.character_id).name) } game={props.game.clone()} read=true /></p>
+            <p class="pixel-sub"><BpmfAside text={ format!("角色：{}", find_character(&props.progress.character_id).short) } game={props.game.clone()} read=true /></p>
             <button type="button" class="pixel-btn primary big-touch" onclick={props.on_back.clone()}>
                 <BpmfAside text={ "返回".to_string() } game={props.game.clone()} read=true />
             </button>

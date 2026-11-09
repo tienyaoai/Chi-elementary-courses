@@ -1,7 +1,10 @@
-use crate::components::{BpmfAside, PixelMap, TouchPad};
+use crate::components::{bind_walk_tick, BpmfAside, IslandMap, TouchPad};
 use crate::grade1::Grade1Bank;
 use crate::grade1_screens::{Grade1Hub, Grade1Unit};
 use crate::input::{bind_keyboard, Dir};
+use crate::island_walk;
+use crate::map_config;
+use crate::pixel_art_preload::preload_urls;
 use crate::progress::PixelProgress;
 use crate::screens::{CollectionScreen, SelectScreen};
 use crate::sounds::{play_reward, portal_blip};
@@ -9,7 +12,8 @@ use crate::world::{self, Portal};
 use std::rc::Rc;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
-use zhuyin_island_wasm::data::load_game_data;
+
+const STEP: f32 = 14.0;
 
 #[derive(Clone, PartialEq)]
 enum View {
@@ -43,16 +47,37 @@ pub fn app() -> Html {
     let px = use_state(|| progress.player_x);
     let py = use_state(|| progress.player_y);
     let frame = use_state(|| 0u8);
+    let facing_left = use_state(|| false);
+    let walk_target = use_state(|| None::<(f32, f32)>);
+    let orient = use_state(world::detect_orientation);
+    let masks_ready = use_state(|| false);
 
     {
         let game = game.clone();
+        let masks_ready = masks_ready.clone();
+        let orient = orient.clone();
         use_effect_with((), move |_| {
             let game = game.clone();
+            let masks_ready = masks_ready.clone();
             spawn_local(async move {
-                if let Ok(data) = load_game_data().await {
+                if let Ok(data) = zhuyin_island_wasm::data::load_game_data().await {
                     game.set(Some(data));
                 }
+                preload_urls(map_config::preload_urls());
+                crate::pixel_art_preload::preload_manifest_urls();
+                island_walk::init_masks().await;
+                masks_ready.set(true);
             });
+            let on_resize = {
+                let orient = orient.clone();
+                Closure::wrap(Box::new(move || {
+                    orient.set(world::detect_orientation());
+                }) as Box<dyn FnMut()>)
+            };
+            if let Some(w) = web_sys::window() {
+                let _ = w.add_event_listener_with_callback("resize", on_resize.as_ref().unchecked_ref());
+            }
+            on_resize.forget();
             || ()
         });
     }
@@ -61,32 +86,54 @@ pub fn app() -> Html {
         crate::sounds::prime_audio();
     });
 
-    let move_dir = {
+    let try_move = {
         let px = px.clone();
         let py = py.clone();
         let frame = frame.clone();
+        let facing_left = facing_left.clone();
         let progress = progress.clone();
+        let orient = orient.clone();
+        Callback::from(move |(nx, ny): (f32, f32)| {
+            if !island_walk::masks_ready() {
+                return;
+            }
+            let o = *orient;
+            let (nx, ny) = island_walk::clamp_to_map(nx, ny, o);
+            if !island_walk::can_stand(nx, ny, o) {
+                return;
+            }
+            if nx < *px {
+                facing_left.set(true);
+            } else if nx > *px {
+                facing_left.set(false);
+            }
+            px.set(nx);
+            py.set(ny);
+            frame.set(*frame + 1);
+            let mut p = (*progress).clone();
+            p.player_x = nx;
+            p.player_y = ny;
+            p.save();
+            progress.set(p);
+        })
+    };
+
+    let move_dir = {
+        let px = px.clone();
+        let py = py.clone();
+        let walk_target = walk_target.clone();
+        let try_move = try_move.clone();
         Callback::from(move |dir: Dir| {
+            walk_target.set(None);
             let (mut x, mut y) = (*px, *py);
             match dir {
-                Dir::Up => y -= 1.0,
-                Dir::Down => y += 1.0,
-                Dir::Left => x -= 1.0,
-                Dir::Right => x += 1.0,
+                Dir::Up => y -= STEP,
+                Dir::Down => y += STEP,
+                Dir::Left => x -= STEP,
+                Dir::Right => x += STEP,
                 Dir::None => return,
             }
-            let tx = x.round() as i32;
-            let ty = y.round() as i32;
-            if world::walkable(tx, ty) {
-                px.set(x);
-                py.set(y);
-                frame.set(*frame + 1);
-                let mut p = (*progress).clone();
-                p.player_x = x;
-                p.player_y = y;
-                p.save();
-                progress.set(p);
-            }
+            try_move.emit((x, y));
         })
     };
 
@@ -99,6 +146,42 @@ pub fn app() -> Html {
         }
     }));
 
+    let on_map_click = {
+        let walk_target = walk_target.clone();
+        Callback::from(move |pt: (f32, f32)| {
+            walk_target.set(Some(pt));
+        })
+    };
+
+    bind_walk_tick(Callback::from({
+        let px = px.clone();
+        let py = py.clone();
+        let walk_target = walk_target.clone();
+        let try_move = try_move.clone();
+        let orient = orient.clone();
+        move |_| {
+            let Some((tx, ty)) = *walk_target else {
+                return;
+            };
+            let (x, y) = (*px, *py);
+            let dx = tx - x;
+            let dy = ty - y;
+            let dist = (dx * dx + dy * dy).sqrt();
+            if dist < STEP {
+                walk_target.set(None);
+                try_move.emit((tx, ty));
+                return;
+            }
+            let nx = x + dx / dist * STEP;
+            let ny = y + dy / dist * STEP;
+            if !island_walk::can_stand(nx, ny, *orient) {
+                walk_target.set(None);
+                return;
+            }
+            try_move.emit((nx, ny));
+        }
+    }));
+
     let Some(game) = (*game).clone() else {
         return html! {
             <main class="shell-pixel shell-wide">
@@ -107,11 +190,7 @@ pub fn app() -> Html {
         };
     };
 
-    let portal_near = {
-        let tx = px.round() as i32;
-        let ty = py.round() as i32;
-        world::portal_at(tx, ty)
-    };
+    let portal_near = world::portal_near(*px, *py, *orient);
 
     let toggle_sound = {
         let progress = progress.clone();
@@ -137,7 +216,23 @@ pub fn app() -> Html {
                 })}
                 on_start={Callback::from({
                     let view = view.clone();
-                    move |_| view.set(View::Map)
+                    let orient = *orient;
+                    let px = px.clone();
+                    let py = py.clone();
+                    let progress = progress.clone();
+                    move |_| {
+                        let (sx, sy) = map_config::spawn(orient);
+                        let mut p = (*progress).clone();
+                        if p.player_x < 40.0 && p.player_y < 25.0 {
+                            p.player_x = sx;
+                            p.player_y = sy;
+                            p.save();
+                            progress.set(p.clone());
+                            px.set(sx);
+                            py.set(sy);
+                        }
+                        view.set(View::Map);
+                    }
                 })}
                 on_collection={Callback::from({
                     let view = view.clone();
@@ -147,33 +242,33 @@ pub fn app() -> Html {
         View::Map => html! {
             <div class="map-screen">
                 <div class="hud">
-                    <BpmfAside text={ "學習冒險島".to_string() } game={game.clone()} read=true />
+                    <span class="hud-title"><BpmfAside text={ "學習冒險島".to_string() } game={game.clone()} read=true /></span>
                     <button type="button" class="hud-btn" onclick={toggle_sound.clone()}>
                         <BpmfAside text={ if progress.sound { "關閉音效".to_string() } else { "開啟音效".to_string() } } game={game.clone()} read=true />
                     </button>
                 </div>
-                <PixelMap character_id={progress.character_id.clone()} px={*px} py={*py} frame={*frame}
-                    enter_label={ "進入國語小島".to_string() }
-                    portal_near={portal_near}
-                    on_enter={Callback::from({
-                        let view = view.clone();
-                        move |portal| {
-                            portal_blip();
-                            match portal {
-                                Portal::Chinese => view.set(View::ChineseHub),
-                                Portal::English => view.set(View::Locked { subject: "英語" }),
-                                Portal::Math => view.set(View::Locked { subject: "數學" }),
+                if !*masks_ready {
+                    <p class="loading-pixel">{"地圖載入中…"}</p>
+                } else {
+                    <IslandMap character_id={progress.character_id.clone()} px={*px} py={*py} frame={*frame}
+                        orient={*orient} facing_left={*facing_left}
+                        portal_near={portal_near}
+                        on_map_click={on_map_click.clone()}
+                        on_enter={Callback::from({
+                            let view = view.clone();
+                            move |portal| {
+                                portal_blip();
+                                match portal {
+                                    Portal::Chinese => view.set(View::ChineseHub),
+                                    Portal::English => view.set(View::Locked { subject: "英語" }),
+                                    Portal::Math => view.set(View::Locked { subject: "數學" }),
+                                    Portal::Treasure => view.set(View::Collection),
+                                }
                             }
-                        }
-                    })} />
+                        })} />
+                }
                 <TouchPad on_dir={move_dir.clone()} on_interact={prime_audio.clone()} />
                 <div class="map-actions">
-                    <button type="button" class="pixel-btn ghost" onclick={Callback::from({
-                        let view = view.clone();
-                        move |_| view.set(View::Collection)
-                    })}>
-                        <BpmfAside text={ "收藏".to_string() } game={game.clone()} read=true />
-                    </button>
                     <button type="button" class="pixel-btn ghost" onclick={Callback::from({
                         let view = view.clone();
                         move |_| view.set(View::Select)
@@ -280,3 +375,6 @@ pub fn app() -> Html {
         </main>
     }
 }
+
+use wasm_bindgen::closure::Closure;
+use wasm_bindgen::JsCast;

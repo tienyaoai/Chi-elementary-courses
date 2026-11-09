@@ -57,3 +57,10 @@ pub fn preload_urls(urls: impl IntoIterator<Item = String>) {
         preload_url(url, None);
     }
 }
+
+pub fn preload_manifest_urls() {
+    let root = "/pixel-art/";
+    for &(_, file) in crate::pixel_art_manifest::MANIFEST {
+        preload_url(format!("{root}{file}"), None);
+    }
+}

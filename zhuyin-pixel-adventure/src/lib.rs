@@ -15,8 +15,9 @@ pub mod pixel_art_preload;
 pub mod progress;
 pub mod sounds;
 pub mod sprites;
-pub mod tile_art;
 pub mod world;
+pub mod map_config;
+pub mod island_walk;
 
 pub use app::App;
 

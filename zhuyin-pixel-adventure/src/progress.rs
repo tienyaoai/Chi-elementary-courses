@@ -1,5 +1,6 @@
 use crate::grade1::{Grade1Bank, UnitPack};
-use crate::world;
+use crate::map_config::{self, MapOrientation};
+use crate::world::detect_orientation;
 use gloo::storage::{LocalStorage, Storage};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
@@ -37,11 +38,11 @@ fn default_true() -> bool {
 }
 
 fn default_spawn_x() -> f32 {
-    world::SPAWN_TILE.0 as f32
+    map_config::spawn(MapOrientation::Portrait).0
 }
 
 fn default_spawn_y() -> f32 {
-    world::SPAWN_TILE.1 as f32
+    map_config::spawn(MapOrientation::Portrait).1
 }
 
 impl Default for PixelProgress {
@@ -74,19 +75,25 @@ impl PixelProgress {
     }
 
     fn migrate_legacy(&mut self) {
-        if self.bank_migrated {
-            return;
-        }
-        if self.levels_cleared.remove("chinese-forest-1") {
-            self.units_cleared.insert("G1-S1-U1".to_string());
-            if self.levels_claimed.remove("chinese-forest-1") {
-                self.units_claimed.insert("G1-S1-U1".to_string());
-                if !self.rewards.iter().any(|r| r == "star-G1-S1-U1") {
-                    self.rewards.push("star-G1-S1-U1".to_string());
+        if !self.bank_migrated {
+            if self.levels_cleared.remove("chinese-forest-1") {
+                self.units_cleared.insert("G1-S1-U1".to_string());
+                if self.levels_claimed.remove("chinese-forest-1") {
+                    self.units_claimed.insert("G1-S1-U1".to_string());
+                    if !self.rewards.iter().any(|r| r == "star-G1-S1-U1") {
+                        self.rewards.push("star-G1-S1-U1".to_string());
+                    }
                 }
             }
+            self.bank_migrated = true;
         }
-        self.bank_migrated = true;
+        self.character_id = map_config::migrate_character_id(&self.character_id);
+        if self.player_x < 40.0 && self.player_y < 25.0 {
+            let orient = detect_orientation();
+            let (sx, sy) = map_config::spawn(orient);
+            self.player_x = sx;
+            self.player_y = sy;
+        }
     }
 
     pub fn unit_cleared(&self, level_id: &str) -> bool {
