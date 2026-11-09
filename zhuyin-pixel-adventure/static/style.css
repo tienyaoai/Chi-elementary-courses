@@ -232,7 +232,7 @@ body {
   overflow: hidden;
   border: 4px solid var(--ink);
   box-shadow: 6px 6px 0 #2c3e50;
-  background: #5ab0e8;
+  background: #2d6b2d;
   touch-action: manipulation;
   cursor: pointer;
 }
@@ -406,18 +406,46 @@ body {
 .hud {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 0.55rem;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 0.35rem;
   margin-bottom: 0.55rem;
 }
 
+.hud-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.hud-title .bpmf-aside-read {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.map-screen .hud-title .bpmf-aside-read .han {
+  font-size: 1.35rem;
+}
+
+.map-screen .hud-title .bpmf-aside-read .bpmf-col {
+  font-size: 0.92rem;
+}
+
 .hud-btn {
+  flex: 0 0 auto;
   border: 2px solid var(--ink);
   background: #fff;
-  padding: 0.5rem 0.65rem;
-  font-size: 0.95rem;
-  min-height: 2.75rem;
-  line-height: 1.3;
+  padding: 0.35rem 0.45rem;
+  font-size: 0.82rem;
+  min-height: 2.5rem;
+  max-width: 6.2rem;
+  line-height: 1.2;
+}
+
+.char-card .pixel-name .han-plain {
+  font-size: 1.65rem;
+  line-height: 1.22;
 }
 
 .map-actions {

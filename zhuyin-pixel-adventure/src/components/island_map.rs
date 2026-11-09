@@ -1,9 +1,11 @@
+use crate::components::BpmfAside;
 use crate::island_walk;
 use crate::map_config::{character_by_id, full_url, landmark_url, layer, MapOrientation};
 use crate::world::{self, Portal};
-use wasm_bindgen::JsCast;
+use std::rc::Rc;
 use web_sys::MouseEvent;
 use yew::prelude::*;
+use zhuyin_island_wasm::data::GameData;
 
 const PLAYER_H: f32 = 110.0;
 
@@ -18,6 +20,7 @@ pub struct IslandMapProps {
     pub portal_near: Option<Portal>,
     pub on_enter: Callback<Portal>,
     pub on_map_click: Callback<(f32, f32)>,
+    pub game: Rc<GameData>,
 }
 
 #[function_component(IslandMap)]
@@ -120,21 +123,23 @@ pub fn island_map(props: &IslandMapProps) -> Html {
             <div class="action-dock">
                 if let Some(portal) = props.portal_near {
                     <p class="map-hint map-hint-large">
-                        <span class="enter-label-text">{ world::GateLabel::name(portal) }</span>
+                        <BpmfAside text={ world::GateLabel::name(portal).to_string() } game={props.game.clone()} read=true />
                         { " · " }
-                        { world::GateLabel::hint(portal) }
+                        <BpmfAside text={ world::GateLabel::hint(portal).to_string() } game={props.game.clone()} read=true />
                     </p>
                 } else {
-                    <p class="map-hint muted">{"點地圖移動，或用方向鍵走到建築前"}</p>
+                    <p class="map-hint muted">
+                        <BpmfAside text={ "點地圖移動，或用方向鍵走到建築前".to_string() } game={props.game.clone()} read=true />
+                    </p>
                 }
                 if can_enter {
                     if let Some(portal) = enter_portal {
-                        <button type="button" class="enter-btn pixel-btn primary pulse"
+                        <button type="button" class="enter-btn pixel-btn primary pulse" data-testid="enter-portal"
                             onclick={Callback::from({
                                 let on_enter = props.on_enter.clone();
                                 move |_| on_enter.emit(portal)
                             })}>
-                            <span class="enter-label-text">{ world::GateLabel::enter_label(portal) }</span>
+                            <BpmfAside text={ world::GateLabel::enter_label(portal).to_string() } game={props.game.clone()} read=true />
                         </button>
                     }
                 }

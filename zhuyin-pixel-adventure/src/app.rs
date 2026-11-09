@@ -253,6 +253,7 @@ pub fn app() -> Html {
                     <IslandMap character_id={progress.character_id.clone()} px={*px} py={*py} frame={*frame}
                         orient={*orient} facing_left={*facing_left}
                         portal_near={portal_near}
+                        game={game.clone()}
                         on_map_click={on_map_click.clone()}
                         on_enter={Callback::from({
                             let view = view.clone();
@@ -299,7 +300,7 @@ pub fn app() -> Html {
         View::ChineseUnit { unit_id } => {
             if let Some(unit) = bank.unit_by_id(unit_id) {
                 html! {
-                    <Grade1Unit bank={(*bank).clone()} unit={unit.clone()} progress={(*progress).clone()}
+                    <Grade1Unit game={game.clone()} bank={(*bank).clone()} unit={unit.clone()} progress={(*progress).clone()}
                         on_exit={Callback::from({
                             let view = view.clone();
                             let progress = progress.clone();

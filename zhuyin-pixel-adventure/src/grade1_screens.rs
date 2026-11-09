@@ -34,7 +34,7 @@ pub fn grade1_hub(props: &Grade1HubProps) -> Html {
     html! {
         <section class="panel-pixel lesson-read hub-panel">
             <h1 class="pixel-title"><BpmfAside text={ "國語小島".to_string() } game={props.game.clone()} read=true /></h1>
-            <p class="pixel-sub">{"選一個小島，從簡單題開始挑戰。"}</p>
+            <p class="pixel-sub"><BpmfAside text={ "選一個小島，從簡單題開始挑戰。".to_string() } game={props.game.clone()} read=true /></p>
             <details class="teacher-note">
                 <summary class="teacher-note-summary">{"給家長／老師看的單元說明"}</summary>
                 <ul class="teacher-unit-list">
@@ -77,6 +77,7 @@ pub fn grade1_hub(props: &Grade1HubProps) -> Html {
 
 #[derive(Properties, PartialEq)]
 pub struct Grade1UnitProps {
+    pub game: Rc<GameData>,
     pub bank: Rc<Grade1Bank>,
     pub unit: UnitPack,
     pub progress: PixelProgress,
@@ -172,7 +173,7 @@ pub fn grade1_unit(props: &Grade1UnitProps) -> Html {
                 </div>
             }
             if !feedback.is_empty() {
-                <p class="feedback-soft">{ (*feedback).clone() }</p>
+                <p class="feedback-soft"><BpmfAside text={(*feedback).clone()} game={props.game.clone()} read=true /></p>
             }
             if let (Some(q), Some(ex)) = (question.as_ref(), (*explain).as_ref()) {
                 <div class="explain-box">
@@ -181,7 +182,7 @@ pub fn grade1_unit(props: &Grade1UnitProps) -> Html {
                 </div>
             }
             <button type="button" class="pixel-btn ghost lesson-btn" onclick={props.on_exit.clone()}>
-                {"回選關"}
+                <BpmfAside text={ "回選關".to_string() } game={props.game.clone()} read=true />
             </button>
         </section>
     }

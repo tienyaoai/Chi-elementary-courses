@@ -18,6 +18,7 @@ pub mod sprites;
 pub mod world;
 pub mod map_config;
 pub mod island_walk;
+pub mod kid_text;
 
 pub use app::App;
 
