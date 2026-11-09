@@ -1,8 +1,6 @@
-use crate::pixel_art_images::draw_scene;
-use wasm_bindgen::JsCast;
+use crate::pixel_art_manifest::image_url;
+use crate::pixel_art_preload::{is_loaded, preload_url};
 use yew::prelude::*;
-
-const SIZE: u32 = 128;
 
 #[derive(Properties, PartialEq)]
 pub struct PixelPictureProps {
@@ -15,37 +13,55 @@ pub struct PixelPictureProps {
 
 #[function_component(PixelPicture)]
 pub fn pixel_picture(props: &PixelPictureProps) -> Html {
-    let canvas_ref = use_node_ref();
+    let ready = use_state(|| false);
+    let url = image_url(&props.description);
     {
-        let canvas_ref = canvas_ref.clone();
+        let ready = ready.clone();
         let desc = props.description.clone();
-        use_effect_with(desc.clone(), move |_| {
-            if let Some(canvas) = canvas_ref.cast::<web_sys::HtmlCanvasElement>() {
-                canvas.set_width(SIZE);
-                canvas.set_height(SIZE);
-                if let Some(ctx) = canvas
-                    .get_context("2d")
-                    .ok()
-                    .flatten()
-                    .and_then(|c| c.dyn_into::<web_sys::CanvasRenderingContext2d>().ok())
-                {
-                    draw_scene(&ctx, &desc, SIZE as f64, SIZE as f64);
+        use_effect_with(desc, move |description| {
+            if let Some(url) = image_url(description) {
+                if is_loaded(&url) {
+                    ready.set(true);
+                } else {
+                    let ready = ready.clone();
+                    preload_url(
+                        url,
+                        Some(Callback::from(move |_| {
+                            ready.set(true);
+                        })),
+                    );
                 }
             }
             || ()
         });
     }
+    let Some(url) = url else {
+        return html! {};
+    };
     html! {
-        <canvas
-            ref={canvas_ref}
-            class={classes!(
-                "pixel-picture-canvas",
-                props.compact.then_some("compact"),
-                props.large.then_some("pixel-picture-large")
-            )}
-            width={SIZE.to_string()}
-            height={SIZE.to_string()}
-            aria-label={props.description.clone()}
-        />
+        <span class={classes!(
+            "pixel-picture-frame",
+            props.compact.then_some("compact"),
+            props.large.then_some("large"),
+            (*ready).then_some("loaded")
+        )}>
+            <span class="pixel-picture-placeholder" aria-hidden="true" />
+            <img
+                class={classes!(
+                    "pixel-picture-img",
+                    props.compact.then_some("compact"),
+                    props.large.then_some("pixel-picture-large"),
+                    (!*ready).then_some("pixel-picture-pending")
+                )}
+                src={url}
+                alt={props.description.clone()}
+                decoding="async"
+                loading="eager"
+                onload={Callback::from({
+                    let ready = ready.clone();
+                    move |_| ready.set(true)
+                })}
+            />
+        </span>
     }
 }

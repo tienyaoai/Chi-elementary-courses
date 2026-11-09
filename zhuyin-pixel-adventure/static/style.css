@@ -583,11 +583,43 @@ body {
   padding-bottom: 0.15rem;
 }
 
-.pixel-picture-canvas {
+.pixel-picture-frame {
   display: block;
-  width: min(100%, 18rem);
-  height: auto;
+  position: relative;
+  width: min(100%, 20rem);
   margin: 0.65rem auto 0.85rem;
+}
+
+.pixel-picture-frame.compact {
+  width: 100%;
+  margin: 0 auto 0.35rem;
+}
+
+.pixel-picture-frame.large {
+  width: 100%;
+  margin: 0;
+}
+
+.pixel-picture-placeholder {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #e8f4ff;
+  border: 4px solid var(--ink);
+  border-radius: 14px;
+  box-shadow: 4px 4px 0 #0002;
+}
+
+.pixel-picture-frame.loaded .pixel-picture-placeholder {
+  display: none;
+}
+
+.pixel-picture-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
   image-rendering: pixelated;
   border: 4px solid var(--ink);
   border-radius: 14px;
@@ -595,9 +627,21 @@ body {
   box-shadow: 4px 4px 0 #0002;
 }
 
-.pixel-picture-canvas.compact {
-  width: min(100%, 9.5rem);
-  margin: 0 auto 0.35rem;
+.pixel-picture-img.pixel-picture-pending {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+
+.pixel-picture-frame.loaded .pixel-picture-img {
+  position: static;
+  opacity: 1;
+}
+
+.pixel-picture-img.compact {
+  margin: 0 auto;
 }
 
 .opt-pixel-image {
@@ -616,16 +660,22 @@ body {
 .opt-pixel-image-only {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
-  min-height: 9.25rem;
-  padding: 0.65rem 0.5rem;
+  min-height: auto;
+  padding: 0.5rem;
+  width: 100%;
 }
 
-.pixel-picture-canvas.pixel-picture-large {
-  width: min(100%, 7.5rem);
+.opt-pixel-image-only .pixel-picture-frame,
+.opt-pixel-image-only .pixel-picture-frame.large {
+  width: 100%;
   max-width: none;
-  margin: 0 auto;
+}
+
+.pixel-picture-img.pixel-picture-large {
+  width: 100%;
+  max-width: none;
 }
 
 .opt-zhuyin-symbol {
@@ -669,8 +719,12 @@ body {
     font-size: 1.72rem;
   }
 
-  .pixel-picture-canvas {
+  .pixel-picture-frame {
     width: 100%;
     max-width: none;
+  }
+
+  .opt-pixel-image-only {
+    padding: 0.45rem;
   }
 }

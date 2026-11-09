@@ -1,5 +1,7 @@
 use crate::components::{BpmfAside, PixelPicture, PromptZhuyin};
 use crate::grade1::{Grade1Bank, Grade1Option, UnitPack};
+use crate::pixel_art_manifest::image_url;
+use crate::pixel_art_preload::preload_urls;
 use crate::progress::PixelProgress;
 use crate::sounds::{play_correct, play_wrong};
 use std::rc::Rc;
@@ -17,6 +19,18 @@ pub struct Grade1HubProps {
 
 #[function_component(Grade1Hub)]
 pub fn grade1_hub(props: &Grade1HubProps) -> Html {
+    {
+        let bank = props.bank.clone();
+        use_effect_with((), move |_| {
+            let urls: Vec<String> = bank
+                .all_image_descriptions()
+                .into_iter()
+                .filter_map(|d| image_url(&d))
+                .collect();
+            preload_urls(urls);
+            || ()
+        });
+    }
     html! {
         <section class="panel-pixel lesson-read hub-panel">
             <h1 class="pixel-title"><BpmfAside text={ "國語小島".to_string() } game={props.game.clone()} read=true /></h1>

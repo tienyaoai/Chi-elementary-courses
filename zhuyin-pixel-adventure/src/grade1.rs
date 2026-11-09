@@ -156,7 +156,8 @@ impl Grade1Bank {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::pixel_art_images::art_supported;
+    use crate::pixel_art_manifest::{art_supported, file_for};
+    use std::path::PathBuf;
 
     #[test]
     fn bank_has_110_questions_and_11_units() {
@@ -181,8 +182,14 @@ mod tests {
     #[test]
     fn all_images_have_pixel_art() {
         let bank = Grade1Bank::from_embedded();
+        let art_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("static/pixel-art");
         for desc in bank.all_image_descriptions() {
-            assert!(art_supported(&desc), "missing art for: {desc}");
+            assert!(art_supported(&desc), "missing manifest for: {desc}");
+            let Some(fname) = file_for(&desc) else {
+                continue;
+            };
+            let path = art_root.join(fname);
+            assert!(path.is_file(), "missing file: {}", path.display());
         }
     }
 
