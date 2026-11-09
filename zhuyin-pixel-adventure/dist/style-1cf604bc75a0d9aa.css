@@ -245,9 +245,7 @@ body {
 
 .island-world {
   position: absolute;
-  left: 0;
-  top: 0;
-  will-change: transform;
+  will-change: left, top;
 }
 
 .island-bg {

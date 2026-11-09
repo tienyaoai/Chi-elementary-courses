@@ -110,7 +110,7 @@ pub fn island_map(props: &IslandMapProps) -> Html {
         <div class="island-map-shell">
             <div ref={viewport_ref} class="island-viewport" onclick={on_click}>
                 <div class="island-world" style={format!(
-                    "width:{map_w}px;height:{map_h}px;transform:translate(calc(50% - {cam_x}px), calc(50% - {cam_y}px));"
+                    "width:{map_w}px;height:{map_h}px;left:calc(50% - {cam_x}px);top:calc(50% - {cam_y}px);"
                 )}>
                     <img class="island-bg" src={lay.src.clone()} width={map_w.to_string()} height={map_h.to_string()}
                         alt="" draggable="false" />
