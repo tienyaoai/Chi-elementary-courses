@@ -13,7 +13,8 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parents[1]
 JSON_PATH = ROOT / "static/data/grade1-chinese.json"
 OUT_RS = ROOT / "src/pixel_art_catalog.rs"
-GALLERY_PATH = Path("/opt/cursor/artifacts/learning-adventure-pixel-art-gallery-v6.png")
+GALLERY_PATH = Path("/opt/cursor/artifacts/learning-adventure-pixel-art-gallery-v7.png")
+MAX_PIXEL_GRID = 48
 UNCERTAIN_PATH = Path("/opt/cursor/artifacts/pixel-art-uncertain-v6.txt")
 
 OUTLINE = 1
@@ -21,17 +22,20 @@ OUTLINE_HEX = "#1a1a2e"
 
 
 class Grid:
-    __slots__ = ("data",)
+    __slots__ = ("n", "data")
 
-    def __init__(self) -> None:
-        self.data = [0] * 1024
+    def __init__(self, n: int = 32) -> None:
+        self.n = n
+        self.data = [0] * (n * n)
 
     def set(self, x: int, y: int, c: int) -> None:
-        if 0 <= x < 32 and 0 <= y < 32:
-            self.data[y * 32 + x] = c
+        if 0 <= x < self.n and 0 <= y < self.n:
+            self.data[y * self.n + x] = c
 
     def get(self, x: int, y: int) -> int:
-        return self.data[y * 32 + x]
+        if 0 <= x < self.n and 0 <= y < self.n:
+            return self.data[y * self.n + x]
+        return 0
 
     def fill_rect(self, x: int, y: int, w: int, h: int, c: int) -> None:
         for dy in range(h):
@@ -81,26 +85,26 @@ class Grid:
             self.fill_rect(x - 1, y - 1, 2, 2, c)
 
     def stamp_scaled(self, ox: int, oy: int, ink: "Grid", num: int, den: int) -> None:
-        for y in range(32):
-            for x in range(32):
+        for y in range(ink.n):
+            for x in range(ink.n):
                 c = ink.get(x, y)
                 if not c:
                     continue
                 nx, ny = ox + x * num // den, oy + y * num // den
-                if 0 <= nx < 32 and 0 <= ny < 32:
+                if 0 <= nx < self.n and 0 <= ny < self.n:
                     self.set(nx, ny, c)
 
     def coverage(self) -> float:
         nz = [i for i, v in enumerate(self.data) if v]
         if not nz:
             return 0.0
-        xs = [i % 32 for i in nz]
-        ys = [i // 32 for i in nz]
+        xs = [i % self.n for i in nz]
+        ys = [i // self.n for i in nz]
         area = (max(xs) - min(xs) + 1) * (max(ys) - min(ys) + 1)
         return len(nz) / area
 
     def bounds(self) -> tuple[int, int, int, int] | None:
-        nz = [(i % 32, i // 32) for i, v in enumerate(self.data) if v]
+        nz = [(i % self.n, i // self.n) for i, v in enumerate(self.data) if v]
         if not nz:
             return None
         xs = [p[0] for p in nz]
@@ -905,7 +909,7 @@ def validate(desc: str, pal: list[str], grid: Grid) -> list[str]:
         issues.append(f"{desc}: empty")
         return issues
     x0, y0, x1, y1 = b
-    if x0 < 2 or y0 < 2 or x1 > 29 or y1 > 29:
+    if x0 < 2 or y0 < 2 or x1 > grid.n - 3 or y1 > grid.n - 3:
         issues.append(f"{desc}: margin > 5px")
     if grid.coverage() < 0.45:
         issues.append(f"{desc}: subject too small")
@@ -919,16 +923,19 @@ def emit_rust(entries: list[tuple[str, list[str], Grid]]) -> None:
         "#[derive(Debug, Clone, Copy)]",
         "pub struct SceneArt {",
         "    pub desc: &'static str,",
+        "    pub size: u8,",
         "    pub palette: [&'static str; 3],",
-        "    pub pixels: [u8; 1024],",
+        "    pub pixels: [u8; 2304],",
         "}",
         "",
         "pub static CATALOG: &[SceneArt] = &[",
     ]
     for desc, pal, grid in entries:
-        px = ", ".join(str(b) for b in grid.data)
+        padded = grid.data + [0] * (MAX_PIXEL_GRID * MAX_PIXEL_GRID - len(grid.data))
+        px = ", ".join(str(b) for b in padded)
         lines.append("    SceneArt {")
         lines.append(f'        desc: "{desc}",')
+        lines.append(f"        size: {grid.n},")
         lines.append(f'        palette: ["{pal[0]}", "{pal[1]}", "{pal[2]}"],')
         lines.append(f"        pixels: [{px}],")
         lines.append("    },")
@@ -952,10 +959,9 @@ def color_at(pal: list[str], idx: int) -> str:
 
 
 def render_gallery(entries: list[tuple[str, list[str], Grid]]) -> None:
-    cols, scale = 8, 4
-    cell_img = 32 * scale
+    cols, max_img = 8, MAX_PIXEL_GRID * 4
     pad, label_h = 12, 46
-    cell_w, cell_h = cell_img + pad * 2, cell_img + label_h + pad
+    cell_w, cell_h = max_img + pad * 2, max_img + label_h + pad
     rows = (len(entries) + cols - 1) // cols
     img = Image.new("RGB", (cols * cell_w + pad, rows * cell_h + pad), "white")
     draw = ImageDraw.Draw(img)
@@ -967,13 +973,17 @@ def render_gallery(entries: list[tuple[str, list[str], Grid]]) -> None:
         col, row = i % cols, i // cols
         ox = pad + col * cell_w
         oy = pad + row * cell_h
-        for y in range(32):
-            for x in range(32):
+        scale = max(2, max_img // grid.n)
+        img_px = grid.n * scale
+        off_x = ox + pad + (max_img - img_px) // 2
+        off_y = oy + pad + (max_img - img_px) // 2
+        for y in range(grid.n):
+            for x in range(grid.n):
                 c = grid.get(x, y)
-                x0 = ox + pad + x * scale
-                y0 = oy + pad + y * scale
+                x0 = off_x + x * scale
+                y0 = off_y + y * scale
                 draw.rectangle([x0, y0, x0 + scale - 1, y0 + scale - 1], fill=color_at(pal, c))
-        ty = oy + pad + cell_img + 4
+        ty = oy + pad + max_img + 4
         for line in textwrap.wrap(desc, width=13):
             tw = draw.textlength(line, font=font)
             draw.text((ox + (cell_w - tw) / 2, ty), line, fill="#1a1a2e", font=font)
@@ -982,7 +992,61 @@ def render_gallery(entries: list[tuple[str, list[str], Grid]]) -> None:
     img.save(GALLERY_PATH)
 
 
+def render_compare(
+    pairs: list[tuple[str, tuple[list[str], Grid], tuple[list[str], Grid]]],
+    path: Path,
+) -> None:
+    from PIL import Image, ImageDraw, ImageFont
+
+    w_cell, h_cell, pad = 200, 200, 10
+    try:
+        font = ImageFont.truetype("/usr/share/fonts/truetype/wqy/wqy-microhei.ttc", 14)
+        font_s = ImageFont.truetype("/usr/share/fonts/truetype/wqy/wqy-microhei.ttc", 11)
+    except OSError:
+        font = font_s = ImageFont.load_default()
+    img_h = len(pairs) * (h_cell + pad) + pad
+    img = Image.new("RGB", (w_cell * 2 + pad * 3, img_h + 20), "white")
+    draw = ImageDraw.Draw(img)
+    draw.text((pad, 2), "左：v6　右：v7", fill="#1a1a2e", font=font_s)
+    y0 = 18
+    for desc, (opal, og), (npal, ng) in pairs:
+        for col, (pal, grid) in enumerate([(opal, og), (npal, ng)]):
+            scale = min(180 // grid.n, 6)
+            ox = pad + col * (w_cell + pad)
+            oy = y0
+            draw.rectangle([ox, oy, ox + w_cell, oy + h_cell], outline="#cbd5e1")
+            off = (w_cell - grid.n * scale) // 2
+            for y in range(grid.n):
+                for x in range(grid.n):
+                    c = grid.get(x, y)
+                    px = ox + off + x * scale
+                    py = oy + 8 + off + y * scale
+                    draw.rectangle(
+                        [px, py, px + scale - 1, py + scale - 1],
+                        fill=color_at(pal, c),
+                    )
+        ty = y0 + h_cell + 2
+        for line in textwrap.wrap(desc, width=24):
+            draw.text((pad, ty), line, fill="#1a1a2e", font=font_s)
+            ty += 14
+        y0 += h_cell + pad + 20
+    path.parent.mkdir(parents=True, exist_ok=True)
+    img.save(path)
+
+
 def main() -> None:
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).parent))
+    from sprite_v7_redraws import V7_BUILDERS
+
+    compare_pairs: list[tuple[str, tuple[list[str], Grid], tuple[list[str], Grid]]] = []
+    for desc, nb in V7_BUILDERS.items():
+        opal, og = BUILDERS[desc]()
+        og_copy = Grid(og.n)
+        og_copy.data = og.data.copy()
+        compare_pairs.append((desc, (opal, og_copy), nb()))
+    BUILDERS.update(V7_BUILDERS)
     descs = load_descriptions()
     if len(descs) != 67:
         raise SystemExit(f"expected 67 descriptions, got {len(descs)}")
@@ -994,9 +1058,12 @@ def main() -> None:
         entries.append((desc, pal, grid))
     emit_rust(entries)
     render_gallery(entries)
+    compare_path = Path("/opt/cursor/artifacts/learning-adventure-pixel-art-redraw-compare-v7.png")
+    render_compare(compare_pairs, compare_path)
     UNCERTAIN_PATH.write_text("\n".join(uncertain) + ("\n" if uncertain else ""), encoding="utf-8")
     print(f"Sprites: {len(entries)} -> {OUT_RS}")
     print(f"Gallery: {GALLERY_PATH}")
+    print(f"Compare: {compare_path}")
     print(f"Uncertain lines: {len(uncertain)}")
 
 

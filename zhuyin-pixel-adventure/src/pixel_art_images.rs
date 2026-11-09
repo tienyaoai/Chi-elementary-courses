@@ -4,8 +4,6 @@ use crate::pixel_art_catalog::{lookup, SceneArt};
 
 const OUTLINE: &str = "#1a1a2e";
 const BG: &str = "#e8f4ff";
-const GRID: i32 = 32;
-const SCALE: f64 = 4.0;
 
 pub fn art_supported(desc: &str) -> bool {
     lookup(desc).is_some()
@@ -22,12 +20,14 @@ pub fn draw_scene(ctx: &CanvasRenderingContext2d, desc: &str, w: f64, h: f64) {
 }
 
 fn draw_catalog_sprite(ctx: &CanvasRenderingContext2d, art: &SceneArt, w: f64, h: f64) {
-    let sprite = GRID as f64 * SCALE;
+    let n = art.size as i32;
+    let scale = (w.min(h)) / n as f64;
+    let sprite = n as f64 * scale;
     let ox = (w - sprite) / 2.0;
     let oy = (h - sprite) / 2.0;
-    for y in 0..GRID {
-        for x in 0..GRID {
-            let idx = (y * GRID + x) as usize;
+    for y in 0..n {
+        for x in 0..n {
+            let idx = (y * n + x) as usize;
             let v = art.pixels[idx];
             if v == 0 {
                 continue;
@@ -35,10 +35,10 @@ fn draw_catalog_sprite(ctx: &CanvasRenderingContext2d, art: &SceneArt, w: f64, h
             let color = pixel_color(art, v);
             ctx.set_fill_style(&color.into());
             ctx.fill_rect(
-                ox + x as f64 * SCALE,
-                oy + y as f64 * SCALE,
-                SCALE,
-                SCALE,
+                ox + x as f64 * scale,
+                oy + y as f64 * scale,
+                scale,
+                scale,
             );
         }
     }

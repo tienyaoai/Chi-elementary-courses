@@ -146,14 +146,14 @@ pub fn grade1_unit(props: &Grade1UnitProps) -> Html {
                 <p class="lesson-step">{ format!("{} / {}", *q_idx + 1, props.unit.questions.len()) }</p>
                 <p class="qtype-pill">{ qtype_label(&q.qtype) }</p>
                 if let Some(img) = &q.image {
-                    if !img.trim().is_empty() {
+                    if should_show_prompt_picture(q, img) {
                         <PixelPicture description={img.clone()} />
                     }
                 }
                 <p class="lesson-ask">
                     <PromptZhuyin glyphs={q.prompt_zhuyin.clone()} read=true />
                 </p>
-                <div class="opt-grid">
+                <div class={classes!("opt-grid", options_are_pictorial(q).then_some("opt-grid-image-match"))}>
                     { for q.options.iter().map(|opt| render_option(opt, &wrong, pick.clone())) }
                 </div>
             }
@@ -171,6 +171,23 @@ pub fn grade1_unit(props: &Grade1UnitProps) -> Html {
             </button>
         </section>
     }
+}
+
+fn options_are_pictorial(q: &crate::grade1::Grade1Question) -> bool {
+    q.options.iter().all(|o| {
+        o.image
+            .as_ref()
+            .map(|s| !s.trim().is_empty())
+            .unwrap_or(false)
+    })
+}
+
+fn should_show_prompt_picture(q: &crate::grade1::Grade1Question, img: &str) -> bool {
+    let t = img.trim();
+    if t.is_empty() || t == "三張選項圖" {
+        return false;
+    }
+    !options_are_pictorial(q)
 }
 
 fn qtype_label(t: &str) -> &'static str {
@@ -192,14 +209,23 @@ fn render_option(
 ) -> Html {
     let disabled = wrong.contains(&opt.id);
     let id = opt.id.clone();
+    let pictorial = opt
+        .image
+        .as_ref()
+        .map(|s| !s.trim().is_empty())
+        .unwrap_or(false);
     html! {
-        <button type="button" class={classes!("opt-pixel", opt.image.is_some().then_some("opt-pixel-image"))}
+        <button type="button" class={classes!("opt-pixel", pictorial.then_some("opt-pixel-image-only"))}
             disabled={disabled}
             onclick={Callback::from(move |_| pick.emit(id.clone()))}>
             if let Some(img) = &opt.image {
-                <PixelPicture description={img.clone()} compact=true />
+                if !img.trim().is_empty() {
+                    <PixelPicture description={img.clone()} large=true />
+                }
             }
-            { render_option_label(opt) }
+            if !pictorial {
+                { render_option_label(opt) }
+            }
         </button>
     }
 }

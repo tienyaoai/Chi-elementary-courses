@@ -9,6 +9,8 @@ pub struct PixelPictureProps {
     pub description: String,
     #[prop_or(false)]
     pub compact: bool,
+    #[prop_or(false)]
+    pub large: bool,
 }
 
 #[function_component(PixelPicture)]
@@ -36,7 +38,11 @@ pub fn pixel_picture(props: &PixelPictureProps) -> Html {
     html! {
         <canvas
             ref={canvas_ref}
-            class={classes!("pixel-picture-canvas", props.compact.then_some("compact"))}
+            class={classes!(
+                "pixel-picture-canvas",
+                props.compact.then_some("compact"),
+                props.large.then_some("pixel-picture-large")
+            )}
             width={SIZE.to_string()}
             height={SIZE.to_string()}
             aria-label={props.description.clone()}
