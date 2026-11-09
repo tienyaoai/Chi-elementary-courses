@@ -1,3 +1,4 @@
+use crate::grade1::{Grade1Bank, UnitPack};
 use crate::world;
 use gloo::storage::{LocalStorage, Storage};
 use serde::{Deserialize, Serialize};
@@ -17,6 +18,14 @@ pub struct PixelProgress {
     pub levels_cleared: HashSet<String>,
     #[serde(default)]
     pub levels_claimed: HashSet<String>,
+    #[serde(default)]
+    pub questions_passed: HashSet<String>,
+    #[serde(default)]
+    pub units_cleared: HashSet<String>,
+    #[serde(default)]
+    pub units_claimed: HashSet<String>,
+    #[serde(default)]
+    pub bank_migrated: bool,
     #[serde(default)]
     pub player_x: f32,
     #[serde(default = "default_spawn_x")]
@@ -43,6 +52,10 @@ impl Default for PixelProgress {
             rewards: Vec::new(),
             levels_cleared: HashSet::new(),
             levels_claimed: HashSet::new(),
+            questions_passed: HashSet::new(),
+            units_cleared: HashSet::new(),
+            units_claimed: HashSet::new(),
+            bank_migrated: false,
             player_x: default_spawn_x(),
             player_y: default_spawn_y(),
         }
@@ -51,11 +64,59 @@ impl Default for PixelProgress {
 
 impl PixelProgress {
     pub fn load() -> Self {
-        LocalStorage::get(STORAGE_KEY).unwrap_or_default()
+        let mut p: Self = LocalStorage::get(STORAGE_KEY).unwrap_or_default();
+        p.migrate_legacy();
+        p
     }
 
     pub fn save(&self) {
         let _ = LocalStorage::set(STORAGE_KEY, self);
+    }
+
+    fn migrate_legacy(&mut self) {
+        if self.bank_migrated {
+            return;
+        }
+        if self.levels_cleared.remove("chinese-forest-1") {
+            self.units_cleared.insert("G1-S1-U1".to_string());
+            if self.levels_claimed.remove("chinese-forest-1") {
+                self.units_claimed.insert("G1-S1-U1".to_string());
+                if !self.rewards.iter().any(|r| r == "star-G1-S1-U1") {
+                    self.rewards.push("star-G1-S1-U1".to_string());
+                }
+            }
+        }
+        self.bank_migrated = true;
+    }
+
+    pub fn unit_cleared(&self, level_id: &str) -> bool {
+        self.units_cleared.contains(level_id)
+    }
+
+    pub fn unit_answered_count(&self, unit: &UnitPack) -> usize {
+        unit
+            .questions
+            .iter()
+            .filter(|q| self.questions_passed.contains(&q.id))
+            .count()
+    }
+
+    pub fn mark_unit_cleared(&mut self, level_id: &str) {
+        self.units_cleared.insert(level_id.to_string());
+    }
+
+    pub fn claim_unit(&mut self, level_id: &str, reward_id: &str) -> bool {
+        if !self.units_cleared.contains(level_id) {
+            return false;
+        }
+        if self.units_claimed.contains(level_id) {
+            return false;
+        }
+        self.units_claimed.insert(level_id.to_string());
+        if !self.rewards.contains(&reward_id.to_string()) {
+            self.rewards.push(reward_id.to_string());
+        }
+        true
     }
 
     pub fn claim_level(&mut self, level_id: &str, reward_id: &str) -> bool {
@@ -73,8 +134,27 @@ impl PixelProgress {
     }
 }
 
-pub const REWARDS: &[(&str, &str, &str)] = &[
-    ("star-zh-1", "國語星星", "通過注音森林第一關"),
-    ("ribbon-zh", "注音緞帶", "完成看圖與排句挑戰"),
-    ("cap-pixel", "像素小帽", "冒險者紀念配件"),
-];
+pub fn reward_catalog(bank: &Grade1Bank) -> Vec<(String, String, String)> {
+    let mut list: Vec<(String, String, String)> = bank
+        .units
+        .iter()
+        .map(|u| {
+            (
+                u.key.reward_id(),
+                format!("{}小星星", u.title),
+                u.teacher_subtitle.clone(),
+            )
+        })
+        .collect();
+    list.push((
+        "ribbon-zh".to_string(),
+        "注音緞帶".to_string(),
+        "舊版冒險獎勵".to_string(),
+    ));
+    list.push((
+        "cap-pixel".to_string(),
+        "像素小帽".to_string(),
+        "冒險者紀念配件".to_string(),
+    ));
+    list
+}

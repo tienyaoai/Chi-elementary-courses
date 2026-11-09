@@ -1,5 +1,6 @@
 use crate::components::BpmfAside;
-use crate::progress::{PixelProgress, REWARDS};
+use crate::grade1::Grade1Bank;
+use crate::progress::{reward_catalog, PixelProgress};
 use crate::sounds::{play_correct, play_reward, play_wrong};
 use crate::sprites::{color_index, find_character, pixel_grid, CHARACTERS, PIX_H, PIX_W};
 use std::rc::Rc;
@@ -334,6 +335,7 @@ fn picture_block(p: &zhuyin_island_wasm::data::Picture) -> Html {
 #[derive(Properties, PartialEq)]
 pub struct CollectionProps {
     pub game: Rc<GameData>,
+    pub bank: Rc<Grade1Bank>,
     pub progress: PixelProgress,
     pub on_back: Callback<MouseEvent>,
 }
@@ -344,7 +346,7 @@ pub fn collection_screen(props: &CollectionProps) -> Html {
         <section class="panel-pixel collection-panel">
             <h2 class="pixel-title"><BpmfAside text={ "我的收藏".to_string() } game={props.game.clone()} read=true /></h2>
             <ul class="reward-list">
-                { for REWARDS.iter().map(|(id, name, desc)| {
+                { for reward_catalog(&props.bank).iter().map(|(id, name, desc)| {
                     let owned = props.progress.rewards.iter().any(|r| r == id);
                     html! {
                         <li class={classes!("reward-item", owned.then_some("owned"))}>
