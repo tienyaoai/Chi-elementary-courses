@@ -10,6 +10,7 @@ pub mod grade1_screens;
 pub mod bpmf_aside;
 pub mod components;
 pub mod input;
+pub mod pixel_art_catalog;
 pub mod pixel_art_images;
 pub mod progress;
 pub mod sounds;
