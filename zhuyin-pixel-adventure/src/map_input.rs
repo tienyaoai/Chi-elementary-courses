@@ -3,6 +3,7 @@
 use crate::input::Dir;
 use crate::island_walk;
 use crate::map_config::MapOrientation;
+use crate::world::{self, Portal};
 use gloo::events::EventListener;
 use gloo::timers::callback::Interval;
 use std::cell::RefCell;
@@ -131,20 +132,48 @@ impl MapInputController {
     }
 }
 
+pub type DoorEnterProbe = Rc<dyn Fn() -> Option<Portal>>;
+
 /// Window listeners + RAF mover (call teardown on unmount).
 pub fn install_continuous_map_move(
     controller: MapInputController,
     on_clear_path: Callback<()>,
     on_prime: Callback<()>,
     on_frame: Callback<((f32, f32), (f32, f32))>, // world delta, velocity px/s
+    door_enter: Option<(DoorEnterProbe, Callback<Portal>)>,
 ) -> Box<dyn FnOnce()> {
     let held = controller.held.clone();
     let win = web_sys::window().unwrap();
             let held_kd = held.clone();
             let on_clear = on_clear_path.clone();
             let on_prime = on_prime.clone();
+            let on_clear_path_kd = on_clear_path.clone();
             let keydown = EventListener::new(&win, "keydown", move |e| {
                 let e = e.dyn_ref::<KeyboardEvent>().unwrap();
+                if e.is_composing() {
+                    return;
+                }
+                let key = e.key();
+                let enter_key =
+                    key == "Enter" || key == " " || e.code().as_str() == "NumpadEnter";
+                if enter_key {
+                    if let Some((ref probe, ref on_enter)) = door_enter {
+                        if e.repeat() {
+                            e.prevent_default();
+                            return;
+                        }
+                        if let Some(portal) = probe() {
+                            if world::door_enterable(portal) {
+                                e.prevent_default();
+                                e.stop_propagation();
+                                held_kd.borrow_mut().clear();
+                                on_clear_path_kd.emit(());
+                                on_enter.emit(portal);
+                                return;
+                            }
+                        }
+                    }
+                }
                 let dir = dir_from_key_event(e);
                 if arrow_like(dir) {
                     e.prevent_default();

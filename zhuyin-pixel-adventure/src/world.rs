@@ -78,6 +78,31 @@ pub fn portal_at_door(px: f32, py: f32, orient: MapOrientation) -> Option<Portal
     best.map(|(p, _)| p)
 }
 
+fn portal_landmark_key(p: Portal) -> &'static str {
+    match p {
+        Portal::Chinese => "chinese",
+        Portal::English => "english",
+        Portal::Math => "math",
+        Portal::Treasure => "treasure",
+    }
+}
+
+/// Door zone used for Enter/Space and bubble (slightly forgiving at the exact tile).
+pub fn portal_for_door_enter(px: f32, py: f32, orient: MapOrientation) -> Option<Portal> {
+    if let Some(p) = portal_at_door(px, py, orient) {
+        return Some(p);
+    }
+    let near = portal_near(px, py, orient)?;
+    let key = portal_landmark_key(near);
+    let (dx, dy) = map_config::door_point(key, orient);
+    let r = map_config::door_radius_for(key) * 1.22;
+    let d2 = (px - dx).powi(2) + (py - dy).powi(2);
+    if d2 <= r * r {
+        return Some(near);
+    }
+    None
+}
+
 pub fn door_enterable(portal: Portal) -> bool {
     matches!(portal, Portal::Chinese | Portal::Treasure)
 }

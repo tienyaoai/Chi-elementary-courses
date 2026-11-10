@@ -7,7 +7,7 @@ import path from "node:path";
 import { canStand, loadWalkMask } from "./walk_mask.mjs";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.15";
+const TAG = process.env.E2E_TAG || "v9.16";
 const FIT_MIN = 700;
 const DIST = path.resolve("..", "dist");
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
@@ -77,6 +77,23 @@ async function waitMapReady(page) {
     { timeout: 120000 }
   );
   await sleep(800);
+}
+
+async function ensureMapScreen(page) {
+  if (await page.locator(".island-viewport").count()) {
+    return;
+  }
+  if (await page.locator(".unit-island-card").count()) {
+    await exitToMap(page);
+  }
+  if (await page.locator(".island-viewport").count()) {
+    return;
+  }
+  await page.goto(BASE, { waitUntil: "load", timeout: 120000 });
+  if (await page.locator(".char-grid-12 .char-card").count()) {
+    await pickCharacter(page);
+  }
+  await waitMapReady(page);
 }
 
 async function assertViewportMode(page, mode, errors) {
@@ -520,6 +537,175 @@ const DOOR_COORDS = {
   },
 };
 
+async function setPlayerPos(page, x, y) {
+  await page.evaluate(({ px, py }) => {
+    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
+    p.player_x = px;
+    p.player_y = py;
+    localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
+  }, { px: x, py: y });
+  await page.reload({ waitUntil: "networkidle" });
+  await waitMapReady(page);
+  await sleep(450);
+}
+
+async function walkWithArrowsUntil(page, keys, predicate, maxMs = 16000) {
+  for (const k of keys) {
+    await page.keyboard.down(k);
+  }
+  const deadline = Date.now() + maxMs;
+  let ok = false;
+  try {
+    while (Date.now() < deadline) {
+      if (await predicate()) {
+        ok = true;
+        break;
+      }
+      await sleep(55);
+    }
+  } finally {
+    for (const k of keys) {
+      await page.keyboard.up(k);
+    }
+    await sleep(300);
+  }
+  return ok;
+}
+
+async function waitHubOrLesson(page) {
+  await page.waitForSelector(".unit-island-card, .opt-grid, .grade1-hub", { timeout: 20000 });
+}
+
+async function exitToMap(page) {
+  const btn = page.locator("button.pixel-btn", { hasText: "回地圖" });
+  if (await btn.count()) {
+    await btn.first().click();
+    await page.waitForSelector(".island-viewport", { timeout: 30000 });
+    await sleep(400);
+    return;
+  }
+  if (await page.locator(".grade1-hub, .opt-grid").count()) {
+    await page.keyboard.press("Escape");
+    await sleep(200);
+  }
+}
+
+async function assertBubbleReturns(page, errors, label, awayKeys, backKeys, pos) {
+  if (pos) {
+    const [ax, ay, bx, by] = pos;
+    await setPlayerPos(page, ax, ay);
+    if (await page.locator('[data-testid="door-bubble"]').count()) {
+      errors.push(`${label}: bubble still visible when away from door`);
+      return;
+    }
+    await setPlayerPos(page, bx, by);
+    if (!(await page.locator('[data-testid="door-bubble"]').count())) {
+      errors.push(`${label}: door bubble did not return after stepping back to door`);
+    }
+    return;
+  }
+  const had = await walkWithArrowsUntil(page, awayKeys, async () => {
+    const c = await page.locator('[data-testid="door-bubble"]').count();
+    return c === 0;
+  });
+  if (!had) {
+    errors.push(`${label}: could not walk away from door bubble`);
+    return;
+  }
+  const back = await walkWithArrowsUntil(page, backKeys, async () => {
+    const c = await page.locator('[data-testid="door-bubble"]').count();
+    return c > 0;
+  });
+  if (!back) {
+    errors.push(`${label}: door bubble did not return after walking back`);
+  }
+}
+
+async function runKeyboardDoorEnterSuite(page, shots, errors) {
+  const scenarios = [
+    {
+      id: "390",
+      w: 390,
+      h: 844,
+      start: [280, 1200],
+      keys: ["ArrowRight"],
+      away: ["ArrowLeft"],
+      back: ["ArrowRight"],
+      buttonClick: true,
+      bubbleReturnPos: [260, 1200, 350, 1200],
+    },
+    {
+      id: "1280",
+      w: 1280,
+      h: 800,
+      start: [760, 1068],
+      keys: ["ArrowRight"],
+      away: ["ArrowLeft"],
+      back: ["ArrowRight"],
+      shotLesson: true,
+      bubbleReturnPos: [700, 1068, 834, 1076],
+    },
+    {
+      id: "1920",
+      w: 1920,
+      h: 1072,
+      start: [760, 1068],
+      keys: ["ArrowRight"],
+      away: ["ArrowLeft"],
+      back: ["ArrowRight"],
+      bubbleReturnPos: [700, 1068, 834, 1076],
+    },
+  ];
+
+  for (const sc of scenarios) {
+    await ensureMapScreen(page);
+    await page.setViewportSize({ width: sc.w, height: sc.h });
+    await ensureMapScreen(page);
+    await setPlayerPos(page, sc.start[0], sc.start[1]);
+    const reached = await walkWithArrowsUntil(page, sc.keys, async () => {
+      return (await page.locator('[data-testid="door-bubble"]').count()) > 0;
+    });
+    if (!reached) {
+      errors.push(`keyboard walk: no door bubble at ${sc.id}`);
+      continue;
+    }
+  await page.keyboard.up("ArrowRight");
+  await page.keyboard.up("ArrowLeft");
+  await page.keyboard.up("ArrowUp");
+  await page.keyboard.up("ArrowDown");
+  await sleep(200);
+  await page.keyboard.press("Enter");
+    try {
+      await waitHubOrLesson(page);
+    } catch {
+      errors.push(`keyboard Enter did not open hub at ${sc.id}`);
+      continue;
+    }
+    if (sc.shotLesson) {
+      const shot = `${ART}/${TAG}-lesson-enter-keyboard-1280.png`;
+      await page.screenshot({ path: shot, fullPage: true });
+      shots.push(shot);
+    }
+    await exitToMap(page);
+    await assertBubbleReturns(page, errors, sc.id, sc.away, sc.back, sc.bubbleReturnPos);
+    if (sc.buttonClick) {
+      const btn = page.locator('[data-testid="door-enter-btn"]');
+      if (!(await btn.isVisible())) {
+        await walkWithArrowsUntil(page, sc.back, async () => {
+          return (await page.locator('[data-testid="door-bubble"]').count()) > 0;
+        });
+      }
+      try {
+        await btn.click({ timeout: 10000 });
+        await waitHubOrLesson(page);
+      } catch {
+        errors.push(`door button click did not open hub at ${sc.id}`);
+      }
+      await exitToMap(page);
+    }
+  }
+}
+
 async function teleportDoor(page, x, y) {
   await page.evaluate(({ px, py }) => {
     const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
@@ -807,7 +993,7 @@ async function assertFitPlayerMoves(page, errors, shots = []) {
   }
   const pad = page.locator('[data-testid="fit-pad-right"]');
   await pad.dispatchEvent("pointerdown");
-  await sleep(1200);
+  await sleep(1600);
   await pad.dispatchEvent("pointerup");
   await sleep(300);
   const progPad = await page.evaluate(() => JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1")).player_x);
@@ -891,6 +1077,15 @@ async function runFitDesktopSuite(page, shots, errors) {
     await assertMapViewportHeightStable(page, mapHeightBaseline, errors, "door");
     await assertFitLabels(page, errors);
     await assertDoorBubbleLayout(page, errors, "school-bubble-1280-final");
+    await page.keyboard.press("Enter");
+    try {
+      await waitHubOrLesson(page);
+    } catch {
+      errors.push("fit Enter at school door did not open hub");
+      return;
+    }
+    await exitToMap(page);
+    await teleportSchoolDoor(page, true);
     await page.locator('[data-testid="fit-pad-right"]').dispatchEvent("pointerdown");
     await sleep(400);
     await page.locator('[data-testid="fit-pad-right"]').dispatchEvent("pointerup");
@@ -900,8 +1095,9 @@ async function runFitDesktopSuite(page, shots, errors) {
     } else {
       errors.push("pad near school auto-entered (forbidden)");
     }
+    await teleportSchoolDoor(page, true);
     await page.keyboard.press("Enter");
-    await sleep(800);
+    await waitHubOrLesson(page);
     await page.locator(".unit-island-card").first().click();
     await page.waitForSelector(".opt-grid button", { timeout: 30000 });
     const quizShot = `${ART}/${TAG}-quiz-1280-fit.png`;
@@ -955,6 +1151,18 @@ async function main() {
 
     await pickCharacter(page);
     await waitMapReady(page);
+    try {
+      await runKeyboardDoorEnterSuite(page, shots, errors);
+    } catch (e) {
+      errors.push(`keyboard door enter suite: ${e?.message ?? e}`);
+    }
+    await page.goto(BASE, { waitUntil: "load", timeout: 120000 });
+    if (await page.locator(".char-grid-12 .char-card").count()) {
+      await pickCharacter(page);
+    }
+    await page.setViewportSize({ width: 390, height: 844 });
+    await ensureMapScreen(page);
+    await setPlayerPos(page, 322, 1194);
     const initial390 = `${ART}/${TAG}-initial-390x844.png`;
     await page.screenshot({ path: initial390, fullPage: true });
     shots.push(initial390);

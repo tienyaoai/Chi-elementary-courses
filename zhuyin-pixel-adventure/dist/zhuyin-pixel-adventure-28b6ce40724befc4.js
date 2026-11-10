@@ -277,6 +277,10 @@ function __wbg_get_imports() {
             const ret = result;
             return ret;
         },
+        __wbg_isComposing_b1e74068b6ff27e2: function(arg0) {
+            const ret = arg0.isComposing;
+            return ret;
+        },
         __wbg_is_2248ff2b575d60c7: function(arg0, arg1) {
             const ret = Object.is(arg0, arg1);
             return ret;
@@ -412,6 +416,10 @@ function __wbg_get_imports() {
         __wbg_removeEventListener_cc543e35b1012a27: function() { return handleError(function (arg0, arg1, arg2, arg3, arg4) {
             arg0.removeEventListener(getStringFromWasm0(arg1, arg2), arg3, arg4 !== 0);
         }, arguments); },
+        __wbg_repeat_f86675ce521ba584: function(arg0) {
+            const ret = arg0.repeat;
+            return ret;
+        },
         __wbg_resolve_dbf78ab4942478b0: function(arg0) {
             const ret = Promise.resolve(arg0);
             return ret;

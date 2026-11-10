@@ -120,8 +120,8 @@ pub fn door_point(portal: &str, orient: MapOrientation) -> (f32, f32) {
 
 pub fn door_radius_for(portal: &str) -> f32 {
     match portal {
-        "treasure" => 52.0,
-        _ => 58.0,
+        "treasure" => 56.0,
+        _ => 72.0,
     }
 }
 

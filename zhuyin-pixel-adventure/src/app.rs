@@ -3,7 +3,9 @@ use crate::grade1::Grade1Bank;
 use crate::grade1_screens::{Grade1Hub, Grade1Unit};
 use crate::input::Dir;
 use crate::island_walk;
-use crate::map_input::{install_continuous_map_move, slide_move, MapInputController, WALK_SPEED_PX_PER_SEC};
+use crate::map_input::{
+    install_continuous_map_move, slide_move, DoorEnterProbe, MapInputController, WALK_SPEED_PX_PER_SEC,
+};
 use crate::walk_sprite::{facing_from_velocity, WalkFacing};
 use crate::map_config::{self, MapOrientation};
 use crate::pixel_art_preload::preload_urls;
@@ -119,6 +121,8 @@ pub fn app() -> Html {
     let walk_phase = use_state(|| 0.0_f32);
     let map_input = use_state(MapInputController::new);
     let pos_live = use_memo((), |_| Rc::new(RefCell::new((0.0_f32, 0.0_f32))));
+    let door_enter_latch = use_memo((), |_| Rc::new(RefCell::new(None::<world::Portal>)));
+    let orient_live = use_memo((), |_| Rc::new(Cell::new(MapOrientation::Portrait)));
     let orient = use_state(world::detect_orientation);
     let map_fit = use_state(world::is_map_fit);
     let masks_ready = use_state(|| false);
@@ -239,6 +243,20 @@ pub fn app() -> Html {
     };
 
     *pos_live.borrow_mut() = (*px, *py);
+    orient_live.set(*orient);
+    *door_enter_latch.borrow_mut() = world::portal_for_door_enter(*px, *py, *orient);
+    let on_map_enter = Callback::from({
+        let view = view.clone();
+        move |portal: Portal| {
+            portal_blip();
+            match portal {
+                Portal::Chinese => view.set(View::ChineseHub),
+                Portal::English => view.set(View::Locked { subject: "英語" }),
+                Portal::Math => view.set(View::Locked { subject: "數學" }),
+                Portal::Treasure => view.set(View::Collection),
+            }
+        }
+    });
     {
         let walk_active = walk_active.clone();
         let walk_sheet_frame = walk_sheet_frame.clone();
@@ -277,11 +295,30 @@ pub fn app() -> Html {
         let prime_audio = prime_audio.clone();
         let map_move_gate = map_move_gate.clone();
         let pos_live = pos_live.clone();
+        let door_enter_latch = door_enter_latch.clone();
+        let orient_live = orient_live.clone();
+        let map_move_gate = map_move_gate.clone();
+        let on_map_enter = on_map_enter.clone();
         use_effect_with((), move |_| {
             let on_clear = Callback::from({
                 let walk_target = walk_target.clone();
                 move |_| walk_target.set(None)
             });
+            let door_enter_probe: DoorEnterProbe = {
+                let pos_live = pos_live.clone();
+                let orient_live = orient_live.clone();
+                let map_move_gate = map_move_gate.clone();
+                let door_enter_latch = door_enter_latch.clone();
+                Rc::new(move || {
+                    if !map_move_gate.get() {
+                        return None;
+                    }
+                    let (lx, ly) = *pos_live.borrow();
+                    world::portal_for_door_enter(lx, ly, orient_live.get())
+                        .or(*door_enter_latch.borrow())
+                        .filter(|p| world::door_enterable(*p))
+                })
+            };
             let on_frame = Callback::from({
                 let try_move = try_move.clone();
                 let orient = orient.clone();
@@ -320,8 +357,9 @@ pub fn app() -> Html {
                 }
             });
             let ctrl = (*map_input).clone();
+            let door_lane = Some((door_enter_probe, on_map_enter));
             let teardown =
-                install_continuous_map_move(ctrl, on_clear, prime_audio.clone(), on_frame);
+                install_continuous_map_move(ctrl, on_clear, prime_audio.clone(), on_frame, door_lane);
             move || teardown()
         });
     }
@@ -391,62 +429,6 @@ pub fn app() -> Html {
         }
     }));
 
-    let on_map_enter = Callback::from({
-        let view = view.clone();
-        move |portal: Portal| {
-            portal_blip();
-            match portal {
-                Portal::Chinese => view.set(View::ChineseHub),
-                Portal::English => view.set(View::Locked { subject: "英語" }),
-                Portal::Math => view.set(View::Locked { subject: "數學" }),
-                Portal::Treasure => view.set(View::Collection),
-            }
-        }
-    });
-
-    {
-        let view = view.clone();
-        let px = px.clone();
-        let py = py.clone();
-        let orient = orient.clone();
-        let on_map_enter = on_map_enter.clone();
-        use_effect_with(map_active, move |active| {
-            let listener = if *active {
-                let win = web_sys::window().unwrap();
-                let view_w = view.clone();
-                let px = px.clone();
-                let py = py.clone();
-                let orient = orient.clone();
-                let on_map_enter = on_map_enter.clone();
-                Some(gloo::events::EventListener::new(&win, "keydown", move |e| {
-                    let e = e.dyn_ref::<KeyboardEvent>().unwrap();
-                    if !matches!(*view_w, View::Map) {
-                        return;
-                    }
-                    let k = e.key();
-                    if k != "Enter" && k != " " {
-                        return;
-                    }
-                    let Some(portal) = world::portal_at_door(*px, *py, *orient) else {
-                        return;
-                    };
-                    if !world::door_enterable(portal) {
-                        return;
-                    }
-                    e.prevent_default();
-                    on_map_enter.emit(portal);
-                }))
-            } else {
-                None
-            };
-            move || {
-                if let Some(l) = listener {
-                    drop(l);
-                }
-            }
-        });
-    }
-
     let Some(game) = (*game).clone() else {
         return html! {
             <main class="shell-pixel shell-wide">
@@ -456,7 +438,7 @@ pub fn app() -> Html {
     };
 
     let portal_near = world::portal_near(*px, *py, *orient);
-    let door_portal = world::portal_at_door(*px, *py, *orient);
+    let door_portal = world::portal_for_door_enter(*px, *py, *orient);
 
     let toggle_sound = {
         let progress = progress.clone();

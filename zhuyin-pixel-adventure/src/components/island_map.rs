@@ -489,7 +489,11 @@ fn render_action_dock(
     return html! {
         <div class="action-dock action-dock-fit-below" data-testid="fit-hint-strip">
             <div class="fit-dock-row">
-                if let Some(portal) = portal_near {
+                if let Some(portal) = door_portal.filter(|p| world::door_enterable(*p)) {
+                    <p class="map-hint map-hint-fit fit-dock-name" data-testid="map-hint-door">
+                        <BpmfAside text={ "按 Enter 進入".to_string() } game={game.clone()} read=true />
+                    </p>
+                } else if let Some(portal) = portal_near {
                     <p class="map-hint map-hint-fit fit-dock-name">
                         <BpmfAside text={ world::GateLabel::hint(portal).to_string() } game={game.clone()} read=true />
                     </p>
