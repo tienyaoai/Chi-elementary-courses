@@ -6,7 +6,7 @@ import { PNG } from "pngjs";
 import path from "node:path";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.9";
+const TAG = process.env.E2E_TAG || "v9.10";
 const FIT_MIN = 700;
 const DIST = path.resolve("..", "dist");
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
@@ -308,6 +308,111 @@ async function playerScreenPos(page) {
   });
 }
 
+async function assertDoorBubbleLayout(page, errors, label) {
+  const r = await page.evaluate(() => {
+    const vp = document.querySelector(".island-viewport");
+    const bubble = document.querySelector('[data-testid="door-bubble"]');
+    const hero = document.querySelector('[data-testid="island-player"]');
+    const school = document.querySelector('[data-testid="landmark-chinese"]');
+    if (!vp || !bubble) {
+      return { ok: false, reason: "missing" };
+    }
+    const vr = vp.getBoundingClientRect();
+    const br = bubble.getBoundingClientRect();
+    const tol = 2;
+    const inside =
+      br.left >= vr.left - tol &&
+      br.top >= vr.top - tol &&
+      br.right <= vr.right + tol &&
+      br.bottom <= vr.bottom + tol;
+    const overlap = (a, b) =>
+      !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
+    let heroOk = true;
+    let schoolOk = true;
+    if (hero) {
+      heroOk = !overlap(br, hero.getBoundingClientRect());
+    }
+    if (school) {
+      schoolOk = !overlap(br, school.getBoundingClientRect());
+    }
+    return {
+      ok: inside && heroOk && schoolOk,
+      inside,
+      heroOk,
+      schoolOk,
+      bw: br.width,
+      bh: br.height,
+    };
+  });
+  if (!r.ok) {
+    errors.push(
+      `${label}: bubble layout inside=${r.inside} heroClear=${r.heroOk} schoolClear=${r.schoolOk} ${r.bw ? `${r.bw.toFixed(0)}x${r.bh.toFixed(0)}` : r.reason}`
+    );
+  }
+  if (r.bh && r.bh > 112) {
+    errors.push(`${label}: bubble height ${r.bh.toFixed(0)}px > 112`);
+  }
+  if (r.bw && r.bw > 230) {
+    errors.push(`${label}: bubble width ${r.bw.toFixed(0)}px > 230`);
+  }
+}
+
+async function teleportSchoolDoor(page, landscape) {
+  await page.evaluate((land) => {
+    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
+    if (land) {
+      p.player_x = 830;
+      p.player_y = 896;
+    } else {
+      p.player_x = 340;
+      p.player_y = 1200;
+    }
+    localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
+  }, landscape);
+  await page.reload({ waitUntil: "networkidle" });
+  await waitMapReady(page);
+  await sleep(600);
+}
+
+async function assertDoorBubbleAtSchoolSizes(page, shots, errors) {
+  const sizes = [
+    [1280, 800],
+    [1024, 768],
+    [1920, 1080],
+    [390, 844],
+  ];
+  for (const [w, h] of sizes) {
+    await page.setViewportSize({ width: w, height: h });
+    await teleportSchoolDoor(page, w >= 700);
+    const bubble = page.locator('[data-testid="door-bubble"]');
+    if (!(await bubble.count())) {
+      errors.push(`door bubble missing at school ${w}x${h}`);
+      continue;
+    }
+    await assertDoorBubbleLayout(page, errors, `school-bubble-${w}x${h}`);
+    if (w === 1280 && h === 800) {
+      const shot = `${ART}/${TAG}-viewport-1280x800-school-door-bubble.png`;
+      await page.screenshot({ path: shot });
+      shots.push(shot);
+    }
+    if (w === 390 && h === 844) {
+      const shot = `${ART}/${TAG}-viewport-390x844-school-door-bubble.png`;
+      await page.screenshot({ path: shot, fullPage: true });
+      shots.push(shot);
+      const dock = await page.locator(".action-dock").boundingBox();
+      if (dock && dock.height > 88) {
+        errors.push(`390 dock hint strip too tall: ${dock.height.toFixed(0)}px`);
+      }
+      const shortHint = await page.locator('[data-testid="map-hint-door"]').count();
+      if (!shortHint) {
+        errors.push("390 missing short door hint at school");
+      }
+    }
+  }
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await teleportSchoolDoor(page, true);
+}
+
 async function assertFitPlayerMoves(page, errors, shots = []) {
   const prog0 = await page.evaluate(() => {
     const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
@@ -426,28 +531,15 @@ async function runFitDesktopSuite(page, shots, errors) {
     }
   }
 
-  await page.setViewportSize({ width: 1280, height: 800 });
-  await page.reload({ waitUntil: "networkidle" });
-  await waitMapReady(page);
-  await page.evaluate(() => {
-    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
-    p.player_x = 830;
-    p.player_y = 896;
-    localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
-  });
-  await page.reload({ waitUntil: "networkidle" });
-  await waitMapReady(page);
-  await sleep(800);
+  await assertDoorBubbleAtSchoolSizes(page, shots, errors);
   const bubble = page.locator('[data-testid="door-bubble"]');
   if (!(await bubble.count())) {
-    errors.push("door bubble missing at school door (1280)");
+    errors.push("door bubble missing at school door after size matrix (1280)");
   } else {
     await assertHintStripZhuyinInViewport(page, errors);
     await assertMapViewportHeightStable(page, mapHeightBaseline, errors, "door");
     await assertFitLabels(page, errors);
-    const bubbleShot = `${ART}/${TAG}-viewport-1280x800-school-door-bubble.png`;
-    await page.screenshot({ path: bubbleShot });
-    shots.push(bubbleShot);
+    await assertDoorBubbleLayout(page, errors, "school-bubble-1280-final");
     await page.locator('[data-testid="fit-pad-right"]').dispatchEvent("pointerdown");
     await sleep(400);
     await page.locator('[data-testid="fit-pad-right"]').dispatchEvent("pointerup");
@@ -545,11 +637,11 @@ async function main() {
       }
     }
 
-    // Near school door (portrait map door point)
+    // Near school door (portrait map door point, south of facade for bubble clearance)
     await page.evaluate(() => {
       const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
-      p.player_x = 350;
-      p.player_y = 1156;
+      p.player_x = 340;
+      p.player_y = 1200;
       localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
     });
     await page.reload({ waitUntil: "networkidle" });
