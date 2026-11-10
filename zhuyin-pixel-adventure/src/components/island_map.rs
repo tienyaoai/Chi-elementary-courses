@@ -625,7 +625,7 @@ pub fn island_map(props: &IslandMapProps) -> Html {
     let map_w = lay.width;
     let map_h = lay.height;
     let walk_bob = walk_bob_px(props.walk_phase, props.velocity);
-    let moving = props.walk_active || props.velocity.0.hypot(props.velocity.1) > 10.0;
+    let moving = props.walk_active || props.velocity.0.hypot(props.velocity.1) > 0.5;
     let walk_row = props.walk_facing.min(3);
     let walk_col = if moving {
         props.walk_sheet_frame.min(3)
@@ -774,6 +774,8 @@ pub fn island_map(props: &IslandMapProps) -> Html {
                         )}>
                         { dust }
                         <div class="island-player island-player-walk" data-testid="island-player"
+                            data-world-x={format!("{:.3}", props.px)}
+                            data-world-y={format!("{:.3}", props.py)}
                             data-walk-col={walk_col.to_string()}
                             data-walk-row={walk_row.to_string()}
                             style={player_style}
@@ -813,6 +815,8 @@ pub fn island_map(props: &IslandMapProps) -> Html {
                             style={format!("left:0;bottom:100%;margin-bottom:4px;")}></span>
                     }
                     <div class="island-player-screen" data-testid="island-player"
+                        data-world-x={format!("{:.3}", props.px)}
+                        data-world-y={format!("{:.3}", props.py)}
                         data-walk-col={walk_col.to_string()}
                         data-walk-row={walk_row.to_string()}
                         style={player_style}

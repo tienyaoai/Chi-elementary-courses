@@ -1277,6 +1277,211 @@ async function sampleHeroSprite(page) {
   });
 }
 
+async function heroWalkCol(page) {
+  return page.evaluate(
+    () => document.querySelector('[data-testid="island-player"]')?.getAttribute("data-walk-col") ?? null
+  );
+}
+
+async function waitHeroMotionSettle(page, maxMs = 700) {
+  const deadline = Date.now() + maxMs;
+  let last = await heroWorldX(page);
+  while (Date.now() < deadline) {
+    await sleep(45);
+    const x = await heroWorldX(page);
+    if (Number.isFinite(x) && Math.abs(x - last) < 0.08) {
+      return true;
+    }
+    last = x;
+  }
+  return false;
+}
+
+async function heroWorldX(page) {
+  return page.evaluate(() => {
+    const el = document.querySelector('[data-testid="island-player"]');
+    const attr = el?.getAttribute("data-world-x");
+    if (attr != null && attr !== "") return parseFloat(attr);
+    const raw = localStorage.getItem("zhuzhu-pixel-adventure-v1");
+    if (!raw) return NaN;
+    return JSON.parse(raw).player_x;
+  });
+}
+
+/** Hold on-screen ▶ (or fit-pad-right): smooth dt walk + leg frames; touch or mouse. */
+async function assertPadHoldSmooth(page, padTestId, errors, label, { touch = false } = {}) {
+  const pad = page.locator(`[data-testid="${padTestId}"]`);
+  if (!(await pad.count())) {
+    errors.push(`${label}: missing pad ${padTestId}`);
+    return;
+  }
+  const xs = [];
+  const cols = [];
+  const snap = async () => {
+    xs.push(await heroWorldX(page));
+    cols.push(await heroWalkCol(page));
+  };
+  await snap();
+  const holdMs = 1500;
+  const stepMs = 100;
+  const fit = padTestId.startsWith("fit-");
+  const box = await pad.boundingBox();
+  if (!box) {
+    errors.push(`${label}: pad bounding box missing`);
+    return;
+  }
+  const cx = box.x + box.width / 2;
+  const cy = box.y + box.height / 2;
+  if (fit) {
+    await page.mouse.move(cx, cy);
+    await page.mouse.down();
+  } else {
+    await pad.dispatchEvent("pointerdown");
+  }
+  for (let t = 0; t < holdMs; t += stepMs) {
+    await sleep(stepMs);
+    await snap();
+  }
+  if (fit) await page.mouse.up();
+  else await pad.dispatchEvent("pointerup");
+  let idleOk = false;
+  try {
+    await page.waitForFunction(
+      () => document.querySelector('[data-testid="island-player"]')?.getAttribute("data-walk-col") === "0",
+      { timeout: 500 }
+    );
+    idleOk = true;
+  } catch {
+    /* fall through */
+  }
+  if (!idleOk) {
+    const idleCol = await heroWalkCol(page);
+    if (idleCol !== "0") {
+      errors.push(`${label}: after release expected idle walk col 0, got ${idleCol}`);
+    }
+  }
+  if (!(await waitHeroMotionSettle(page))) {
+    errors.push(`${label}: hero did not settle within 700ms after pad release`);
+  }
+  const xStop = await heroWorldX(page);
+  await sleep(80);
+  const xAfter = await heroWorldX(page);
+
+  const deltas = [];
+  for (let i = 1; i < xs.length; i++) {
+    deltas.push(xs[i] - xs[i - 1]);
+    if (!(xs[i] > xs[i - 1]) && i < xs.length - 2) {
+      errors.push(`${label}: player_x not strictly increasing at ${i}: ${xs[i - 1]} -> ${xs[i]}`);
+    }
+  }
+  const moved = deltas.filter((d) => d > 0.02);
+  if (moved.length < 8) {
+    errors.push(`${label}: too few walk samples (${moved.length}) during 1.5s hold`);
+  }
+  if (moved.length >= 3) {
+    const sorted = [...moved].sort((a, b) => a - b);
+    const median = sorted[Math.floor(sorted.length / 2)];
+    for (let i = 0; i < deltas.length; i++) {
+      if (deltas[i] > 0.02 && deltas[i] > median * 2 + 1.5) {
+        errors.push(
+          `${label}: step gap ${deltas[i].toFixed(2)} > 2× median ${median.toFixed(2)} at sample ${i}`
+        );
+      }
+    }
+  }
+  let frameChanges = 0;
+  for (let i = 1; i < cols.length; i++) {
+    if (cols[i] != null && cols[i - 1] != null && cols[i] !== cols[i - 1]) frameChanges++;
+  }
+  if (frameChanges < 6) {
+    errors.push(`${label}: walk frame changes ${frameChanges} (need ≥6); cols=${cols.join(",")}`);
+  }
+  if (Math.abs(xAfter - xStop) > 3.0) {
+    errors.push(`${label}: still drifting after release Δx=${(xAfter - xStop).toFixed(2)}`);
+  }
+  if (xs[xs.length - 1] - xs[0] < 80) {
+    errors.push(`${label}: hold walk Δx ${(xs[xs.length - 1] - xs[0]).toFixed(0)} (need ≥80)`);
+  }
+}
+
+async function runPadHoldTouchMouseSuite(browser, errors) {
+  const cases = [
+    {
+      label: "iphone-390-touch",
+      w: 390,
+      h: 844,
+      hasTouch: true,
+      pad: "pad-right",
+      start: [80, 1275],
+    },
+    {
+      label: "ipad-1024-touch",
+      w: 1024,
+      h: 1366,
+      hasTouch: true,
+      pad: "fit-pad-right",
+      start: [150, 800],
+    },
+    {
+      label: "desktop-1280-mouse",
+      w: 1280,
+      h: 800,
+      hasTouch: false,
+      pad: "fit-pad-right",
+      start: [150, 800],
+    },
+  ];
+  for (const c of cases) {
+    const ctx = await browser.newContext({
+      viewport: { width: c.w, height: c.h },
+      hasTouch: c.hasTouch,
+    });
+    const page = await ctx.newPage();
+    try {
+      await page.goto(BASE, { waitUntil: "networkidle", timeout: 120000 });
+      await pickCharacter(page);
+      await setPlayerPos(page, c.start[0], c.start[1]);
+      await assertPadHoldSmooth(page, c.pad, errors, c.label, { touch: c.hasTouch });
+    } catch (e) {
+      errors.push(`${c.label}: ${e?.message ?? e}`);
+    } finally {
+      await ctx.close();
+    }
+  }
+}
+
+async function recordPadHold390Webm(browser, errors, shots) {
+  const ctx = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    hasTouch: true,
+    recordVideo: { dir: ART, size: { width: 390, height: 844 } },
+  });
+  const page = await ctx.newPage();
+  try {
+    await page.goto(BASE, { waitUntil: "networkidle", timeout: 120000 });
+    await pickCharacter(page);
+    await setPlayerPos(page, 80, 1275);
+    const pad = page.locator('[data-testid="pad-right"]');
+    await pad.dispatchEvent("pointerdown");
+    await sleep(1800);
+    await pad.dispatchEvent("pointerup");
+    await sleep(400);
+  } catch (e) {
+    errors.push(`pad-hold-390-webm: ${e?.message ?? e}`);
+  }
+  const vid = page.video();
+  await ctx.close();
+  if (!vid) {
+    errors.push("pad-hold-390-webm: no video handle");
+    return;
+  }
+  const src = await vid.path();
+  const dest = `${ART}/${TAG}-pad-hold-390.webm`;
+  const fs = await import("node:fs/promises");
+  await fs.rename(src, dest);
+  shots.push(dest);
+}
+
 async function assertWalkSpriteAnim(page, errors, shots) {
   await page.locator(".island-viewport").click({ position: { x: 200, y: 200 } });
   await sleep(100);
@@ -1432,9 +1637,13 @@ async function assertFitPlayerMoves(page, errors, shots = []) {
     await sleep(1500);
   }
   const pad = page.locator('[data-testid="fit-pad-right"]');
-  await pad.dispatchEvent("pointerdown");
-  await sleep(1600);
-  await pad.dispatchEvent("pointerup");
+  const pb = await pad.boundingBox();
+  if (pb) {
+    await page.mouse.move(pb.x + pb.width / 2, pb.y + pb.height / 2);
+    await page.mouse.down();
+    await sleep(1600);
+    await page.mouse.up();
+  }
   await sleep(300);
   const progPad = await page.evaluate(() => JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1")).player_x);
   if (progPad <= progDiag.x + 4) {
@@ -1567,9 +1776,15 @@ async function tapDir(page, label, times = 1) {
 async function playerPos(page) {
   return page.evaluate(() => {
     const raw = localStorage.getItem("zhuzhu-pixel-adventure-v1");
-    if (!raw) return null;
-    const p = JSON.parse(raw);
-    return { x: p.player_x, y: p.player_y, id: p.character_id };
+    const p = raw ? JSON.parse(raw) : {};
+    const el = document.querySelector('[data-testid="island-player"]');
+    const wx = el?.getAttribute("data-world-x");
+    const wy = el?.getAttribute("data-world-y");
+    return {
+      x: wx != null && wx !== "" ? parseFloat(wx) : p.player_x,
+      y: wy != null && wy !== "" ? parseFloat(wy) : p.player_y,
+      id: p.character_id,
+    };
   });
 }
 
@@ -1779,6 +1994,13 @@ async function main() {
       await runSchoolFacadeApproachSuite(page, shots, errors);
     } catch (e) {
       errors.push(`school facade approach suite: ${e?.message ?? e}`);
+    }
+
+    try {
+      await runPadHoldTouchMouseSuite(browser, errors);
+      await recordPadHold390Webm(browser, errors, shots);
+    } catch (e) {
+      errors.push(`pad hold suite: ${e?.message ?? e}`);
     }
 
     await recordWalkRightContact1920(browser, errors, shots);

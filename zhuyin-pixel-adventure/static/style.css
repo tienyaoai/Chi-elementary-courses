@@ -1004,6 +1004,18 @@ body {
   border: 3px solid var(--ink);
   background: #fff;
   box-shadow: 2px 2px 0 var(--ink);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.touch-pad,
+.touch-pad-fit {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .hud {

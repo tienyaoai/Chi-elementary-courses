@@ -5,7 +5,7 @@ use crate::island_walk;
 use crate::map_config::MapOrientation;
 use crate::world::{self, Portal};
 use gloo::events::EventListener;
-use gloo::timers::callback::Interval;
+use gloo::timers::callback::{Interval, Timeout};
 use std::cell::RefCell;
 use std::rc::Rc;
 use wasm_bindgen::prelude::*;
@@ -113,21 +113,69 @@ pub fn slide_move(x: f32, y: f32, dx: f32, dy: f32, orient: MapOrientation) -> O
     None
 }
 
+const PAD_TAP_WALK_MS: f64 = 150.0;
+
 #[derive(Clone)]
 pub struct MapInputController {
     pub held: Rc<RefCell<HeldKeys>>,
+    pad_pressed_at: Rc<RefCell<Option<(Dir, f64)>>>,
+    pad_release_timer: Rc<RefCell<Option<Timeout>>>,
 }
 
 impl MapInputController {
     pub fn new() -> Self {
         Self {
             held: Rc::new(RefCell::new(HeldKeys::default())),
+            pad_pressed_at: Rc::new(RefCell::new(None)),
+            pad_release_timer: Rc::new(RefCell::new(None)),
         }
     }
 
+    fn cancel_pad_release(&self) {
+        if let Some(t) = self.pad_release_timer.borrow_mut().take() {
+            drop(t);
+        }
+    }
+
+    pub fn clear_held(&self) {
+        self.cancel_pad_release();
+        self.pad_pressed_at.borrow_mut().take();
+        self.held.borrow_mut().clear();
+    }
+
+    /// On-screen pad — hold uses same `held` set as keyboard; quick tap still walks ~150ms.
     pub fn pad_hold(&self, dir: Dir, down: bool) {
-        if dir != Dir::None {
-            self.held.borrow_mut().set_dir(dir, down);
+        if dir == Dir::None {
+            return;
+        }
+        if down {
+            self.cancel_pad_release();
+            let now = js_sys::Date::now();
+            *self.pad_pressed_at.borrow_mut() = Some((dir, now));
+            self.held.borrow_mut().set_dir(dir, true);
+            return;
+        }
+        let held_ms = self
+            .pad_pressed_at
+            .borrow()
+            .and_then(|(d, t)| (d == dir).then_some(js_sys::Date::now() - t))
+            .unwrap_or(0.0);
+        self.pad_pressed_at.borrow_mut().take();
+        if held_ms >= PAD_TAP_WALK_MS - 8.0 {
+            self.cancel_pad_release();
+            self.held.borrow_mut().set_dir(dir, false);
+            return;
+        }
+        let remain = (PAD_TAP_WALK_MS - held_ms).max(0.0);
+        if remain > 24.0 {
+            let held = self.held.clone();
+            let dir = dir;
+            *self.pad_release_timer.borrow_mut() = Some(Timeout::new(remain as u32, move || {
+                held.borrow_mut().set_dir(dir, false);
+            }));
+        } else {
+            self.cancel_pad_release();
+            self.held.borrow_mut().set_dir(dir, false);
         }
     }
 }
@@ -139,10 +187,15 @@ pub fn install_continuous_map_move(
     controller: MapInputController,
     on_clear_path: Callback<()>,
     on_prime: Callback<()>,
-    on_frame: Callback<((f32, f32), (f32, f32))>, // world delta, velocity px/s
+    on_frame: Callback<((f32, f32), (f32, f32), f32)>, // world delta, velocity px/s, dt sec
     door_enter: Option<(DoorEnterProbe, Callback<Portal>)>,
 ) -> Box<dyn FnOnce()> {
     let held = controller.held.clone();
+    let ctrl_blur = controller.clone();
+    let ctrl_vis = controller.clone();
+    let ctrl_focus = controller.clone();
+    let ctrl_teardown = controller.clone();
+    let ctrl_enter = controller.clone();
     let win = web_sys::window().unwrap();
             let held_kd = held.clone();
             let on_clear = on_clear_path.clone();
@@ -166,7 +219,7 @@ pub fn install_continuous_map_move(
                             if world::door_enterable(portal) {
                                 e.prevent_default();
                                 e.stop_propagation();
-                                held_kd.borrow_mut().clear();
+                                ctrl_enter.clear_held();
                                 on_clear_path_kd.emit(());
                                 on_enter.emit(portal);
                                 return;
@@ -194,13 +247,14 @@ pub fn install_continuous_map_move(
                 }
             });
 
-            let clear_held = held.clone();
             let blur = EventListener::new(&win, "blur", move |_| {
-                clear_held.borrow_mut().clear();
+                ctrl_blur.clear_held();
             });
-            let clear_vis = held.clone();
             let vis = EventListener::new(&win, "visibilitychange", move |_| {
-                clear_vis.borrow_mut().clear();
+                ctrl_vis.clear_held();
+            });
+            let focus_out = EventListener::new(&win, "focusout", move |_| {
+                ctrl_focus.clear_held();
             });
 
     let last_ms = Rc::new(RefCell::new(None::<f64>));
@@ -221,7 +275,7 @@ pub fn install_continuous_map_move(
             let (ax, ay) = keys.axis_unit();
             let vx = ax * WALK_SPEED_PX_PER_SEC;
             let vy = ay * WALK_SPEED_PX_PER_SEC;
-            on_frame.emit(((vx * dt, vy * dt), (vx, vy)));
+            on_frame.emit(((vx * dt, vy * dt), (vx, vy), dt));
         })
     };
 
@@ -230,7 +284,8 @@ pub fn install_continuous_map_move(
         drop(keyup);
         drop(blur);
         drop(vis);
+        drop(focus_out);
         drop(tick);
-        held.borrow_mut().clear();
+        ctrl_teardown.clear_held();
     })
 }

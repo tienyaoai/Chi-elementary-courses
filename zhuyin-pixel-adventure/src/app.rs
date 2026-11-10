@@ -122,6 +122,7 @@ pub fn app() -> Html {
     let walk_active = use_state(|| false);
     let walk_sheet_frame = use_state(|| 0_u8);
     let walk_anim_accum = use_memo((), |_| Rc::new(RefCell::new(None::<f32>)));
+    let last_progress_save = use_memo((), |_| Rc::new(RefCell::new(0.0_f64)));
     let walk_target = use_state(|| None::<(f32, f32)>);
     let velocity = use_state(|| (0.0_f32, 0.0_f32));
     let walk_phase = use_state(|| 0.0_f32);
@@ -201,6 +202,24 @@ pub fn app() -> Html {
         crate::sounds::prime_audio();
     });
 
+    let advance_walk_anim = {
+        let walk_active = walk_active.clone();
+        let walk_sheet_frame = walk_sheet_frame.clone();
+        let walk_anim_accum = walk_anim_accum.clone();
+        let walk_phase = walk_phase.clone();
+        move |dt_ms: f32, speed: f32| {
+            if speed > 0.5 {
+                walk_active.set(true);
+                walk_phase.set(*walk_phase + dt_ms * 0.002);
+                let mut acc = walk_anim_accum.borrow_mut();
+                let ms = acc.get_or_insert(0.0);
+                *ms += dt_ms;
+                let frame = ((*ms / 125.0).floor() as u8) % 4;
+                walk_sheet_frame.set(frame);
+            }
+        }
+    };
+
     let try_move = {
         let px = px.clone();
         let py = py.clone();
@@ -210,6 +229,12 @@ pub fn app() -> Html {
         let orient = orient.clone();
         let velocity = velocity.clone();
         let pos_live = pos_live.clone();
+        let walk_active = walk_active.clone();
+        let walk_sheet_frame = walk_sheet_frame.clone();
+        let walk_anim_accum = walk_anim_accum.clone();
+        let walk_phase = walk_phase.clone();
+        let last_progress_save = last_progress_save.clone();
+        let advance_walk_anim = advance_walk_anim.clone();
         Callback::from(move |(nx, ny, vx, vy): (f32, f32, f32, f32)| {
             if !island_walk::masks_ready() {
                 return;
@@ -227,8 +252,19 @@ pub fn app() -> Html {
             } else if nx > cx + 0.5 {
                 walk_facing.set(WalkFacing::Right as u8);
             }
-            if (nx - cx).hypot(ny - cy) > 0.05 {
+            let moved = (nx - cx).hypot(ny - cy) > 0.01;
+            if moved {
                 frame.set(*frame + 1);
+            }
+            let speed = if vx.hypot(vy) > 0.5 {
+                vx.hypot(vy)
+            } else if moved {
+                crate::map_input::WALK_SPEED_PX_PER_SEC
+            } else {
+                0.0
+            };
+            if moved && speed > 0.5 {
+                advance_walk_anim(16.0, speed);
             }
             velocity.set((vx, vy));
             px.set(nx);
@@ -243,7 +279,14 @@ pub fn app() -> Html {
             }
             p.player_x = nx;
             p.player_y = ny;
-            p.save();
+            let now = web_sys::window()
+                .map(|w| js_sys::Date::now())
+                .unwrap_or(0.0);
+            let mut last = last_progress_save.borrow_mut();
+            if moved && now - *last > 280.0 {
+                p.save();
+                *last = now;
+            }
             progress.set(p);
         })
     };
@@ -267,7 +310,7 @@ pub fn app() -> Html {
     let map_move_gate = use_memo((), |_| Rc::new(Cell::new(false)));
     map_move_gate.set(map_active);
     if !map_active {
-        (*map_input).held.borrow_mut().clear();
+        (*map_input).clear_held();
     }
     {
         let map_input = map_input.clone();
@@ -318,12 +361,14 @@ pub fn app() -> Html {
                 let walk_anim_accum = walk_anim_accum.clone();
                 let map_move_gate = map_move_gate.clone();
                 let pos_live = pos_live.clone();
-                move |((dx, dy), (vx, vy)): ((f32, f32), (f32, f32))| {
+                move |((dx, dy), (vx, vy), dt): ((f32, f32), (f32, f32), f32)| {
                     if !map_move_gate.get() {
                         return;
                     }
+                    let dt_ms = (dt * 1000.0).max(0.5);
                     let speed = vx.hypot(vy);
-                    if speed < 0.5 && dx.hypot(dy) < 0.001 {
+                    let moved = dx.hypot(dy) > 0.001;
+                    if speed < 0.5 && !moved {
                         if velocity.0.hypot(velocity.1) > 0.5 {
                             velocity.set((0.0, 0.0));
                         }
@@ -332,21 +377,18 @@ pub fn app() -> Html {
                         walk_sheet_frame.set(0);
                         return;
                     }
-                    if speed > 10.0 {
-                        walk_phase.set(*walk_phase + 0.016 * 2.0);
+                    if speed > 0.5 {
                         walk_facing.set(facing_from_velocity(vx, vy) as u8);
                         velocity.set((vx, vy));
                         walk_active.set(true);
+                        walk_phase.set(*walk_phase + dt * 2.0);
                         let mut acc = walk_anim_accum.borrow_mut();
                         let ms = acc.get_or_insert(0.0);
-                        *ms += 16.0;
+                        *ms += dt_ms;
                         let frame = ((*ms / 125.0).floor() as u8) % 4;
                         walk_sheet_frame.set(frame);
-                    } else {
-                        walk_phase.set(*walk_phase + 0.016 * 0.35);
-                        walk_active.set(false);
-                        walk_anim_accum.borrow_mut().take();
-                        walk_sheet_frame.set(0);
+                    } else if !moved {
+                        walk_phase.set(*walk_phase + dt * 0.35);
                     }
                     let o = *orient;
                     let (x, y) = *pos_live.borrow();
@@ -390,8 +432,11 @@ pub fn app() -> Html {
                 y + dy / dist * STEP
             };
             let o = *orient;
+            let spd = crate::map_input::WALK_SPEED_PX_PER_SEC;
+            let ux = dx / dist;
+            let uy = dy / dist;
             if let Some((nx, ny)) = slide_move(x, y, nx - x, ny - y, o) {
-                try_move.emit((nx, ny, 0.0, 0.0));
+                try_move.emit((nx, ny, ux * spd, uy * spd));
             } else {
                 walk_target.set(None);
             }
@@ -420,8 +465,11 @@ pub fn app() -> Html {
             let step_x = dx / dist * STEP;
             let step_y = dy / dist * STEP;
             let o = *orient;
+            let spd = crate::map_input::WALK_SPEED_PX_PER_SEC;
+            let vx = dx / dist * spd;
+            let vy = dy / dist * spd;
             if let Some((nx, ny)) = slide_move(x, y, step_x, step_y, o) {
-                try_move.emit((nx, ny, 0.0, 0.0));
+                try_move.emit((nx, ny, vx, vy));
             } else {
                 walk_target.set(None);
             }
