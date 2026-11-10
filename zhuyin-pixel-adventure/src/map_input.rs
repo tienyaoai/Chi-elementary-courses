@@ -120,6 +120,8 @@ pub struct MapInputController {
     pub held: Rc<RefCell<HeldKeys>>,
     pad_pressed_at: Rc<RefCell<Option<(Dir, f64)>>>,
     pad_release_timer: Rc<RefCell<Option<Timeout>>>,
+    /// Active on-screen pad hold (survives `lostpointercapture` when fit dock re-renders).
+    pad_held_dir: Rc<RefCell<Option<Dir>>>,
 }
 
 impl MapInputController {
@@ -128,6 +130,7 @@ impl MapInputController {
             held: Rc::new(RefCell::new(HeldKeys::default())),
             pad_pressed_at: Rc::new(RefCell::new(None)),
             pad_release_timer: Rc::new(RefCell::new(None)),
+            pad_held_dir: Rc::new(RefCell::new(None)),
         }
     }
 
@@ -140,7 +143,17 @@ impl MapInputController {
     pub fn clear_held(&self) {
         self.cancel_pad_release();
         self.pad_pressed_at.borrow_mut().take();
+        self.pad_held_dir.borrow_mut().take();
         self.held.borrow_mut().clear();
+    }
+
+    /// End pad hold when the pointer is released anywhere (button may have been re-mounted).
+    pub fn pad_pointer_released(&self) {
+        if let Some(dir) = self.pad_held_dir.borrow_mut().take() {
+            self.cancel_pad_release();
+            self.pad_pressed_at.borrow_mut().take();
+            self.held.borrow_mut().set_dir(dir, false);
+        }
     }
 
     /// On-screen pad — hold uses same `held` set as keyboard; quick tap still walks ~150ms.
@@ -152,9 +165,11 @@ impl MapInputController {
             self.cancel_pad_release();
             let now = js_sys::Date::now();
             *self.pad_pressed_at.borrow_mut() = Some((dir, now));
+            *self.pad_held_dir.borrow_mut() = Some(dir);
             self.held.borrow_mut().set_dir(dir, true);
             return;
         }
+        self.pad_held_dir.borrow_mut().take();
         let held_ms = self
             .pad_pressed_at
             .borrow()
@@ -193,9 +208,10 @@ pub fn install_continuous_map_move(
     let held = controller.held.clone();
     let ctrl_blur = controller.clone();
     let ctrl_vis = controller.clone();
-    let ctrl_focus = controller.clone();
     let ctrl_teardown = controller.clone();
     let ctrl_enter = controller.clone();
+    let ctrl_ptr_up = controller.clone();
+    let ctrl_ptr_cancel = controller.clone();
     let win = web_sys::window().unwrap();
             let held_kd = held.clone();
             let on_clear = on_clear_path.clone();
@@ -253,8 +269,11 @@ pub fn install_continuous_map_move(
             let vis = EventListener::new(&win, "visibilitychange", move |_| {
                 ctrl_vis.clear_held();
             });
-            let focus_out = EventListener::new(&win, "focusout", move |_| {
-                ctrl_focus.clear_held();
+            let pointer_up = EventListener::new(&win, "pointerup", move |_| {
+                ctrl_ptr_up.pad_pointer_released();
+            });
+            let pointer_cancel = EventListener::new(&win, "pointercancel", move |_| {
+                ctrl_ptr_cancel.pad_pointer_released();
             });
 
     let last_ms = Rc::new(RefCell::new(None::<f64>));
@@ -284,7 +303,8 @@ pub fn install_continuous_map_move(
         drop(keyup);
         drop(blur);
         drop(vis);
-        drop(focus_out);
+        drop(pointer_up);
+        drop(pointer_cancel);
         drop(tick);
         ctrl_teardown.clear_held();
     })

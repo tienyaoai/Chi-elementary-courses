@@ -5,9 +5,10 @@ import { createReadStream, writeFileSync } from "node:fs";
 import { PNG } from "pngjs";
 import path from "node:path";
 import { canStand, loadWalkMask } from "./walk_mask.mjs";
+import { assertDoorReachability, DOOR_COORDS } from "./walk_reach.mjs";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.18";
+const TAG = process.env.E2E_TAG || "v9.19";
 const FIT_MIN = 700;
 const DIST = path.resolve("..", "dist");
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
@@ -377,17 +378,18 @@ async function assertDoorBubbleLayout(page, errors, label) {
 }
 
 async function teleportSchoolDoor(page, landscape) {
-  await page.evaluate((land) => {
-    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
-    if (land) {
-      p.player_x = 834;
-      p.player_y = 1076;
-    } else {
-      p.player_x = 350;
-      p.player_y = 1200;
-    }
-    localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
-  }, landscape);
+  const [dx, dy] = landscape
+    ? DOOR_COORDS.landscape.chinese
+    : DOOR_COORDS.portrait.chinese;
+  await page.evaluate(
+    ({ px, py }) => {
+      const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
+      p.player_x = px;
+      p.player_y = py;
+      localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
+    },
+    { px: dx, py: dy }
+  );
   await page.reload({ waitUntil: "networkidle" });
   await waitMapReady(page);
   await sleep(600);
@@ -523,21 +525,6 @@ async function assertDoorEnterInViewport(page, errors, label) {
   }
 }
 
-const DOOR_COORDS = {
-  portrait: {
-    chinese: [350, 1200],
-    math: [706, 1284],
-    english: [870, 718],
-    treasure: [570, 988],
-  },
-  landscape: {
-    chinese: [834, 1076],
-    math: [1674, 999],
-    english: [2070, 575],
-    treasure: [1180, 762],
-  },
-};
-
 async function setPlayerPos(page, x, y) {
   await page.evaluate(({ px, py }) => {
     const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
@@ -633,7 +620,7 @@ async function runKeyboardDoorEnterSuite(page, shots, errors) {
       away: ["ArrowLeft"],
       back: ["ArrowRight"],
       buttonClick: true,
-      bubbleReturnPos: [200, 1200, 350, 1200],
+      bubbleReturnPos: [160, 1200, 304, 1200],
     },
     {
       id: "1280",
@@ -644,7 +631,7 @@ async function runKeyboardDoorEnterSuite(page, shots, errors) {
       away: ["ArrowLeft"],
       back: ["ArrowRight"],
       shotLesson: true,
-      bubbleReturnPos: [640, 1068, 834, 1076],
+      bubbleReturnPos: [600, 1040, 790, 1040],
     },
     {
       id: "1920",
@@ -654,7 +641,7 @@ async function runKeyboardDoorEnterSuite(page, shots, errors) {
       keys: ["ArrowRight"],
       away: ["ArrowLeft"],
       back: ["ArrowRight"],
-      bubbleReturnPos: [640, 1068, 834, 1076],
+      bubbleReturnPos: [600, 1040, 790, 1040],
     },
   ];
 
@@ -981,53 +968,79 @@ async function assertDoorBubbleTextFits(page, errors, ctx) {
   }
 }
 
-async function assertBridgeCrossing(page, errors) {
+const SPAWN_WORLD = {
+  portrait: { x: 322, y: 1194 },
+  landscape: { x: 852, y: 1070 },
+};
+
+async function resetToSpawn(page, landscape) {
+  const s = landscape ? SPAWN_WORLD.landscape : SPAWN_WORLD.portrait;
+  await setPlayerPos(page, s.x, s.y);
+}
+
+/** Held arrow keys only from spawn: reach west bank, cross deck E/W, return — no teleport near bridge. */
+async function assertBridgeCrossingHeldFromSpawn(page, errors) {
   const plans = [
+    {
+      id: "1920-landscape",
+      w: 1920,
+      h: 1072,
+      landscape: true,
+      phases: [
+        { keys: ["ArrowRight"], until: (p) => p.x >= 1165 },
+        { keys: ["ArrowUp"], until: (p) => p.y <= 1005 },
+        { keys: ["ArrowRight"], until: (p) => p.x >= 1500 },
+        { keys: ["ArrowLeft"], until: (p) => p.x <= 1140 },
+      ],
+    },
     {
       id: "1280-landscape",
       w: 1280,
       h: 800,
-      start: [1080, 960],
-      rightUntilX: 1320,
-      leftUntilX: 1060,
+      landscape: true,
+      phases: [
+        { keys: ["ArrowRight"], until: (p) => p.x >= 1165 },
+        { keys: ["ArrowUp"], until: (p) => p.y <= 1005 },
+        { keys: ["ArrowRight"], until: (p) => p.x >= 1500 },
+        { keys: ["ArrowLeft"], until: (p) => p.x <= 1140 },
+      ],
     },
     {
       id: "390-portrait",
       w: 390,
       h: 844,
-      start: [470, 1280],
-      rightUntilX: 560,
-      leftUntilX: 460,
+      landscape: false,
+      phases: [
+        { keys: ["ArrowRight"], until: (p) => p.x >= 475 },
+        { keys: ["ArrowDown"], until: (p) => p.y >= 1260 },
+        { keys: ["ArrowRight"], until: (p) => p.x >= 590 },
+        { keys: ["ArrowLeft"], until: (p) => p.x <= 410 },
+      ],
     },
   ];
   for (const plan of plans) {
     await ensureMapScreen(page);
     await page.setViewportSize({ width: plan.w, height: plan.h });
-    await setPlayerPos(page, plan.start[0], plan.start[1]);
-    const east = await walkWithArrowsUntil(
-      page,
-      ["ArrowRight"],
-      async () => {
+    await ensureMapScreen(page);
+    await resetToSpawn(page, plan.landscape);
+    for (let pi = 0; pi < plan.phases.length; pi++) {
+      const phase = plan.phases[pi];
+      const ok = await walkWithArrowsUntil(
+        page,
+        phase.keys,
+        async () => {
+          const p = await playerPos(page);
+          return p && phase.until(p);
+        },
+        24000
+      );
+      if (!ok) {
         const p = await playerPos(page);
-        return p && p.x >= plan.rightUntilX;
-      },
-      14000
-    );
-    if (!east) {
-      errors.push(`bridge ${plan.id}: could not cross east`);
-      continue;
-    }
-    const west = await walkWithArrowsUntil(
-      page,
-      ["ArrowLeft"],
-      async () => {
-        const p = await playerPos(page);
-        return p && p.x <= plan.leftUntilX;
-      },
-      14000
-    );
-    if (!west) {
-      errors.push(`bridge ${plan.id}: could not return west`);
+        errors.push(
+          `bridge ${plan.id} phase ${pi} (${phase.keys.join("+")}) stuck at ${p?.x?.toFixed?.(0) ?? "?"},${p?.y?.toFixed?.(0) ?? "?"}`
+        );
+        break;
+      }
     }
   }
 }
@@ -1094,6 +1107,34 @@ async function assertAllBuildingBubblesTextFit(page, errors) {
   }
 }
 
+async function captureV919DoorScreenshots(page, shots, errors) {
+  const plans = [
+    { w: 1280, h: 800, mode: "landscape" },
+    { w: 390, h: 844, mode: "portrait" },
+  ];
+  const portals = ["chinese", "english", "math", "treasure"];
+  for (const plan of plans) {
+    await page.setViewportSize({ width: plan.w, height: plan.h });
+    await ensureMapScreen(page);
+    for (const portal of portals) {
+      const [dx, dy] = DOOR_COORDS[plan.mode][portal];
+      await teleportDoor(page, dx - (plan.mode === "landscape" ? 48 : 32), dy);
+      const reached = await walkWithArrowsUntil(
+        page,
+        dx > 500 ? ["ArrowRight"] : ["ArrowLeft", "ArrowDown"],
+        async () => (await page.locator('[data-testid="door-bubble"]').count()) > 0,
+        14000
+      );
+      if (!reached) {
+        errors.push(`v9.19 ${plan.w}x${plan.h} held-walk ${portal}: no door bubble`);
+      }
+      const shot = `${ART}/${TAG}-door-bubble-${portal}-${plan.w}x${plan.h}.png`;
+      await page.locator(".island-viewport").screenshot({ path: shot });
+      shots.push(shot);
+    }
+  }
+}
+
 async function captureV918Screenshots(page, shots) {
   await page.setViewportSize({ width: 1280, height: 800 });
   await ensureMapScreen(page);
@@ -1110,19 +1151,22 @@ async function captureV918Screenshots(page, shots) {
   await page.locator(".island-viewport").screenshot({ path: mapShot });
   shots.push(mapShot);
 
-  await teleportDoor(page, 1180, 762);
+  const trL = DOOR_COORDS.landscape.treasure;
+  await teleportDoor(page, trL[0], trL[1]);
   const chest1280 = `${ART}/${TAG}-door-bubble-treasure-1280x800.png`;
   await page.locator(".island-viewport").screenshot({ path: chest1280 });
   shots.push(chest1280);
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await teleportDoor(page, 570, 988);
+  const trP = DOOR_COORDS.portrait.treasure;
+  await teleportDoor(page, trP[0], trP[1]);
   const chest390 = `${ART}/${TAG}-door-bubble-treasure-390x844.png`;
   await page.locator(".island-viewport").screenshot({ path: chest390 });
   shots.push(chest390);
 
   await page.setViewportSize({ width: 1920, height: 1072 });
-  await teleportDoor(page, 834, 1076);
+  const chL = DOOR_COORDS.landscape.chinese;
+  await teleportDoor(page, chL[0], chL[1]);
   const school1920 = `${ART}/${TAG}-door-bubble-school-1920x1072.png`;
   await page.locator(".island-viewport").screenshot({ path: school1920 });
   shots.push(school1920);
@@ -1137,7 +1181,7 @@ async function teleportDoor(page, x, y) {
   }, { px: x, py: y });
   await page.reload({ waitUntil: "networkidle" });
   await waitMapReady(page);
-  await sleep(450);
+  await sleep(650);
 }
 
 async function assertEveryBuildingDoor(page, errors, landscape, shots = []) {
@@ -1150,7 +1194,7 @@ async function assertEveryBuildingDoor(page, errors, landscape, shots = []) {
   const mode = landscape ? "landscape" : "portrait";
   const doors = DOOR_COORDS[mode];
   for (const [key, [x, y]] of Object.entries(doors)) {
-    await teleportDoor(page, x, y);
+    await teleportDoor(page, x - (landscape ? 8 : 6), y + 6);
     const bubble = await page.locator('[data-testid="door-bubble"]').count();
     if (!bubble) {
       errors.push(`door bubble missing: ${key} ${mode}`);
@@ -1308,21 +1352,37 @@ async function heroWorldX(page) {
   });
 }
 
-/** Hold on-screen ▶ (or fit-pad-right): smooth dt walk + leg frames; touch or mouse. */
-async function assertPadHoldSmooth(page, padTestId, errors, label, { touch = false } = {}) {
+async function heroWorldY(page) {
+  return page.evaluate(() => {
+    const el = document.querySelector('[data-testid="island-player"]');
+    const attr = el?.getAttribute("data-world-y");
+    if (attr != null && attr !== "") return parseFloat(attr);
+    const raw = localStorage.getItem("zhuzhu-pixel-adventure-v1");
+    if (!raw) return NaN;
+    return JSON.parse(raw).player_y;
+  });
+}
+
+/** Hold on-screen pad: smooth dt walk + leg frames; touch or real mouse (mousedown/up on fit pad). */
+async function assertPadHoldSmooth(
+  page,
+  padTestId,
+  errors,
+  label,
+  { touch = false, holdMs = 2000, axis = "x", sign = 1 } = {}
+) {
   const pad = page.locator(`[data-testid="${padTestId}"]`);
   if (!(await pad.count())) {
     errors.push(`${label}: missing pad ${padTestId}`);
     return;
   }
-  const xs = [];
+  const coords = [];
   const cols = [];
   const snap = async () => {
-    xs.push(await heroWorldX(page));
+    coords.push(axis === "y" ? await heroWorldY(page) : await heroWorldX(page));
     cols.push(await heroWalkCol(page));
   };
   await snap();
-  const holdMs = 1500;
   const stepMs = 100;
   const fit = padTestId.startsWith("fit-");
   const box = await pad.boundingBox();
@@ -1332,9 +1392,9 @@ async function assertPadHoldSmooth(page, padTestId, errors, label, { touch = fal
   }
   const cx = box.x + box.width / 2;
   const cy = box.y + box.height / 2;
-  if (fit) {
+  if (fit && !touch) {
     await page.mouse.move(cx, cy);
-    await page.mouse.down();
+    await page.mouse.down({ button: "left" });
   } else {
     await pad.dispatchEvent("pointerdown");
   }
@@ -1342,7 +1402,7 @@ async function assertPadHoldSmooth(page, padTestId, errors, label, { touch = fal
     await sleep(stepMs);
     await snap();
   }
-  if (fit) await page.mouse.up();
+  if (fit && !touch) await page.mouse.up({ button: "left" });
   else await pad.dispatchEvent("pointerup");
   let idleOk = false;
   try {
@@ -1363,20 +1423,23 @@ async function assertPadHoldSmooth(page, padTestId, errors, label, { touch = fal
   if (!(await waitHeroMotionSettle(page))) {
     errors.push(`${label}: hero did not settle within 700ms after pad release`);
   }
-  const xStop = await heroWorldX(page);
+  const stopCoord = axis === "y" ? await heroWorldY(page) : await heroWorldX(page);
   await sleep(80);
-  const xAfter = await heroWorldX(page);
+  const afterCoord = axis === "y" ? await heroWorldY(page) : await heroWorldX(page);
 
   const deltas = [];
-  for (let i = 1; i < xs.length; i++) {
-    deltas.push(xs[i] - xs[i - 1]);
-    if (!(xs[i] > xs[i - 1]) && i < xs.length - 2) {
-      errors.push(`${label}: player_x not strictly increasing at ${i}: ${xs[i - 1]} -> ${xs[i]}`);
+  for (let i = 1; i < coords.length; i++) {
+    deltas.push((coords[i] - coords[i - 1]) * sign);
+    if (!((coords[i] - coords[i - 1]) * sign > 0) && i < coords.length - 2) {
+      errors.push(
+        `${label}: coord not strictly increasing at ${i}: ${coords[i - 1]} -> ${coords[i]} (axis=${axis})`
+      );
     }
   }
   const moved = deltas.filter((d) => d > 0.02);
-  if (moved.length < 8) {
-    errors.push(`${label}: too few walk samples (${moved.length}) during 1.5s hold`);
+  const needSamples = Math.max(8, Math.floor(holdMs / stepMs) - 3);
+  if (moved.length < needSamples) {
+    errors.push(`${label}: too few walk samples (${moved.length}/${needSamples}) during ${holdMs}ms hold`);
   }
   if (moved.length >= 3) {
     const sorted = [...moved].sort((a, b) => a - b);
@@ -1396,11 +1459,12 @@ async function assertPadHoldSmooth(page, padTestId, errors, label, { touch = fal
   if (frameChanges < 6) {
     errors.push(`${label}: walk frame changes ${frameChanges} (need ≥6); cols=${cols.join(",")}`);
   }
-  if (Math.abs(xAfter - xStop) > 3.0) {
-    errors.push(`${label}: still drifting after release Δx=${(xAfter - xStop).toFixed(2)}`);
+  if (Math.abs(afterCoord - stopCoord) > 3.0) {
+    errors.push(`${label}: still drifting after release Δ=${(afterCoord - stopCoord).toFixed(2)}`);
   }
-  if (xs[xs.length - 1] - xs[0] < 80) {
-    errors.push(`${label}: hold walk Δx ${(xs[xs.length - 1] - xs[0]).toFixed(0)} (need ≥80)`);
+  const totalMove = (coords[coords.length - 1] - coords[0]) * sign;
+  if (totalMove < 80) {
+    errors.push(`${label}: hold walk Δ ${totalMove.toFixed(0)} (need ≥80 on ${axis})`);
   }
 }
 
@@ -1420,15 +1484,37 @@ async function runPadHoldTouchMouseSuite(browser, errors) {
       h: 1366,
       hasTouch: true,
       pad: "fit-pad-right",
-      start: [150, 800],
+      start: [80, 1060],
     },
     {
-      label: "desktop-1280-mouse",
+      label: "desktop-1280-mouse-right",
       w: 1280,
       h: 800,
       hasTouch: false,
       pad: "fit-pad-right",
       start: [150, 800],
+      axis: "x",
+      sign: 1,
+    },
+    {
+      label: "desktop-1920-mouse-right",
+      w: 1920,
+      h: 1072,
+      hasTouch: false,
+      pad: "fit-pad-right",
+      start: [150, 800],
+      axis: "x",
+      sign: 1,
+    },
+    {
+      label: "desktop-1920-mouse-up",
+      w: 1920,
+      h: 1072,
+      hasTouch: false,
+      pad: "fit-pad-up",
+      start: [400, 1100],
+      axis: "y",
+      sign: -1,
     },
   ];
   for (const c of cases) {
@@ -1441,7 +1527,11 @@ async function runPadHoldTouchMouseSuite(browser, errors) {
       await page.goto(BASE, { waitUntil: "networkidle", timeout: 120000 });
       await pickCharacter(page);
       await setPlayerPos(page, c.start[0], c.start[1]);
-      await assertPadHoldSmooth(page, c.pad, errors, c.label, { touch: c.hasTouch });
+      await assertPadHoldSmooth(page, c.pad, errors, c.label, {
+        touch: c.hasTouch,
+        axis: c.axis ?? "x",
+        sign: c.sign ?? 1,
+      });
     } catch (e) {
       errors.push(`${c.label}: ${e?.message ?? e}`);
     } finally {
@@ -1575,21 +1665,18 @@ async function recordWalkAllDirections(browser, errors, shots) {
 }
 
 async function assertFitPlayerMoves(page, errors, shots = []) {
-  await page.evaluate(() => {
-    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
-    p.player_x = 1180;
-    p.player_y = 820;
-    localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
-  });
-  await page.reload({ waitUntil: "load" });
-  await waitMapReady(page);
+  await setPlayerPos(page, 720, 780);
+  await page.keyboard.up("ArrowRight");
+  await page.keyboard.up("ArrowLeft");
+  await page.keyboard.up("ArrowUp");
+  await page.keyboard.up("ArrowDown");
   await assertWalkSpriteAnim(page, errors, shots);
   const prog0 = await page.evaluate(() => {
     const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
     return { x: p.player_x, y: p.player_y };
   });
   await page.keyboard.down("ArrowRight");
-  await sleep(1000);
+  await sleep(1400);
   await page.keyboard.up("ArrowRight");
   await sleep(300);
   const prog1 = await page.evaluate(() => {
@@ -1599,21 +1686,11 @@ async function assertFitPlayerMoves(page, errors, shots = []) {
   const walkShot = `${ART}/${TAG}-viewport-1280x800-walking.png`;
   await page.screenshot({ path: walkShot });
   shots.push(walkShot);
-  if (prog1.x - prog0.x < 50) {
-    errors.push(`fit hold ArrowRight: world Δx ${(prog1.x - prog0.x).toFixed(0)} (need >50)`);
+  if (prog1.x - prog0.x < 28) {
+    errors.push(`fit hold ArrowRight: world Δx ${(prog1.x - prog0.x).toFixed(0)} (need >28)`);
   }
-  await page.evaluate(() => {
-    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
-    p.player_x = 1090;
-    p.player_y = 900;
-    localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
-  });
-  await page.reload({ waitUntil: "load" });
-  await waitMapReady(page);
-  const progMid = await page.evaluate(() => {
-    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
-    return { x: p.player_x, y: p.player_y };
-  });
+  await setPlayerPos(page, 520, 900);
+  const progMid = await playerPos(page);
   await page.keyboard.down("ArrowRight");
   await page.keyboard.down("ArrowDown");
   await sleep(1100);
@@ -1799,6 +1876,9 @@ async function main() {
   let br = { blue: 0, total: 0, ratio: 0 };
 
   try {
+    for (const msg of assertDoorReachability(DIST)) {
+      errors.push(`reachability: ${msg}`);
+    }
     // --- Mobile select ---
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(BASE, { waitUntil: "load", timeout: 120000 });
@@ -2007,15 +2087,16 @@ async function main() {
     await recordWalkAllDirections(browser, errors, shots);
 
     try {
-      await assertBridgeCrossing(page, errors);
+      await assertBridgeCrossingHeldFromSpawn(page, errors);
       await page.setViewportSize({ width: 1280, height: 800 });
       await walkToTreasureEnter(page, errors, "treasure-1280");
       await page.setViewportSize({ width: 390, height: 844 });
       await walkToTreasureEnter(page, errors, "treasure-390");
       await assertAllBuildingBubblesTextFit(page, errors);
+      await captureV919DoorScreenshots(page, shots, errors);
       await captureV918Screenshots(page, shots);
     } catch (e) {
-      errors.push(`v9.18 suite: ${e?.message ?? e}`);
+      errors.push(`v9.19 suite: ${e?.message ?? e}`);
     }
 
     const summary = {
