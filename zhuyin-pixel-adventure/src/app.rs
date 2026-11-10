@@ -471,6 +471,100 @@ pub fn app() -> Html {
         })
     };
 
+    {
+        let view = view.clone();
+        use_effect_with((*view).clone(), move |_| {
+            let view = view.clone();
+            let on_key = Closure::wrap(Box::new(move |e: KeyboardEvent| {
+                if e.key() == "Escape" && matches!(*view, View::ChineseHub) {
+                    e.prevent_default();
+                    view.set(View::Map);
+                }
+            }) as Box<dyn FnMut(_)>);
+            if let Some(win) = web_sys::window() {
+                let _ = win.add_event_listener_with_callback("keydown", on_key.as_ref().unchecked_ref());
+            }
+            move || {
+                if let Some(win) = web_sys::window() {
+                    let _ = win.remove_event_listener_with_callback("keydown", on_key.as_ref().unchecked_ref());
+                }
+                drop(on_key);
+            }
+        });
+    }
+
+    let park_map = !progress.character_id.is_empty();
+    let sound_label = if progress.sound {
+        "關閉音效".to_string()
+    } else {
+        "開啟音效".to_string()
+    };
+    let sound_icon = if progress.sound { "🔊" } else { "🔇" };
+
+    let map_layer = if park_map && *masks_ready {
+        html! {
+            <div class={classes!(
+                "map-screen",
+                (*map_fit).then_some("map-screen-fit"),
+                (!map_active).then_some("map-screen-keeper")
+            )}
+                aria-hidden={(!map_active).to_string()}>
+                <div class={classes!("hud", (*map_fit).then_some("hud-fit"))}>
+                    <span class="hud-title"><BpmfAside text={ "學習冒險島".to_string() } game={game.clone()} read={*map_fit} /></span>
+                    <button type="button" class={classes!("hud-btn", "hud-ghost", (!*map_fit).then_some("hud-change-char"), (*map_fit).then_some("hud-change-char-fit"))} onclick={Callback::from({
+                        let view = view.clone();
+                        move |_| view.set(View::Select)
+                    })}>
+                        <BpmfAside text={ "換角色".to_string() } game={game.clone()} compact=true />
+                    </button>
+                    if *map_fit {
+                        <button type="button" class="hud-btn hud-sound-btn" onclick={toggle_sound.clone()}>
+                            <BpmfAside text={sound_label.clone()} game={game.clone()} compact={true} />
+                        </button>
+                    } else {
+                        <button type="button" class="hud-btn hud-sound-btn hud-sound-icon" onclick={toggle_sound.clone()}
+                            aria-label={sound_label.clone()}>
+                            <span class="hud-sound-glyph" aria-hidden="true">{ sound_icon }</span>
+                        </button>
+                    }
+                </div>
+                <IslandMap character_id={progress.character_id.clone()} px={*px} py={*py} frame={*frame}
+                    orient={*orient} walk_facing={*walk_facing} walk_active={*walk_active}
+                    walk_sheet_frame={*walk_sheet_frame}
+                    portal_near={portal_near}
+                    door_portal={door_portal}
+                    velocity={*velocity}
+                    walk_phase={*walk_phase}
+                    game={game.clone()}
+                    on_map_click={on_map_click.clone()}
+                    on_pad_hold={Callback::from({
+                        let ctrl = (*map_input).clone();
+                        let clear = Callback::from({
+                            let walk_target = walk_target.clone();
+                            move |_| walk_target.set(None)
+                        });
+                        let prime = prime_audio.clone();
+                        move |(dir, down): (Dir, bool)| {
+                            if down {
+                                clear.emit(());
+                                prime.emit(());
+                            }
+                            ctrl.pad_hold(dir, down);
+                        }
+                    })}
+                    on_enter={on_map_enter.clone()}
+                    on_select_char={Callback::from({
+                        let view = view.clone();
+                        move |_| view.set(View::Select)
+                    })} />
+            </div>
+        }
+    } else if park_map {
+        html! { <p class="loading-pixel">{"地圖載入中…"}</p> }
+    } else {
+        html! {}
+    };
+
     let body = match &*view {
         View::Select => html! {
             <SelectScreen game={game.clone()} progress={(*progress).clone()}
@@ -508,84 +602,27 @@ pub fn app() -> Html {
                     move |_| view.set(View::Collection)
                 })} />
         },
-        View::Map => {
-            let sound_label = if progress.sound {
-                "關閉音效".to_string()
-            } else {
-                "開啟音效".to_string()
-            };
-            let sound_icon = if progress.sound { "🔊" } else { "🔇" };
-            html! {
-            <div class={classes!("map-screen", (*map_fit).then_some("map-screen-fit"))}>
-                <div class={classes!("hud", (*map_fit).then_some("hud-fit"))}>
-                    <span class="hud-title"><BpmfAside text={ "學習冒險島".to_string() } game={game.clone()} read={*map_fit} /></span>
-                    <button type="button" class={classes!("hud-btn", "hud-ghost", (!*map_fit).then_some("hud-change-char"), (*map_fit).then_some("hud-change-char-fit"))} onclick={Callback::from({
-                        let view = view.clone();
-                        move |_| view.set(View::Select)
-                    })}>
-                        <BpmfAside text={ "換角色".to_string() } game={game.clone()} compact=true />
-                    </button>
-                    if *map_fit {
-                        <button type="button" class="hud-btn hud-sound-btn" onclick={toggle_sound.clone()}>
-                            <BpmfAside text={sound_label} game={game.clone()} compact={true} />
-                        </button>
-                    } else {
-                        <button type="button" class="hud-btn hud-sound-btn hud-sound-icon" onclick={toggle_sound.clone()}
-                            aria-label={sound_label.clone()}>
-                            <span class="hud-sound-glyph" aria-hidden="true">{ sound_icon }</span>
-                        </button>
-                    }
-                </div>
-                if !*masks_ready {
-                    <p class="loading-pixel">{"地圖載入中…"}</p>
-                } else {
-                    <IslandMap character_id={progress.character_id.clone()} px={*px} py={*py} frame={*frame}
-                        orient={*orient} walk_facing={*walk_facing} walk_active={*walk_active}
-                        walk_sheet_frame={*walk_sheet_frame}
-                        portal_near={portal_near}
-                        door_portal={door_portal}
-                        velocity={*velocity}
-                        walk_phase={*walk_phase}
-                        game={game.clone()}
-                        on_map_click={on_map_click.clone()}
-                        on_pad_hold={Callback::from({
-                            let ctrl = (*map_input).clone();
-                            let clear = Callback::from({
-                                let walk_target = walk_target.clone();
-                                move |_| walk_target.set(None)
-                            });
-                            let prime = prime_audio.clone();
-                            move |(dir, down): (Dir, bool)| {
-                                if down {
-                                    clear.emit(());
-                                    prime.emit(());
-                                }
-                                ctrl.pad_hold(dir, down);
+        View::Map | View::ChineseHub => html! {
+            <>
+            { map_layer.clone() }
+            if matches!(&*view, View::ChineseHub) {
+                <div class="lesson-overlay-stack">
+                    <Grade1Hub game={game.clone()} bank={(*bank).clone()} progress={(*progress).clone()}
+                        on_exit={Callback::from({
+                            let view = view.clone();
+                            let progress = progress.clone();
+                            move |_| {
+                                progress.set(PixelProgress::load());
+                                view.set(View::Map);
                             }
                         })}
-                        on_enter={on_map_enter.clone()}
-                        on_select_char={Callback::from({
+                        on_pick_unit={Callback::from({
                             let view = view.clone();
-                            move |_| view.set(View::Select)
+                            move |unit_id| view.set(View::ChineseUnit { unit_id })
                         })} />
-                }
-            </div>
+                </div>
             }
-        }
-        View::ChineseHub => html! {
-            <Grade1Hub game={game.clone()} bank={(*bank).clone()} progress={(*progress).clone()}
-                on_exit={Callback::from({
-                    let view = view.clone();
-                    let progress = progress.clone();
-                    move |_| {
-                        progress.set(PixelProgress::load());
-                        view.set(View::Map);
-                    }
-                })}
-                on_pick_unit={Callback::from({
-                    let view = view.clone();
-                    move |unit_id| view.set(View::ChineseUnit { unit_id })
-                })} />
+            </>
         },
         View::ChineseUnit { unit_id } => {
             if let Some(unit) = bank.unit_by_id(unit_id) {
@@ -661,7 +698,7 @@ pub fn app() -> Html {
     };
 
     let fit_shell = *map_fit;
-    let shell_class = if fit_shell && matches!(&*view, View::Map) {
+    let shell_class = if fit_shell && matches!(&*view, View::Map | View::ChineseHub) {
         classes!("shell-pixel", "shell-map-fit")
     } else {
         classes!("shell-pixel", "shell-wide")
