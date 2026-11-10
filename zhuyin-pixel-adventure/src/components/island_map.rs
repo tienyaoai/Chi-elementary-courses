@@ -1,4 +1,4 @@
-use crate::components::{BpmfAside, FitDirPad};
+use crate::components::{BpmfAside, FitDirPad, TouchPad};
 use crate::island_walk;
 use crate::map_config::{character_by_id, door_point, landmark_url, layer, walk_url, MapOrientation};
 use crate::walk_sprite::{sprite_sheet_style, WalkFacing, FRAME_H, FRAME_W};
@@ -19,8 +19,25 @@ const PLAYER_H: f32 = 110.0;
 const PLAYER_MIN_SCREEN_PX: f32 = 64.0;
 /// Compact door bubble size for placement / clamp (px in viewport).
 const DOOR_BUBBLE_W: f32 = 196.0;
-const DOOR_BUBBLE_H: f32 = 68.0;
-const VIEWPORT_PAD: f32 = 6.0;
+const DOOR_BUBBLE_H: f32 = 72.0;
+const VIEWPORT_PAD: f32 = 8.0;
+const FOLLOW_CAM_LIFT: f32 = 58.0;
+const FOLLOW_VIEW_MARGIN: f32 = 24.0;
+
+fn follow_camera_y(py: f32, vh: f32, player_h: f32) -> f32 {
+    let half = vh * 0.5;
+    let mut cam = py - FOLLOW_CAM_LIFT;
+    let foot_off = py - cam;
+    let top_screen = half + foot_off - player_h;
+    if top_screen < FOLLOW_VIEW_MARGIN {
+        cam = py - (half - FOLLOW_VIEW_MARGIN - player_h);
+    }
+    let foot_screen = half + (py - cam);
+    if foot_screen > vh - FOLLOW_VIEW_MARGIN {
+        cam = py - (half - vh + FOLLOW_VIEW_MARGIN);
+    }
+    cam.max(PLAYER_H)
+}
 
 fn door_bubble_slot_fit(
     sx: f32,
@@ -58,17 +75,62 @@ fn door_bubble_slot_fit(
     "door-bubble-slot-below"
 }
 
+fn clamp_door_bubble_in_viewport(
+    anchor_x: f32,
+    anchor_y: f32,
+    player_w: f32,
+    player_h: f32,
+    vw: f32,
+    vh: f32,
+) -> String {
+    let est_w = if vw < 440.0 {
+        (vw - VIEWPORT_PAD * 2.0).max(120.0)
+    } else {
+        DOOR_BUBBLE_W.min(vw - VIEWPORT_PAD * 2.0)
+    };
+    let est_h = DOOR_BUBBLE_H;
+    let mut bx;
+    let mut by;
+    if vw < 440.0 {
+        bx = VIEWPORT_PAD;
+        by = (anchor_y + 12.0).min(vh - est_h - VIEWPORT_PAD);
+    } else if anchor_x < vw * 0.52 {
+        bx = anchor_x + player_w * 0.5 + 16.0;
+        by = anchor_y - player_h * 0.72;
+    } else {
+        bx = anchor_x - player_w * 0.5 - 16.0 - est_w;
+        by = anchor_y - player_h * 0.72;
+    }
+    if bx + est_w > vw - VIEWPORT_PAD {
+        bx = anchor_x - player_w * 0.5 - 12.0 - est_w;
+    }
+    if bx < VIEWPORT_PAD {
+        bx = anchor_x + player_w * 0.5 + 12.0;
+    }
+    bx = bx.clamp(VIEWPORT_PAD, (vw - est_w - VIEWPORT_PAD).max(VIEWPORT_PAD));
+    by = by.clamp(VIEWPORT_PAD, (vh - est_h - VIEWPORT_PAD).max(VIEWPORT_PAD));
+    format!(
+        "left:{bx}px;top:{by}px;right:auto;bottom:auto;transform:none;max-width:{mw}px;width:max-content;",
+        bx = bx,
+        by = by,
+        mw = est_w,
+    )
+}
+
 fn render_door_bubble_compact(
     portal: Portal,
     game: Rc<GameData>,
     on_enter: Callback<Portal>,
     slot_class: &'static str,
+    extra_style: Option<String>,
 ) -> Html {
     let enterable = world::door_enterable(portal);
     let prompt = world::door_prompt_text(portal);
+    let pos_style = extra_style.unwrap_or_default();
     html! {
         <div class={classes!("door-bubble", "door-bubble-compact", slot_class)}
-            data-testid="door-bubble" data-portal={portal_landmark_key(portal)}>
+            data-testid="door-bubble" data-portal={portal_landmark_key(portal)}
+            style={pos_style}>
             <div class="door-bubble-inner">
                 <span class="door-bubble-text">
                     <BpmfAside text={prompt} game={game.clone()} read=true compact=true />
@@ -177,6 +239,7 @@ fn render_action_dock(
     door_portal: Option<Portal>,
     game: Rc<GameData>,
     on_pad_hold: Callback<(crate::input::Dir, bool)>,
+    _on_select_char: Callback<()>,
 ) -> Html {
   if fit {
     return html! {
@@ -197,7 +260,7 @@ fn render_action_dock(
     };
   }
   html! {
-      <div class="action-dock">
+      <div class="action-dock action-dock-phone">
           if let Some(portal) = door_portal.filter(|p| world::door_enterable(*p)) {
               <p class="map-hint map-hint-door" data-testid="map-hint-door">
                   <BpmfAside text={ "按「進入」開始答題".to_string() } game={game.clone()} read=true compact=true />
@@ -213,6 +276,7 @@ fn render_action_dock(
                   <BpmfAside text={ "按住方向鍵走到建築門口".to_string() } game={game.clone()} read=true />
               </p>
           }
+          <TouchPad on_pad_hold={on_pad_hold} />
       </div>
   }
 }
@@ -299,6 +363,8 @@ pub struct IslandMapProps {
     pub on_enter: Callback<Portal>,
     pub on_map_click: Callback<(f32, f32)>,
     pub on_pad_hold: Callback<(crate::input::Dir, bool)>,
+    #[prop_or_default]
+    pub on_select_char: Callback<()>,
     pub game: Rc<GameData>,
 }
 
@@ -387,7 +453,11 @@ pub fn island_map(props: &IslandMapProps) -> Html {
     };
 
     let cam_x = props.px;
-    let cam_y = props.py;
+    let cam_y = if fit {
+        props.py
+    } else {
+        follow_camera_y(props.py, metrics.vh, PLAYER_H)
+    };
     let scale = metrics.scale;
     let player_boost = player_screen_boost(&metrics, PLAYER_H, PLAYER_MIN_SCREEN_PX);
     let player_screen_h = if fit {
@@ -446,15 +516,6 @@ pub fn island_map(props: &IslandMapProps) -> Html {
             let dust = moving.then(|| html! {
                 <span class="dust-puff" style={format!("left:{}px;top:{}px;", props.px - 8.0, props.py - 6.0)}></span>
             });
-            let follow_bubble = props.door_portal.map(|portal| {
-                let slot = door_bubble_slot_follow(props.px, props.py, orient, portal, metrics.vw);
-                render_door_bubble_compact(
-                    portal,
-                    props.game.clone(),
-                    props.on_enter.clone(),
-                    slot,
-                )
-            });
             layers.push((
                 foot,
                 html! {
@@ -463,7 +524,6 @@ pub fn island_map(props: &IslandMapProps) -> Html {
                             "left:{}px;top:{}px;z-index:{};--player-w:110px;--player-h:{PLAYER_H}px;",
                             props.px - 55.0, props.py - PLAYER_H, z
                         )}>
-                        { follow_bubble }
                         { dust }
                         <div class="island-player island-player-walk" data-testid="island-player"
                             data-walk-col={walk_col.to_string()}
@@ -478,40 +538,23 @@ pub fn island_map(props: &IslandMapProps) -> Html {
 
     layers.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(std::cmp::Ordering::Equal));
 
+    let mut door_bubble_overlay = html! {};
+    let mut fit_door_anchor: Option<(f32, f32, f32, f32)> = None;
     let player_screen = if fit {
         if let Some(ch) = character_by_id(&props.character_id) {
-            let (mut sx, mut sy) = world_to_screen(props.px, props.py, &metrics);
+            let (raw_sx, raw_sy) = world_to_screen(props.px, props.py, &metrics);
             let screen_h = player_screen_h;
             let screen_w = player_screen_w;
-            let pad_top = screen_h + 6.0;
-            let pad_side = screen_w * 0.55;
-            sx = sx.clamp(pad_side, metrics.vw - pad_side);
-            sy = sy.clamp(pad_top, metrics.vh - 8.0);
+            let pad_top = screen_h + VIEWPORT_PAD;
+            let pad_side = screen_w * 0.5;
+            let sx = raw_sx.clamp(pad_side, metrics.vw - pad_side);
+            let sy = raw_sy.clamp(pad_top, metrics.vh - VIEWPORT_PAD);
+            fit_door_anchor = Some((sx, sy, screen_w, screen_h));
             let bob_px = walk_bob * metrics.scale.max(0.25);
             let sheet = walk_url(&ch);
             let extra = format!("translate(-50%,-100%) translateY({bob_px}px)");
             let player_style =
                 sprite_sheet_style(&sheet, walk_col, walk_row, screen_w, screen_h, &extra);
-            let fit_bubble = props.door_portal.map(|portal| {
-                let slot = door_bubble_slot_fit(
-                    sx,
-                    sy,
-                    metrics.vw,
-                    metrics.vh,
-                    screen_w,
-                    screen_h,
-                    props.px,
-                    props.py,
-                    orient,
-                    portal,
-                );
-                render_door_bubble_compact(
-                    portal,
-                    props.game.clone(),
-                    props.on_enter.clone(),
-                    slot,
-                )
-            });
             html! {
                 <div class="island-player-anchor"
                     style={format!(
@@ -526,7 +569,6 @@ pub fn island_map(props: &IslandMapProps) -> Html {
                         data-walk-row={walk_row.to_string()}
                         style={player_style}
                         role="presentation"></div>
-                    { fit_bubble }
                 </div>
             }
         } else {
@@ -535,6 +577,39 @@ pub fn island_map(props: &IslandMapProps) -> Html {
     } else {
         html! {}
     };
+
+    if let Some(portal) = props.door_portal {
+        let (anchor_x, anchor_y, pw, ph) = if fit {
+            if let Some((sx, sy, sw, sh)) = fit_door_anchor {
+                (sx, sy, sw, sh)
+            } else {
+                let (sx, sy) = world_to_screen(props.px, props.py, &metrics);
+                (sx, sy, player_screen_w, player_screen_h)
+            }
+        } else {
+            (
+                metrics.vw * 0.5,
+                metrics.vh * 0.5 + PLAYER_H * 0.08,
+                PLAYER_H * (FRAME_W / FRAME_H),
+                PLAYER_H,
+            )
+        };
+        let pos = clamp_door_bubble_in_viewport(
+            anchor_x,
+            anchor_y,
+            pw,
+            ph,
+            metrics.vw,
+            metrics.vh,
+        );
+        door_bubble_overlay = render_door_bubble_compact(
+            portal,
+            props.game.clone(),
+            props.on_enter.clone(),
+            "door-bubble-viewport",
+            Some(pos),
+        );
+    }
 
     let label_overlay = if fit {
         let mut label_pos: Vec<(Portal, f32, f32)> = landmark_defs
@@ -567,7 +642,14 @@ pub fn island_map(props: &IslandMapProps) -> Html {
                     let (sx, sy) = pos_by.get(portal).copied().unwrap_or((0.0, 0.0));
                     let dx = sx - psx;
                     let dy = sy - psy;
-                    let fade = if dx.hypot(dy) < 78.0 { " island-fit-label-faded" } else { "" };
+                    let hidden = props.door_portal == Some(*portal);
+                    let fade = if hidden {
+                        " island-fit-label-hidden"
+                    } else if dx.hypot(dy) < 78.0 {
+                        " island-fit-label-faded"
+                    } else {
+                        ""
+                    };
                     html! {
                         <div key={world::GateLabel::name(*portal)} class={classes!("island-fit-label", fade)}
                             data-testid={format!("fit-label-{key}")}
@@ -594,6 +676,7 @@ pub fn island_map(props: &IslandMapProps) -> Html {
         props.door_portal,
         props.game.clone(),
         props.on_pad_hold.clone(),
+        props.on_select_char.clone(),
     );
 
     html! {
@@ -607,6 +690,7 @@ pub fn island_map(props: &IslandMapProps) -> Html {
                 </div>
                 { label_overlay }
                 { player_screen }
+                { door_bubble_overlay }
             </div>
             { dock }
         </div>

@@ -1,4 +1,4 @@
-use crate::components::{bind_walk_tick, BpmfAside, IslandMap, TouchPad};
+use crate::components::{bind_walk_tick, BpmfAside, IslandMap};
 use crate::grade1::Grade1Bank;
 use crate::grade1_screens::{Grade1Hub, Grade1Unit};
 use crate::input::Dir;
@@ -511,21 +511,27 @@ pub fn app() -> Html {
             } else {
                 "開啟音效".to_string()
             };
+            let sound_icon = if progress.sound { "🔊" } else { "🔇" };
             html! {
             <div class={classes!("map-screen", (*map_fit).then_some("map-screen-fit"))}>
                 <div class={classes!("hud", (*map_fit).then_some("hud-fit"))}>
-                    <span class="hud-title"><BpmfAside text={ "學習冒險島".to_string() } game={game.clone()} read=true /></span>
+                    <span class="hud-title"><BpmfAside text={ "學習冒險島".to_string() } game={game.clone()} read={*map_fit} /></span>
+                    <button type="button" class={classes!("hud-btn", "hud-ghost", (!*map_fit).then_some("hud-change-char"), (*map_fit).then_some("hud-change-char-fit"))} onclick={Callback::from({
+                        let view = view.clone();
+                        move |_| view.set(View::Select)
+                    })}>
+                        <BpmfAside text={ "換角色".to_string() } game={game.clone()} compact=true />
+                    </button>
                     if *map_fit {
-                        <button type="button" class="hud-btn hud-ghost" onclick={Callback::from({
-                            let view = view.clone();
-                            move |_| view.set(View::Select)
-                        })}>
-                            <BpmfAside text={ "換角色".to_string() } game={game.clone()} compact=true />
+                        <button type="button" class="hud-btn hud-sound-btn" onclick={toggle_sound.clone()}>
+                            <BpmfAside text={sound_label} game={game.clone()} compact={true} />
+                        </button>
+                    } else {
+                        <button type="button" class="hud-btn hud-sound-btn hud-sound-icon" onclick={toggle_sound.clone()}
+                            aria-label={sound_label.clone()}>
+                            <span class="hud-sound-glyph" aria-hidden="true">{ sound_icon }</span>
                         </button>
                     }
-                    <button type="button" class="hud-btn hud-sound-btn" onclick={toggle_sound.clone()}>
-                        <BpmfAside text={sound_label} game={game.clone()} compact={true} />
-                    </button>
                 </div>
                 if !*masks_ready {
                     <p class="loading-pixel">{"地圖載入中…"}</p>
@@ -554,29 +560,11 @@ pub fn app() -> Html {
                                 ctrl.pad_hold(dir, down);
                             }
                         })}
-                        on_enter={on_map_enter.clone()} />
-                }
-                if !*map_fit {
-                    <TouchPad on_pad_hold={Callback::from({
-                            let ctrl = (*map_input).clone();
-                            let walk_target = walk_target.clone();
-                            let prime = prime_audio.clone();
-                            move |(dir, down): (Dir, bool)| {
-                                if down {
-                                    walk_target.set(None);
-                                    prime.emit(());
-                                }
-                                ctrl.pad_hold(dir, down);
-                            }
-                        })} />
-                    <div class="map-actions">
-                        <button type="button" class="pixel-btn ghost" onclick={Callback::from({
+                        on_enter={on_map_enter.clone()}
+                        on_select_char={Callback::from({
                             let view = view.clone();
                             move |_| view.set(View::Select)
-                        })}>
-                            <BpmfAside text={ "換角色".to_string() } game={game.clone()} read=true />
-                        </button>
-                    </div>
+                        })} />
                 }
                 if !*map_fit && matches!(portal_near, Some(Portal::English | Portal::Math)) {
                     <p class="locked-hint"><BpmfAside text={ "這個科目即將開放".to_string() } game={game.clone()} read=true /></p>

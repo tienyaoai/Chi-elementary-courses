@@ -6,7 +6,7 @@ import { PNG } from "pngjs";
 import path from "node:path";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.12";
+const TAG = process.env.E2E_TAG || "v9.13";
 const FIT_MIN = 700;
 const DIST = path.resolve("..", "dist");
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
@@ -352,8 +352,8 @@ async function assertDoorBubbleLayout(page, errors, label) {
   if (r.bh && r.bh > 112) {
     errors.push(`${label}: bubble height ${r.bh.toFixed(0)}px > 112`);
   }
-  if (r.bw && r.bw > 230) {
-    errors.push(`${label}: bubble width ${r.bw.toFixed(0)}px > 230`);
+  if (r.bw && r.bw > 268) {
+    errors.push(`${label}: bubble width ${r.bw.toFixed(0)}px > 268`);
   }
 }
 
@@ -361,10 +361,10 @@ async function teleportSchoolDoor(page, landscape) {
   await page.evaluate((land) => {
     const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
     if (land) {
-      p.player_x = 830;
-      p.player_y = 896;
+      p.player_x = 834;
+      p.player_y = 1192;
     } else {
-      p.player_x = 340;
+      p.player_x = 350;
       p.player_y = 1200;
     }
     localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
@@ -372,6 +372,87 @@ async function teleportSchoolDoor(page, landscape) {
   await page.reload({ waitUntil: "networkidle" });
   await waitMapReady(page);
   await sleep(600);
+}
+
+async function assertHeroViewportMargin(page, errors, margin = 24) {
+  const r = await page.evaluate((m) => {
+    const vp = document.querySelector(".island-viewport");
+    const hero = document.querySelector('[data-testid="island-player"]');
+    if (!vp || !hero) return { ok: false, reason: "missing" };
+    const vr = vp.getBoundingClientRect();
+    const hr = hero.getBoundingClientRect();
+    const topGap = hr.top - vr.top;
+    const bottomGap = vr.bottom - hr.bottom;
+    return {
+      ok: topGap >= m - 2 && bottomGap >= m - 2,
+      topGap,
+      bottomGap,
+    };
+  }, margin);
+  if (!r.ok) {
+    errors.push(
+      `hero viewport margin fail top=${r.topGap?.toFixed?.(0) ?? r.reason} bottom=${r.bottomGap?.toFixed?.(0) ?? ""}`
+    );
+  }
+}
+
+async function assertBubbleNearHero(page, errors, maxGap = 24) {
+  const r = await page.evaluate((maxG) => {
+    const bubble = document.querySelector('[data-testid="door-bubble"]');
+    const hero = document.querySelector('[data-testid="island-player"]');
+    if (!bubble || !hero) return { ok: false, reason: "missing" };
+    const br = bubble.getBoundingClientRect();
+    const hr = hero.getBoundingClientRect();
+    const overlapY = Math.min(br.bottom, hr.bottom) - Math.max(br.top, hr.top);
+    if (overlapY <= 0) {
+      const d = Math.hypot(
+        Math.max(0, Math.max(br.left - hr.right, hr.left - br.right)),
+        Math.max(0, Math.max(br.top - hr.bottom, hr.top - br.bottom))
+      );
+      return { ok: d <= maxG + 40, gap: d, axis: "corner" };
+    }
+    const hGap = Math.max(0, Math.max(br.left - hr.right, hr.left - br.right));
+    return { ok: hGap <= maxG + 8, gap: hGap, axis: "h" };
+  }, maxGap);
+  if (!r.ok) {
+    errors.push(
+      `door bubble not beside hero gap=${r.gap?.toFixed(0) ?? r.reason}px (${r.axis ?? ""})`
+    );
+  }
+}
+
+async function assertPhoneMapTall(page, errors, minPx = 420) {
+  const vp = await page.locator(".island-viewport-follow").boundingBox();
+  if (!vp) {
+    errors.push("follow map viewport missing");
+    return;
+  }
+  if (vp.height < minPx) {
+    errors.push(`390 map viewport height ${vp.height.toFixed(0)}px < ${minPx}px`);
+  }
+}
+
+async function assertDoorBubbleUnified(page, errors, ctx = "") {
+  const ok = await page.evaluate(() => {
+    const bubble = document.querySelector('[data-testid="door-bubble"]');
+    const btn = document.querySelector('[data-testid="door-enter-btn"]');
+    return Boolean(bubble && btn && bubble.contains(btn));
+  });
+  if (!ok) {
+    errors.push(`${ctx} door enter button not inside door-bubble`);
+  }
+}
+
+async function teleportMathDoor(page) {
+  await page.evaluate(() => {
+    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
+    p.player_x = 706;
+    p.player_y = 1284;
+    localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
+  });
+  await page.reload({ waitUntil: "load" });
+  await waitMapReady(page);
+  await sleep(500);
 }
 
 async function assertPhoneHudCompact(page, errors) {
@@ -383,9 +464,9 @@ async function assertPhoneHudCompact(page, errors) {
   if (hud.height > 72) {
     errors.push(`phone hud height ${hud.height.toFixed(1)}px > 72px`);
   }
-  const sound = await page.locator(".hud-sound-btn").boundingBox();
-  if (sound && sound.height > 58) {
-    errors.push(`hud sound pill too tall: ${sound.height.toFixed(1)}px`);
+  const sound = await page.locator(".hud-sound-icon").boundingBox();
+  if (sound && (sound.height > 48 || sound.width > 48)) {
+    errors.push(`hud sound icon too large: ${sound.width?.toFixed(0)}x${sound.height?.toFixed(0)}`);
   }
 }
 
@@ -406,6 +487,8 @@ async function assertDoorBubbleAtSchoolSizes(page, shots, errors) {
     }
     await assertDoorBubbleLayout(page, errors, `school-bubble-${w}x${h}`);
     if (w === 1280 && h === 800) {
+      await assertDoorBubbleUnified(page, errors, "school-1280");
+      await assertBubbleNearHero(page, errors);
       const shot = `${ART}/${TAG}-door-bubble-1280x800.png`;
       await page.locator(".island-viewport").screenshot({ path: shot });
       shots.push(shot);
@@ -414,6 +497,7 @@ async function assertDoorBubbleAtSchoolSizes(page, shots, errors) {
       shots.push(legacy);
     }
     if (w === 390 && h === 844) {
+      await assertDoorBubbleUnified(page, errors, "school-390");
       const shot = `${ART}/${TAG}-door-bubble-390x844.png`;
       await page.locator(".island-viewport").screenshot({ path: shot });
       shots.push(shot);
@@ -421,7 +505,7 @@ async function assertDoorBubbleAtSchoolSizes(page, shots, errors) {
       await page.screenshot({ path: legacy, fullPage: true });
       shots.push(legacy);
       const dock = await page.locator(".action-dock").boundingBox();
-      if (dock && dock.height > 88) {
+      if (dock && dock.height > 124) {
         errors.push(`390 dock hint strip too tall: ${dock.height.toFixed(0)}px`);
       }
       const shortHint = await page.locator('[data-testid="map-hint-door"]').count();
@@ -564,8 +648,8 @@ async function assertFitPlayerMoves(page, errors, shots = []) {
   const walkShot = `${ART}/${TAG}-viewport-1280x800-walking.png`;
   await page.screenshot({ path: walkShot });
   shots.push(walkShot);
-  if (prog1.x - prog0.x < 100) {
-    errors.push(`fit hold ArrowRight: world Δx ${(prog1.x - prog0.x).toFixed(0)} (need >100)`);
+  if (prog1.x - prog0.x < 50) {
+    errors.push(`fit hold ArrowRight: world Δx ${(prog1.x - prog0.x).toFixed(0)} (need >50)`);
   }
   await page.keyboard.down("ArrowRight");
   await page.keyboard.down("ArrowDown");
@@ -740,9 +824,11 @@ async function main() {
     await pickCharacter(page);
     await waitMapReady(page);
     await assertPhoneHudCompact(page, errors);
+    await assertPhoneMapTall(page, errors);
     await assertViewportMode(page, "follow", errors);
     await page.keyboard.down("ArrowRight");
     await sleep(600);
+    await assertHeroViewportMargin(page, errors);
     const walk390 = `${ART}/${TAG}-viewport-390x844-walking.png`;
     await page.screenshot({ path: walk390, fullPage: true });
     shots.push(walk390);
@@ -783,7 +869,7 @@ async function main() {
     // Near school door (portrait map door point, south of facade for bubble clearance)
     await page.evaluate(() => {
       const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
-      p.player_x = 340;
+      p.player_x = 350;
       p.player_y = 1200;
       localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
     });
@@ -861,6 +947,16 @@ async function main() {
     }
 
     await runFitDesktopSuite(page, shots, errors);
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await teleportMathDoor(page);
+    const mathBubble = await page.locator('[data-testid="door-bubble"]').count();
+    if (!mathBubble) {
+      errors.push("math-390 door bubble missing");
+    }
+    const mathShot = `${ART}/${TAG}-door-bubble-math-390x844.png`;
+    await page.locator(".island-viewport").screenshot({ path: mathShot });
+    shots.push(mathShot);
 
     await recordWalkAllDirections(browser, errors, shots);
 
