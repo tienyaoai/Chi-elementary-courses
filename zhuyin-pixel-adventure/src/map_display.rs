@@ -56,7 +56,7 @@ pub fn fit_metrics(vw: f32, vh: f32, orient: MapOrientation) -> FitMetrics {
     let map_h = lay.height as f32;
     let mode = view_mode(vw as f64, vh as f64);
     let scale = if mode == MapViewMode::FitWholeIsland {
-        (vw / map_w).min(vh / map_h)
+        (vw / map_w).min(vh / map_h).max(0.01)
     } else {
         1.0
     };
@@ -97,7 +97,7 @@ pub fn player_screen_boost(m: &FitMetrics, player_world_h: f32, min_screen_px: f
     if on_screen >= min_screen_px {
         1.0
     } else {
-        (min_screen_px / on_screen).min(2.5)
+        (min_screen_px / on_screen).min(4.0)
     }
 }
 
@@ -122,6 +122,15 @@ mod tests {
         assert_eq!(m.mode, MapViewMode::FitWholeIsland);
         assert!(m.scale * m.map_w <= 1280.0 + 0.01);
         assert!(m.scale * m.map_h <= 800.0 + 0.01);
+    }
+
+    #[test]
+    fn player_boost_floor_at_small_scale() {
+        let o = MapOrientation::Landscape;
+        let m = fit_metrics(1280.0, 720.0, o);
+        let boost = player_screen_boost(&m, 110.0, 64.0);
+        let on_screen = 110.0 * m.scale * boost;
+        assert!(on_screen >= 63.5, "on_screen={on_screen}");
     }
 
     #[test]

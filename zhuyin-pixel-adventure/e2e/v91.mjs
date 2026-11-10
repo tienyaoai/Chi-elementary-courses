@@ -6,7 +6,7 @@ import { PNG } from "pngjs";
 import path from "node:path";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.3";
+const TAG = process.env.E2E_TAG || "v9.4";
 const FIT_MIN = 700;
 const DIST = path.resolve("..", "dist");
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
@@ -130,12 +130,76 @@ async function legacyBlankBlueRatio(file) {
   return br.ratio;
 }
 
+function intersectArea(a, b) {
+  const x1 = Math.max(a.x, b.x);
+  const y1 = Math.max(a.y, b.y);
+  const x2 = Math.min(a.x + a.width, b.x + b.width);
+  const y2 = Math.min(a.y + a.height, b.y + b.height);
+  if (x2 <= x1 || y2 <= y1) return 0;
+  return (x2 - x1) * (y2 - y1);
+}
+
+async function assertFitLabels(page, errors) {
+  const pairs = [
+    ["chinese", "lm-chinese"],
+    ["english", "lm-english"],
+    ["math", "lm-math"],
+    ["treasure", "lm-treasure"],
+  ];
+  const labelBoxes = [];
+  for (const [key] of pairs) {
+    const label = page.locator(`[data-testid="fit-label-${key}"]`);
+    const lm = page.locator(`[data-testid="landmark-${key}"]`);
+    const lb = await label.boundingBox();
+    const mb = await lm.boundingBox();
+    if (!lb || !mb) {
+      errors.push(`fit label/landmark box missing ${key}`);
+      continue;
+    }
+    labelBoxes.push({ key, ...lb });
+    const inter = intersectArea(lb, mb);
+    const lmArea = mb.width * mb.height;
+    if (lmArea > 0 && inter / lmArea > 0.15) {
+      errors.push(
+        `${key} label covers ${((inter / lmArea) * 100).toFixed(0)}% of landmark (max 15%)`
+      );
+    }
+  }
+  for (let i = 0; i < labelBoxes.length; i++) {
+    for (let j = i + 1; j < labelBoxes.length; j++) {
+      const inter = intersectArea(labelBoxes[i], labelBoxes[j]);
+      if (inter > 6) {
+        errors.push(
+          `labels ${labelBoxes[i].key} & ${labelBoxes[j].key} overlap ${inter.toFixed(0)}px²`
+        );
+      }
+    }
+  }
+}
+
+async function assertPlayerHeightFit(page, errors, minPx = 64) {
+  const hasFit = await page.locator(".island-viewport-fit").count();
+  if (!hasFit) return;
+  const height = await page.evaluate(() => {
+    const el = document.querySelector('[data-testid="island-player"]');
+    return el ? el.getBoundingClientRect().height : 0;
+  });
+  if (height < minPx - 2) {
+    errors.push(`player screen height ${height.toFixed(0)} < ${minPx}px in fit mode`);
+  }
+}
+
 async function runFitDesktopSuite(page, shots, errors) {
   const sizes = [
     [1280, 800],
     [1920, 1080],
     [1024, 768],
   ];
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.evaluate(() => localStorage.clear());
+  await page.goto(BASE, { waitUntil: "networkidle" });
+  await pickCharacter(page);
+  await waitMapReady(page);
   for (const [w, h] of sizes) {
     await page.setViewportSize({ width: w, height: h });
     await page.reload({ waitUntil: "networkidle" });
@@ -146,6 +210,11 @@ async function runFitDesktopSuite(page, shots, errors) {
     }
     await assertViewportMode(page, "fit", errors);
     await assertFourLandmarksInViewport(page, errors);
+    await assertFitLabels(page, errors);
+    await assertPlayerHeightFit(page, errors);
+    const vpShot = `${ART}/${TAG}-viewport-${w}x${h}.png`;
+    await page.screenshot({ path: vpShot });
+    shots.push(vpShot);
     const shot = `${ART}/${TAG}-map-${w}x${h}.png`;
     await page.locator(".island-viewport").screenshot({ path: shot });
     shots.push(shot);
@@ -166,8 +235,12 @@ async function runFitDesktopSuite(page, shots, errors) {
   });
   await page.reload({ waitUntil: "networkidle" });
   await waitMapReady(page);
-  await sleep(500);
+  await sleep(800);
   const enter = page.locator('[data-testid="enter-portal"]');
+  try {
+    await enter.waitFor({ state: "visible", timeout: 15000 });
+  } catch {
+  }
   if (await enter.count()) {
     await enter.click({ force: true });
     await sleep(800);
@@ -228,6 +301,9 @@ async function main() {
     await waitMapReady(page);
     await assertViewportMode(page, "follow", errors);
     const mapShot = `${ART}/${TAG}-map-390x844.png`;
+    const vpShot390 = `${ART}/${TAG}-viewport-390x844.png`;
+    await page.screenshot({ path: vpShot390 });
+    shots.push(vpShot390);
     const vp = page.locator(".island-viewport");
     await vp.screenshot({ path: mapShot });
     shots.push(mapShot);

@@ -178,6 +178,47 @@ pub fn spawn(orient: MapOrientation) -> (f32, f32) {
     }
 }
 
+pub fn opposite(orient: MapOrientation) -> MapOrientation {
+    match orient {
+        MapOrientation::Portrait => MapOrientation::Landscape,
+        MapOrientation::Landscape => MapOrientation::Portrait,
+    }
+}
+
+/// Keep the same relative spot when switching portrait ↔ landscape maps.
+pub fn remap_position(x: f32, y: f32, from: MapOrientation, to: MapOrientation) -> (f32, f32) {
+    if from == to {
+        return (x, y);
+    }
+    let from_l = layer(from);
+    let to_l = layer(to);
+    let nx = (x / from_l.width as f32).clamp(0.0, 1.0);
+    let ny = (y / from_l.height as f32).clamp(0.0, 1.0);
+    (nx * to_l.width as f32, ny * to_l.height as f32)
+}
+
+pub fn position_in_bounds(x: f32, y: f32, orient: MapOrientation) -> bool {
+    let lay = layer(orient);
+    x >= 0.0 && y >= 0.0 && x <= lay.width as f32 && y <= lay.height as f32
+}
+
+/// Progress may still hold portrait-space numbers while the window uses landscape art (or the reverse).
+pub fn coerce_player_coords(x: f32, y: f32, orient: MapOrientation) -> (f32, f32) {
+    let pw = layer(MapOrientation::Portrait).width as f32;
+    let lw = layer(MapOrientation::Landscape);
+    let lh = lw.height as f32;
+    match orient {
+        // Portrait-space Y cannot exceed landscape canvas height.
+        MapOrientation::Landscape if y > lh + 8.0 => {
+            remap_position(x, y, MapOrientation::Portrait, MapOrientation::Landscape)
+        }
+        MapOrientation::Portrait if x > pw + 8.0 => {
+            remap_position(x, y, MapOrientation::Landscape, MapOrientation::Portrait)
+        }
+        _ => (x, y),
+    }
+}
+
 pub fn walk_overrides(orient: MapOrientation) -> &'static [WalkRect] {
     let c = config();
     match orient {

@@ -25,6 +25,13 @@ pub fn map_orient(view_w: f64, view_h: f64) -> MapOrientation {
     orient_for_viewport(view_w, view_h, mode)
 }
 
+pub fn is_map_fit() -> bool {
+    use crate::map_display::{view_mode, MapViewMode};
+    window_size()
+        .map(|(w, h)| view_mode(w, h) == MapViewMode::FitWholeIsland)
+        .unwrap_or(false)
+}
+
 pub fn portal_near(px: f32, py: f32, orient: MapOrientation) -> Option<Portal> {
     let lm = landmarks(orient);
     let checks: [(&str, crate::map_config::Point, Portal); 4] = [

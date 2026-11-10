@@ -44,18 +44,29 @@ pub fn app() -> Html {
             View::Map
         }
     });
-    let px = use_state(|| progress.player_x);
-    let py = use_state(|| progress.player_y);
+    let px = use_state(|| {
+        let o = world::detect_orientation();
+        map_config::coerce_player_coords(progress.player_x, progress.player_y, o).0
+    });
+    let py = use_state(|| {
+        let o = world::detect_orientation();
+        map_config::coerce_player_coords(progress.player_x, progress.player_y, o).1
+    });
     let frame = use_state(|| 0u8);
     let facing_left = use_state(|| false);
     let walk_target = use_state(|| None::<(f32, f32)>);
     let orient = use_state(world::detect_orientation);
+    let map_fit = use_state(world::is_map_fit);
     let masks_ready = use_state(|| false);
 
     {
         let game = game.clone();
         let masks_ready = masks_ready.clone();
         let orient = orient.clone();
+        let map_fit = map_fit.clone();
+        let px = px.clone();
+        let py = py.clone();
+        let progress = progress.clone();
         use_effect_with((), move |_| {
             let game = game.clone();
             let masks_ready = masks_ready.clone();
@@ -70,9 +81,32 @@ pub fn app() -> Html {
             });
             let on_resize = {
                 let orient = orient.clone();
+                let map_fit = map_fit.clone();
+                let px = px.clone();
+                let py = py.clone();
+                let progress = progress.clone();
                 Closure::wrap(Box::new(move || {
                     if let Some((w, h)) = world::window_size() {
-                        orient.set(world::map_orient(w, h));
+                        map_fit.set(world::is_map_fit());
+                        let new_o = world::map_orient(w, h);
+                        let old_o = *orient;
+                        if old_o != new_o {
+                            let (mut nx, mut ny) =
+                                map_config::remap_position(*px, *py, old_o, new_o);
+                            (nx, ny) = island_walk::clamp_to_map(nx, ny, new_o);
+                            if island_walk::masks_ready() && !island_walk::can_stand(nx, ny, new_o)
+                            {
+                                (nx, ny) = map_config::spawn(new_o);
+                            }
+                            px.set(nx);
+                            py.set(ny);
+                            let mut p = (*progress).clone();
+                            p.player_x = nx;
+                            p.player_y = ny;
+                            p.save();
+                            progress.set(p);
+                        }
+                        orient.set(new_o);
                     }
                 }) as Box<dyn FnMut()>)
             };
@@ -81,6 +115,46 @@ pub fn app() -> Html {
             }
             on_resize.forget();
             || ()
+        });
+    }
+
+    {
+        let px = px.clone();
+        let py = py.clone();
+        let progress = progress.clone();
+        let orient = orient.clone();
+        let masks_ready = masks_ready.clone();
+        use_effect_with((*orient, *masks_ready), move |_| {
+            if !*masks_ready || !island_walk::masks_ready() {
+                return;
+            }
+            let o = *orient;
+            let (cx, cy) = map_config::coerce_player_coords(*px, *py, o);
+            if cx != *px || cy != *py {
+                px.set(cx);
+                py.set(cy);
+                let mut p = (*progress).clone();
+                p.player_x = cx;
+                p.player_y = cy;
+                p.save();
+                progress.set(p);
+            }
+            if map_config::position_in_bounds(cx, cy, o) && island_walk::can_stand(cx, cy, o) {
+                return;
+            }
+            let other = map_config::opposite(o);
+            let (mut nx, mut ny) = map_config::remap_position(cx, cy, other, o);
+            (nx, ny) = island_walk::clamp_to_map(nx, ny, o);
+            if !island_walk::can_stand(nx, ny, o) {
+                (nx, ny) = map_config::spawn(o);
+            }
+            px.set(nx);
+            py.set(ny);
+            let mut p = (*progress).clone();
+            p.player_x = nx;
+            p.player_y = ny;
+            p.save();
+            progress.set(p);
         });
     }
 
@@ -242,7 +316,7 @@ pub fn app() -> Html {
                 })} />
         },
         View::Map => html! {
-            <div class="map-screen">
+            <div class={classes!("map-screen", (*map_fit).then_some("map-screen-fit"))}>
                 <div class="hud">
                     <span class="hud-title"><BpmfAside text={ "學習冒險島".to_string() } game={game.clone()} read=true /></span>
                     <button type="button" class="hud-btn" onclick={toggle_sound.clone()}>
@@ -372,8 +446,15 @@ pub fn app() -> Html {
         },
     };
 
+    let fit_shell = *map_fit;
+    let shell_class = if fit_shell && matches!(&*view, View::Map) {
+        classes!("shell-pixel", "shell-map-fit")
+    } else {
+        classes!("shell-pixel", "shell-wide")
+    };
+
     html! {
-        <main class="shell-pixel shell-wide">
+        <main class={shell_class}>
             { body }
         </main>
     }

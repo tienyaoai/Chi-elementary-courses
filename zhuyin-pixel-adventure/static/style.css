@@ -53,6 +53,48 @@ body {
   }
 }
 
+/* 大螢幕整島 fit：全寬，地圖區吃滿 HUD 以下空間 */
+@media (min-width: 700px) and (min-height: 700px) {
+  .shell-pixel.shell-map-fit {
+    width: min(100%, 100vw);
+    max-width: none;
+    padding: 0.45rem 0.65rem 0.75rem;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .map-screen-fit {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .map-screen-fit .island-map-shell {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .map-screen-fit .island-viewport-fit {
+    flex: 1 1 auto;
+    min-height: 280px;
+    height: auto;
+    width: 100%;
+    max-height: none;
+  }
+
+  .map-screen-fit .map-actions {
+    flex-shrink: 0;
+  }
+
+  .map-screen-fit .touch-pad {
+    display: none;
+  }
+}
+
 /* 國字右側直排注音 */
 .bpmf-aside {
   display: inline;
@@ -98,6 +140,31 @@ body {
 
 .bpmf-aside-lg .bpmf-col {
   font-size: 0.55em;
+}
+
+/* 地圖 fit 膠囊標籤：單行國字 + 右側直排注音 */
+.bpmf-aside-compact {
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  white-space: nowrap;
+  line-height: 1.1;
+}
+
+.bpmf-aside-compact .han {
+  font-size: 23px;
+  line-height: 1.1;
+}
+
+.bpmf-aside-compact .bpmf-col {
+  font-size: 0.55rem;
+  line-height: 1;
+  min-width: 0.7rem;
+}
+
+.bpmf-aside-compact .han-unit {
+  margin: 0 0.05em 0 0;
 }
 
 /* 低年級閱讀：國字與注音同步放大 */
@@ -266,7 +333,7 @@ body {
 
 .island-viewport-fit {
   height: min(85vh, 900px);
-  min-height: 420px;
+  min-height: 280px;
   background: #3d8ec4;
 }
 
@@ -286,23 +353,53 @@ body {
 
 .island-fit-label {
   position: absolute;
-  transform: translate(-50%, -100%);
-  padding: 0.2rem 0.35rem;
-  background: #fffefad4;
-  border: 2px solid var(--ink);
-  border-radius: 8px;
-  box-shadow: 2px 2px 0 #0003;
-  max-width: 11rem;
-  text-align: center;
+  transform: translate(-50%, 0);
+  padding: 0.12rem 0.5rem;
+  background: rgba(255, 254, 250, 0.9);
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 1px 2px 0 #0002;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
-.island-fit-label .bpmf-aside-read .han {
-  font-size: 1.15rem;
-  min-height: 20px;
+.island-viewport-fit .island-fit-label {
+  max-height: 36px;
+  overflow: visible;
 }
 
-.island-fit-label .bpmf-aside-read .bpmf-col {
-  font-size: 0.92rem;
+/* fit 模式：地標與角色用「地圖像素」尺寸，勿用 vh/vw 放大 */
+.island-viewport-fit .island-landmark.lm-chinese {
+  max-height: 300px;
+  max-width: 280px;
+}
+
+.island-viewport-fit .island-landmark.lm-english {
+  max-height: 248px;
+  max-width: 225px;
+}
+
+.island-viewport-fit .island-landmark.lm-math {
+  max-height: 228px;
+  max-width: 205px;
+}
+
+.island-viewport-fit .island-landmark.lm-treasure {
+  max-height: 104px;
+  max-width: 100px;
+}
+
+.island-viewport-fit .island-player {
+  display: none;
+}
+
+.island-player-screen {
+  position: absolute;
+  z-index: 9200;
+  pointer-events: none;
+  object-fit: contain;
+  transform-origin: center bottom;
+  image-rendering: auto;
 }
 
 .island-bg {

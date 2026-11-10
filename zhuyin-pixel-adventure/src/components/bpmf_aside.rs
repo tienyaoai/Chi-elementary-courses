@@ -14,12 +14,16 @@ pub struct BpmfAsideProps {
     pub large: bool,
     #[prop_or(false)]
     pub read: bool,
+    #[prop_or(false)]
+    pub compact: bool,
 }
 
 #[function_component(BpmfAside)]
 pub fn bpmf_aside(props: &BpmfAsideProps) -> Html {
     let units = aside_units(&props.game.readings, &props.text);
-    let size = if props.read {
+    let size = if props.compact {
+        "bpmf-aside-compact"
+    } else if props.read {
         "bpmf-aside-read"
     } else if props.large {
         "bpmf-aside-lg"
