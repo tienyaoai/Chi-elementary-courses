@@ -3,8 +3,8 @@ use crate::island_walk;
 use crate::map_config::{character_by_id, door_point, landmark_url, layer, walk_url, MapOrientation};
 use crate::walk_sprite::{sprite_sheet_style, WalkFacing, FRAME_H, FRAME_W};
 use crate::map_display::{
-    fit_metrics, orient_for_viewport, player_screen_boost, screen_to_world, view_mode,
-    world_to_screen, FitMetrics, MapViewMode, LETTERBOX_SEA,
+    fit_metrics, follow_camera_x, follow_camera_y, orient_for_viewport, player_screen_boost,
+    screen_to_world, view_mode, world_to_screen, FitMetrics, MapViewMode, LETTERBOX_SEA,
 };
 use crate::world::{self, Portal};
 use gloo::timers::callback::Timeout;
@@ -21,24 +21,6 @@ const PLAYER_MIN_SCREEN_PX: f32 = 64.0;
 const DOOR_BUBBLE_W: f32 = 280.0;
 const DOOR_BUBBLE_H: f32 = 88.0;
 const VIEWPORT_PAD: f32 = 8.0;
-const FOLLOW_CAM_LIFT: f32 = 58.0;
-const FOLLOW_VIEW_MARGIN: f32 = 24.0;
-
-fn follow_camera_y(py: f32, vh: f32, player_h: f32) -> f32 {
-    let half = vh * 0.5;
-    let mut cam = py - FOLLOW_CAM_LIFT;
-    let foot_off = py - cam;
-    let top_screen = half + foot_off - player_h;
-    if top_screen < FOLLOW_VIEW_MARGIN {
-        cam = py - (half - FOLLOW_VIEW_MARGIN - player_h);
-    }
-    let foot_screen = half + (py - cam);
-    if foot_screen > vh - FOLLOW_VIEW_MARGIN {
-        cam = py - (half - vh + FOLLOW_VIEW_MARGIN);
-    }
-    cam.max(PLAYER_H)
-}
-
 fn door_bubble_slot_fit(
     sx: f32,
     sy: f32,
@@ -661,8 +643,10 @@ pub fn island_map(props: &IslandMapProps) -> Html {
             let (wx, wy) = if m.mode == MapViewMode::FitWholeIsland {
                 screen_to_world(local_x, local_y, &m)
             } else {
-                let world_x = px + local_x - vw / 2.0;
-                let world_y = py + local_y - vh / 2.0;
+                let cam_x = follow_camera_x(px, vw, m.map_w);
+                let cam_y = follow_camera_y(py, vh, PLAYER_H, m.map_h);
+                let world_x = cam_x + local_x - vw / 2.0;
+                let world_y = cam_y + local_y - vh / 2.0;
                 (world_x, world_y)
             };
             let click_orient = if m.mode == MapViewMode::FitWholeIsland {
@@ -675,11 +659,15 @@ pub fn island_map(props: &IslandMapProps) -> Html {
         })
     };
 
-    let cam_x = props.px;
+    let cam_x = if fit {
+        props.px
+    } else {
+        follow_camera_x(props.px, metrics.vw, metrics.map_w)
+    };
     let cam_y = if fit {
         props.py
     } else {
-        follow_camera_y(props.py, metrics.vh, PLAYER_H)
+        follow_camera_y(props.py, metrics.vh, PLAYER_H, metrics.map_h)
     };
     let scale = metrics.scale;
     let player_boost = player_screen_boost(&metrics, PLAYER_H, PLAYER_MIN_SCREEN_PX);
