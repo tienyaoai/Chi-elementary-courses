@@ -1,0 +1,11 @@
+/workspace/zhuyin-pixel-adventure/target/wasm32-unknown-unknown/debug/deps/js_sys-4f6c7def6c43b4ef.d: /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.107/src/lib.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.107/src/futures/mod.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.107/src/futures/jspi.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.107/src/futures/queue.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.107/src/futures/task/singlethread.rs
+
+/workspace/zhuyin-pixel-adventure/target/wasm32-unknown-unknown/debug/deps/libjs_sys-4f6c7def6c43b4ef.rlib: /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.107/src/lib.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.107/src/futures/mod.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.107/src/futures/jspi.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.107/src/futures/queue.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.107/src/futures/task/singlethread.rs
+
+/workspace/zhuyin-pixel-adventure/target/wasm32-unknown-unknown/debug/deps/libjs_sys-4f6c7def6c43b4ef.rmeta: /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.107/src/lib.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.107/src/futures/mod.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.107/src/futures/jspi.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.107/src/futures/queue.rs /usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.107/src/futures/task/singlethread.rs
+
+/usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.107/src/lib.rs:
+/usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.107/src/futures/mod.rs:
+/usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.107/src/futures/jspi.rs:
+/usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.107/src/futures/queue.rs:
+/usr/local/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.107/src/futures/task/singlethread.rs:

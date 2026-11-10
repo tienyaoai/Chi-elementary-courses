@@ -118,6 +118,9 @@ fn clamp_door_bubble_in_viewport(
         bx = anchor_x + player_w * 0.5 + 12.0;
     }
     bx = bx.clamp(VIEWPORT_PAD, (vw - est_w - VIEWPORT_PAD).max(VIEWPORT_PAD));
+    if vw >= 440.0 && anchor_x < vw * 0.42 && by > anchor_y - player_h * 0.25 {
+        by = anchor_y - player_h * 1.05;
+    }
     if vw >= 440.0 && by + est_h_use > vh - VIEWPORT_PAD {
         by = (anchor_y - player_h * 0.55).clamp(VIEWPORT_PAD, vh - est_h_use - VIEWPORT_PAD);
     }

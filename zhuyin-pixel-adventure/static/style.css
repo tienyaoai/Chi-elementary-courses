@@ -1208,6 +1208,7 @@ body:has(.map-screen:not(.map-screen-fit)) {
   height: 100dvh;
   max-height: 100dvh;
   overflow: hidden;
+  background: #8ed56a;
 }
 
 .hud-title {
