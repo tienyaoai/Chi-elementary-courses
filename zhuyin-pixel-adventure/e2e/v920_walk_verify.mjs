@@ -18,7 +18,10 @@ function sleep(ms) {
 }
 
 async function waitMapReady(page) {
-  await page.waitForSelector(".island-viewport", { timeout: 60000 });
+  await page
+    .locator(".map-screen:not(.map-screen-keeper) .island-viewport")
+    .first()
+    .waitFor({ state: "visible", timeout: 60000 });
   await page.waitForFunction(
     () => !document.body.textContent.includes("地圖載入中"),
     { timeout: 120000 }
