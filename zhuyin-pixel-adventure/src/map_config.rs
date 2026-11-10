@@ -62,6 +62,8 @@ pub struct MapConfigFile {
     pub walk_overrides_landscape: Vec<WalkRect>,
     #[serde(default)]
     pub walk_blocked_portrait: Vec<WalkRect>,
+    #[serde(default)]
+    pub walk_blocked_landscape: Vec<WalkRect>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -279,7 +281,7 @@ pub fn walk_blocked(orient: MapOrientation) -> &'static [WalkRect] {
     let c = config();
     match orient {
         MapOrientation::Portrait => &c.walk_blocked_portrait,
-        MapOrientation::Landscape => &[],
+        MapOrientation::Landscape => &c.walk_blocked_landscape,
     }
 }
 

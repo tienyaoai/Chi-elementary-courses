@@ -36,14 +36,19 @@ fn sync_player_to_map(
         if island_walk::can_stand(cx, cy, orient) {
             return (cx, cy);
         }
-        let other = map_config::opposite(orient);
-        let (rx, ry) = map_config::remap_position(px, py, other, orient);
-        let (rx, ry) = map_config::coerce_player_coords(rx, ry, orient);
-        if map_config::position_in_bounds(rx, ry, orient) && island_walk::can_stand(rx, ry, orient) {
-            return (rx, ry);
-        }
-        if island_walk::can_stand(cx, cy, orient) {
-            return (cx, cy);
+        let pw = map_config::layer(MapOrientation::Portrait).width as f32;
+        let lh = map_config::layer(MapOrientation::Landscape).height as f32;
+        let coords_other_space = match orient {
+            MapOrientation::Landscape => py > lh + 8.0,
+            MapOrientation::Portrait => px > pw + 8.0,
+        };
+        if coords_other_space {
+            let other = map_config::opposite(orient);
+            let (rx, ry) = map_config::remap_position(px, py, other, orient);
+            let (rx, ry) = map_config::coerce_player_coords(rx, ry, orient);
+            if map_config::position_in_bounds(rx, ry, orient) && island_walk::can_stand(rx, ry, orient) {
+                return (rx, ry);
+            }
         }
         return map_config::spawn(orient);
     }
@@ -116,6 +121,7 @@ pub fn app() -> Html {
     let walk_facing = use_state(|| WalkFacing::Down as u8);
     let walk_active = use_state(|| false);
     let walk_sheet_frame = use_state(|| 0_u8);
+    let walk_anim_accum = use_memo((), |_| Rc::new(RefCell::new(None::<f32>)));
     let walk_target = use_state(|| None::<(f32, f32)>);
     let velocity = use_state(|| (0.0_f32, 0.0_f32));
     let walk_phase = use_state(|| 0.0_f32);
@@ -257,26 +263,6 @@ pub fn app() -> Html {
             }
         }
     });
-    {
-        let walk_active = walk_active.clone();
-        let walk_sheet_frame = walk_sheet_frame.clone();
-        use_effect_with(*walk_active, move |active| {
-            let handle = if *active {
-                let walk_sheet_frame = walk_sheet_frame.clone();
-                Some(gloo::timers::callback::Interval::new(125, move || {
-                    walk_sheet_frame.set(((*walk_sheet_frame + 1) % 4) as u8);
-                }))
-            } else {
-                walk_sheet_frame.set(0);
-                None
-            };
-            move || {
-                if let Some(h) = handle {
-                    drop(h);
-                }
-            }
-        });
-    }
     let map_active = matches!(&*view, View::Map);
     let map_move_gate = use_memo((), |_| Rc::new(Cell::new(false)));
     map_move_gate.set(map_active);
@@ -299,6 +285,8 @@ pub fn app() -> Html {
         let orient_live = orient_live.clone();
         let map_move_gate = map_move_gate.clone();
         let on_map_enter = on_map_enter.clone();
+        let walk_sheet_frame = walk_sheet_frame.clone();
+        let walk_anim_accum = walk_anim_accum.clone();
         use_effect_with((), move |_| {
             let on_clear = Callback::from({
                 let walk_target = walk_target.clone();
@@ -326,6 +314,8 @@ pub fn app() -> Html {
                 let walk_phase = walk_phase.clone();
                 let walk_facing = walk_facing.clone();
                 let walk_active = walk_active.clone();
+                let walk_sheet_frame = walk_sheet_frame.clone();
+                let walk_anim_accum = walk_anim_accum.clone();
                 let map_move_gate = map_move_gate.clone();
                 let pos_live = pos_live.clone();
                 move |((dx, dy), (vx, vy)): ((f32, f32), (f32, f32))| {
@@ -338,6 +328,8 @@ pub fn app() -> Html {
                             velocity.set((0.0, 0.0));
                         }
                         walk_active.set(false);
+                        walk_anim_accum.borrow_mut().take();
+                        walk_sheet_frame.set(0);
                         return;
                     }
                     if speed > 10.0 {
@@ -345,9 +337,16 @@ pub fn app() -> Html {
                         walk_facing.set(facing_from_velocity(vx, vy) as u8);
                         velocity.set((vx, vy));
                         walk_active.set(true);
+                        let mut acc = walk_anim_accum.borrow_mut();
+                        let ms = acc.get_or_insert(0.0);
+                        *ms += 16.0;
+                        let frame = ((*ms / 125.0).floor() as u8) % 4;
+                        walk_sheet_frame.set(frame);
                     } else {
                         walk_phase.set(*walk_phase + 0.016 * 0.35);
                         walk_active.set(false);
+                        walk_anim_accum.borrow_mut().take();
+                        walk_sheet_frame.set(0);
                     }
                     let o = *orient;
                     let (x, y) = *pos_live.borrow();

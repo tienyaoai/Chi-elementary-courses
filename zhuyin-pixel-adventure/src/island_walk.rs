@@ -53,6 +53,9 @@ impl WalkMask {
     }
 
     pub fn can_stand(&self, x: f32, y: f32, orient: MapOrientation) -> bool {
+        if walk_block_rect(x, y, orient) {
+            return false;
+        }
         if walk_override(x, y, orient) {
             return true;
         }

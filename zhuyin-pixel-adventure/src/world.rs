@@ -32,32 +32,17 @@ pub fn is_map_fit() -> bool {
         .unwrap_or(false)
 }
 
-/// Near a building landmark (wide) — hints only, not door enter.
-pub fn portal_near(px: f32, py: f32, orient: MapOrientation) -> Option<Portal> {
-    let lm = landmarks(orient);
-    let checks: [(&str, crate::map_config::Point, Portal); 4] = [
-        ("chinese", lm.chinese, Portal::Chinese),
-        ("english", lm.english, Portal::English),
-        ("math", lm.math, Portal::Math),
-        ("treasure", lm.treasure, Portal::Treasure),
-    ];
-    let mut best: Option<(Portal, f32)> = None;
-    for (key, pt, portal) in checks {
-        let r = map_config::enter_radius_for(key);
-        let dx = px - pt.x as f32;
-        let dy = py - pt.y as f32;
-        let d2 = dx * dx + dy * dy;
-        if d2 <= r * r {
-            if best.map(|(_, bd2)| d2 < bd2).unwrap_or(true) {
-                best = Some((portal, d2));
-            }
-        }
+fn portal_landmark_key(p: Portal) -> &'static str {
+    match p {
+        Portal::Chinese => "chinese",
+        Portal::English => "english",
+        Portal::Math => "math",
+        Portal::Treasure => "treasure",
     }
-    best.map(|(p, _)| p)
 }
 
-/// At the door — speech-bubble enter prompt.
-pub fn portal_at_door(px: f32, py: f32, orient: MapOrientation) -> Option<Portal> {
+/// Single door zone (door foot + enter_radius): drives hint, bubble, Enter, and button.
+pub fn portal_door_zone(px: f32, py: f32, orient: MapOrientation) -> Option<Portal> {
     let checks: [(&str, Portal); 4] = [
         ("chinese", Portal::Chinese),
         ("english", Portal::English),
@@ -67,7 +52,7 @@ pub fn portal_at_door(px: f32, py: f32, orient: MapOrientation) -> Option<Portal
     let mut best: Option<(Portal, f32)> = None;
     for (key, portal) in checks {
         let (dx, dy) = map_config::door_point(key, orient);
-        let r = map_config::door_radius_for(key);
+        let r = map_config::enter_radius_for(key);
         let d2 = (px - dx).powi(2) + (py - dy).powi(2);
         if d2 <= r * r {
             if best.map(|(_, bd)| d2 < bd).unwrap_or(true) {
@@ -78,29 +63,17 @@ pub fn portal_at_door(px: f32, py: f32, orient: MapOrientation) -> Option<Portal
     best.map(|(p, _)| p)
 }
 
-fn portal_landmark_key(p: Portal) -> &'static str {
-    match p {
-        Portal::Chinese => "chinese",
-        Portal::English => "english",
-        Portal::Math => "math",
-        Portal::Treasure => "treasure",
-    }
+/// Alias kept for call sites — same predicate as bubble/Enter UI.
+pub fn portal_at_door(px: f32, py: f32, orient: MapOrientation) -> Option<Portal> {
+    portal_door_zone(px, py, orient)
 }
 
-/// Door zone used for Enter/Space and bubble (slightly forgiving at the exact tile).
+pub fn portal_near(px: f32, py: f32, orient: MapOrientation) -> Option<Portal> {
+    portal_door_zone(px, py, orient)
+}
+
 pub fn portal_for_door_enter(px: f32, py: f32, orient: MapOrientation) -> Option<Portal> {
-    if let Some(p) = portal_at_door(px, py, orient) {
-        return Some(p);
-    }
-    let near = portal_near(px, py, orient)?;
-    let key = portal_landmark_key(near);
-    let (dx, dy) = map_config::door_point(key, orient);
-    let r = map_config::door_radius_for(key) * 1.22;
-    let d2 = (px - dx).powi(2) + (py - dy).powi(2);
-    if d2 <= r * r {
-        return Some(near);
-    }
-    None
+    portal_door_zone(px, py, orient)
 }
 
 pub fn door_enterable(portal: Portal) -> bool {

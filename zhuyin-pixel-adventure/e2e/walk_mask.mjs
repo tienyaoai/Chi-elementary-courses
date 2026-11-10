@@ -3,7 +3,20 @@ import path from "node:path";
 
 const STEP = 4;
 
-const PORTRAIT_BLOCKED = [{ x: 400, y: 900, w: 148, h: 320 }];
+const PORTRAIT_BLOCKED = [
+  { x: 400, y: 900, w: 148, h: 288 },
+  { x: 278, y: 1048, w: 148, h: 142 },
+  { x: 632, y: 1128, w: 148, h: 108 },
+  { x: 852, y: 560, w: 98, h: 148 },
+  { x: 478, y: 1198, w: 118, h: 62 },
+];
+
+const LANDSCAPE_BLOCKED = [
+  { x: 742, y: 798, w: 198, h: 258 },
+  { x: 1598, y: 858, w: 152, h: 128 },
+  { x: 2048, y: 448, w: 98, h: 118 },
+  { x: 1218, y: 898, w: 88, h: 58 },
+];
 
 const PORTRAIT_OVERRIDES = [
   { x: 300, y: 1176, w: 58, h: 42 },
@@ -11,11 +24,16 @@ const PORTRAIT_OVERRIDES = [
   { x: 684, y: 1268, w: 48, h: 40 },
   { x: 292, y: 1494, w: 180, h: 32 },
   { x: 502, y: 1256, w: 58, h: 38 },
+  { x: 262, y: 1188, w: 168, h: 44 },
+  { x: 838, y: 698, w: 72, h: 40 },
 ];
 
 const LANDSCAPE_OVERRIDES = [
   { x: 1238, y: 939, w: 280, h: 110 },
-  { x: 782, y: 960, w: 140, h: 220 },
+  { x: 672, y: 1056, w: 168, h: 44 },
+  { x: 798, y: 1052, w: 88, h: 56 },
+  { x: 2026, y: 558, w: 52, h: 42 },
+  { x: 1236, y: 948, w: 48, h: 40 },
 ];
 
 function inOverride(x, y, rects) {
@@ -46,8 +64,8 @@ function sample(mask, x, y) {
 }
 
 function isBlocked(x, y, orient) {
-  if (orient !== "portrait") return false;
-  return PORTRAIT_BLOCKED.some(
+  const rects = orient === "landscape" ? LANDSCAPE_BLOCKED : PORTRAIT_BLOCKED;
+  return rects.some(
     (r) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h
   );
 }
@@ -70,7 +88,13 @@ function tooCloseToWater(mask, x, y) {
 }
 
 export function canStand(mask, x, y) {
+  if (isBlocked(x, y, mask.orient)) {
+    return false;
+  }
   const overrides = mask.orient === "landscape" ? LANDSCAPE_OVERRIDES : PORTRAIT_OVERRIDES;
+  if (overrides.some((r) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h)) {
+    return true;
+  }
   const points = [
     [0, 0],
     [-10, 0],

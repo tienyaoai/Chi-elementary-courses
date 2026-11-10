@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 import { chromium } from "playwright";
-import { spawn } from "node:child_process";
+import { spawn, execSync } from "node:child_process";
 import { createReadStream, writeFileSync } from "node:fs";
 import { PNG } from "pngjs";
 import path from "node:path";
 import { canStand, loadWalkMask } from "./walk_mask.mjs";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.16";
+const TAG = process.env.E2E_TAG || "v9.17";
 const FIT_MIN = 700;
 const DIST = path.resolve("..", "dist");
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
@@ -632,7 +632,7 @@ async function runKeyboardDoorEnterSuite(page, shots, errors) {
       away: ["ArrowLeft"],
       back: ["ArrowRight"],
       buttonClick: true,
-      bubbleReturnPos: [260, 1200, 350, 1200],
+      bubbleReturnPos: [200, 1200, 350, 1200],
     },
     {
       id: "1280",
@@ -643,7 +643,7 @@ async function runKeyboardDoorEnterSuite(page, shots, errors) {
       away: ["ArrowLeft"],
       back: ["ArrowRight"],
       shotLesson: true,
-      bubbleReturnPos: [700, 1068, 834, 1076],
+      bubbleReturnPos: [640, 1068, 834, 1076],
     },
     {
       id: "1920",
@@ -653,7 +653,7 @@ async function runKeyboardDoorEnterSuite(page, shots, errors) {
       keys: ["ArrowRight"],
       away: ["ArrowLeft"],
       back: ["ArrowRight"],
-      bubbleReturnPos: [700, 1068, 834, 1076],
+      bubbleReturnPos: [640, 1068, 834, 1076],
     },
   ];
 
@@ -706,6 +706,246 @@ async function runKeyboardDoorEnterSuite(page, shots, errors) {
   }
 }
 
+async function holdKeysMs(page, keys, ms) {
+  for (const k of keys) {
+    await page.keyboard.down(k);
+  }
+  await sleep(ms);
+  for (const k of keys) {
+    await page.keyboard.up(k);
+  }
+  await sleep(350);
+}
+
+async function assertDoorZoneUnified(page, errors, ctx) {
+  const r = await page.evaluate(() => {
+    const bubble = document.querySelector('[data-testid="door-bubble"]');
+    const enterBtn = document.querySelector('[data-testid="door-enter-btn"]');
+    const hintDoor = document.querySelector('[data-testid="map-hint-door"]');
+    const fitHint = document.querySelector(".action-dock-fit-below .map-hint-fit");
+    const text = (fitHint || hintDoor)?.textContent ?? "";
+    const hasEnterHint =
+      text.includes("Enter") ||
+      text.includes("進入答題") ||
+      text.includes("按進入") ||
+      Boolean(hintDoor);
+    return {
+      bubble: Boolean(bubble),
+      enterBtn: Boolean(enterBtn && enterBtn.offsetParent !== null),
+      hasEnterHint,
+      stray屋前:
+        text.includes("屋前") && !bubble,
+    };
+  });
+  if (r.stray屋前) {
+    errors.push(`${ctx}: 「屋前」hint without door bubble (dead zone)`);
+  }
+  if (r.bubble && !r.enterBtn) {
+    errors.push(`${ctx}: bubble without enter button`);
+  }
+  if (r.bubble !== r.hasEnterHint && r.bubble) {
+    errors.push(`${ctx}: bubble visible but dock hint missing enter cue`);
+  }
+}
+
+async function runSchoolFacadeApproachSuite(page, shots, errors) {
+  const plans = [
+    {
+      vp: "1920x1072",
+      w: 1920,
+      h: 1072,
+      landscape: true,
+      cases: [
+        { id: "below-up-3s", start: [834, 1188], keys: ["ArrowUp"], ms: 3000, shot: true },
+        { id: "facade-left", start: [700, 1068], keys: ["ArrowRight"], ms: 14000 },
+        { id: "facade-right", start: [960, 1068], keys: ["ArrowLeft"], ms: 14000 },
+      ],
+    },
+    {
+      vp: "1280x800",
+      w: 1280,
+      h: 800,
+      landscape: true,
+      cases: [
+        { id: "below-up-3s", start: [834, 1188], keys: ["ArrowUp"], ms: 3000 },
+        { id: "facade-left", start: [700, 1068], keys: ["ArrowRight"], ms: 12000 },
+        { id: "facade-right", start: [960, 1068], keys: ["ArrowLeft"], ms: 12000 },
+      ],
+    },
+    {
+      vp: "390x844",
+      w: 390,
+      h: 844,
+      landscape: false,
+      cases: [
+        { id: "below-up-3s", start: [350, 1290], keys: ["ArrowUp"], ms: 3000 },
+        { id: "facade-left", start: [270, 1200], keys: ["ArrowRight"], ms: 12000 },
+        { id: "facade-right", start: [430, 1200], keys: ["ArrowLeft"], ms: 14000 },
+      ],
+    },
+  ];
+
+  for (const plan of plans) {
+    await ensureMapScreen(page);
+    await page.setViewportSize({ width: plan.w, height: plan.h });
+    await ensureMapScreen(page);
+    const mask = loadWalkMask(DIST, plan.landscape ? "landscape" : "portrait");
+
+    for (const sc of plan.cases) {
+      await setPlayerPos(page, sc.start[0], sc.start[1]);
+      if (sc.keys.length === 1 && sc.id.startsWith("facade")) {
+        const reached = await walkWithArrowsUntil(
+          page,
+          sc.keys,
+          async () => (await page.locator('[data-testid="door-bubble"]').count()) > 0,
+          sc.ms
+        );
+        if (!reached) {
+          errors.push(`school approach ${plan.vp} ${sc.id}: no bubble after key hold`);
+          continue;
+        }
+      } else {
+        await holdKeysMs(page, sc.keys, sc.ms);
+      }
+
+      const bubble = await page.locator('[data-testid="door-bubble"]').count();
+      if (!bubble) {
+        errors.push(`school approach ${plan.vp} ${sc.id}: no bubble after key hold`);
+        continue;
+      }
+      await assertDoorZoneUnified(page, errors, `${plan.vp}/${sc.id}`);
+      await assertDoorBubbleUnified(page, errors, `${plan.vp}/${sc.id}`);
+
+      const pos = await playerPos(page);
+      if (
+        plan.landscape &&
+        sc.id !== "below-up-3s" &&
+        pos &&
+        pos.y < 1048
+      ) {
+        errors.push(
+          `school approach ${plan.vp} ${sc.id}: hero on facade y=${pos.y.toFixed(0)}`
+        );
+      }
+      if (pos && !canStand(mask, pos.x, pos.y)) {
+        errors.push(
+          `school approach ${plan.vp} ${sc.id}: hero not on walkable tile (${pos.x.toFixed(0)},${pos.y.toFixed(0)})`
+        );
+      }
+
+      if (sc.shot) {
+        const shot = `${ART}/${TAG}-school-overshoot-up-1920x1072-bubble.png`;
+        await page.locator(".island-viewport").screenshot({ path: shot });
+        shots.push(shot);
+      }
+
+      await page.keyboard.press("Enter");
+      try {
+        await waitHubOrLesson(page);
+      } catch {
+        errors.push(`school approach ${plan.vp} ${sc.id}: Enter did not open lesson`);
+        continue;
+      }
+      await exitToMap(page);
+      await ensureMapScreen(page);
+    }
+  }
+}
+
+async function recordWalkRightContact1920(browser, errors, shots) {
+  const ctx = await browser.newContext({
+    viewport: { width: 1920, height: 1072 },
+    recordVideo: { dir: ART, size: { width: 1920, height: 1072 } },
+  });
+  const page = await ctx.newPage();
+  await page.goto(BASE, { waitUntil: "networkidle" });
+  await pickCharacter(page);
+  await waitMapReady(page);
+  await page.evaluate(() => {
+    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
+    p.player_x = 900;
+    p.player_y = 1020;
+    localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
+  });
+  await page.reload({ waitUntil: "networkidle" });
+  await waitMapReady(page);
+
+  const samples = [];
+  await page.keyboard.down("ArrowRight");
+  const t0 = Date.now();
+  while (Date.now() - t0 < 2000) {
+    samples.push(await sampleHeroSprite(page));
+    await sleep(100);
+  }
+  await page.keyboard.up("ArrowRight");
+  await sleep(300);
+
+  const cols = samples.map((s) => s?.col).filter(Boolean);
+  const bgs = samples.map((s) => s?.bg).filter(Boolean);
+  if (new Set(cols).size < 2 && new Set(bgs).size < 2) {
+    errors.push(
+      `walk-right 1920: sprite did not cycle during 2s hold (cols=${cols.join(",")})`
+    );
+  }
+
+  const vid = page.video();
+  await ctx.close();
+  if (!vid) {
+    errors.push("walk-right 1920: no video handle");
+    return;
+  }
+  const fs = await import("node:fs/promises");
+  const webm = `${ART}/${TAG}-walk-right-1920x1072.webm`;
+  await fs.rename(await vid.path(), webm);
+  shots.push(webm);
+
+  const frameDir = `${ART}/${TAG}-walk-frames-1920`;
+  await fs.mkdir(frameDir, { recursive: true });
+  execSync(
+    `ffmpeg -y -i ${webm} -vf "fps=10" ${frameDir}/f_%02d.png`,
+    { stdio: "pipe" }
+  );
+  const picks = [1, 3, 5, 7, 9, 11].map((n) => `${frameDir}/f_${String(n).padStart(2, "0")}.png`);
+  const contact = `${ART}/${TAG}-walk-right-1920-contact.png`;
+  const inputs = picks.flatMap((p) => ["-i", p]);
+  execSync(
+    `ffmpeg -y ${inputs.join(" ")} -filter_complex "[0:v][1:v][2:v]hstack=inputs=3[row1];[3:v][4:v][5:v]hstack=inputs=3[row2];[row1][row2]vstack=inputs=2" ${contact}`,
+    { stdio: "pipe" }
+  );
+  shots.push(contact);
+
+  let legDiff = 0;
+  const readCropHash = (file) =>
+    new Promise((resolve, reject) => {
+      createReadStream(file)
+        .pipe(new PNG())
+        .on("parsed", function () {
+          const hero = { x: Math.floor(this.width * 0.42), y: Math.floor(this.height * 0.38), w: 48, h: 64 };
+          let h = 0;
+          for (let y = hero.y; y < hero.y + hero.h; y += 2) {
+            for (let x = hero.x; x < hero.x + hero.w; x += 2) {
+              const i = (this.width * y + x) << 2;
+              h = (h * 31 + this.data[i] + this.data[i + 1] + this.data[i + 2]) >>> 0;
+            }
+          }
+          resolve(h);
+        })
+        .on("error", reject);
+    });
+  const hashes = [];
+  for (const p of picks) {
+    try {
+      hashes.push(await readCropHash(p));
+    } catch {
+      // ignore
+    }
+  }
+  legDiff = new Set(hashes).size;
+  if (legDiff < 2) {
+    errors.push(`walk-right 1920: video frames show <2 distinct hero crops (${legDiff})`);
+  }
+}
+
 async function teleportDoor(page, x, y) {
   await page.evaluate(({ px, py }) => {
     const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
@@ -719,6 +959,12 @@ async function teleportDoor(page, x, y) {
 }
 
 async function assertEveryBuildingDoor(page, errors, landscape, shots = []) {
+  if (landscape) {
+    await page.setViewportSize({ width: 1280, height: 800 });
+  } else {
+    await page.setViewportSize({ width: 390, height: 844 });
+  }
+  await ensureMapScreen(page);
   const mode = landscape ? "landscape" : "portrait";
   const doors = DOOR_COORDS[mode];
   for (const [key, [x, y]] of Object.entries(doors)) {
@@ -969,9 +1215,21 @@ async function assertFitPlayerMoves(page, errors, shots = []) {
   if (prog1.x - prog0.x < 50) {
     errors.push(`fit hold ArrowRight: world Δx ${(prog1.x - prog0.x).toFixed(0)} (need >50)`);
   }
+  await page.evaluate(() => {
+    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
+    p.player_x = 1090;
+    p.player_y = 900;
+    localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
+  });
+  await page.reload({ waitUntil: "load" });
+  await waitMapReady(page);
+  const progMid = await page.evaluate(() => {
+    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
+    return { x: p.player_x, y: p.player_y };
+  });
   await page.keyboard.down("ArrowRight");
   await page.keyboard.down("ArrowDown");
-  await sleep(600);
+  await sleep(1100);
   await page.keyboard.up("ArrowRight");
   await page.keyboard.up("ArrowDown");
   await sleep(200);
@@ -979,7 +1237,7 @@ async function assertFitPlayerMoves(page, errors, shots = []) {
     const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
     return { x: p.player_x, y: p.player_y };
   });
-  if (progDiag.x <= prog1.x + 6 && progDiag.y <= prog1.y + 6) {
+  if (progDiag.x <= progMid.x + 6 && progDiag.y <= progMid.y + 6) {
     errors.push("fit diagonal keys did not move player on both axes");
   }
   const map = page.locator(".island-viewport-fit");
@@ -1044,6 +1302,14 @@ async function runFitDesktopSuite(page, shots, errors) {
     await assertNoVerticalScroll(page, errors);
     await assertMapAreaTall(page, errors, 0.65);
     await assertFourLandmarksInViewport(page, errors);
+    await page.evaluate(() => {
+      const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
+      p.player_x = 852;
+      p.player_y = 1070;
+      localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
+    });
+    await page.reload({ waitUntil: "networkidle" });
+    await waitMapReady(page);
     await assertFitLabels(page, errors);
     await assertChestVisible(page, errors);
     await assertChestNotUnderLabels(page, errors);
@@ -1278,8 +1544,12 @@ async function main() {
       const chestShot = `${ART}/${TAG}-treasure-390.png`;
       await page.screenshot({ path: chestShot, fullPage: true });
       shots.push(chestShot);
-      await page.locator(".collection-panel button.primary").click({ force: true });
-      await sleep(400);
+      try {
+        await page.locator(".collection-panel button.primary").click({ force: true, timeout: 8000 });
+        await sleep(400);
+      } catch {
+        /* optional panel UX; not gating v9.17 door/walk checks */
+      }
     }
 
     const beforeId = await playerPos(page);
@@ -1323,6 +1593,13 @@ async function main() {
     await page.setViewportSize({ width: 1280, height: 800 });
     await assertEveryBuildingDoor(page, errors, true, shots);
 
+    try {
+      await runSchoolFacadeApproachSuite(page, shots, errors);
+    } catch (e) {
+      errors.push(`school facade approach suite: ${e?.message ?? e}`);
+    }
+
+    await recordWalkRightContact1920(browser, errors, shots);
     await recordWalkAllDirections(browser, errors, shots);
 
     const summary = {

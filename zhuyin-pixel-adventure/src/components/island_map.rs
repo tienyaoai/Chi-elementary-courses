@@ -493,7 +493,7 @@ fn render_action_dock(
                     <p class="map-hint map-hint-fit fit-dock-name" data-testid="map-hint-door">
                         <BpmfAside text={ "按 Enter 進入".to_string() } game={game.clone()} read=true />
                     </p>
-                } else if let Some(portal) = portal_near {
+                } else if let Some(portal) = portal_near.filter(|p| !world::door_enterable(*p)) {
                     <p class="map-hint map-hint-fit fit-dock-name">
                         <BpmfAside text={ world::GateLabel::hint(portal).to_string() } game={game.clone()} read=true />
                     </p>
@@ -513,7 +513,7 @@ fn render_action_dock(
               <p class="map-hint map-hint-door" data-testid="map-hint-door">
                   <BpmfAside text={ "按進入答題".to_string() } game={game.clone()} read=true compact=true />
               </p>
-          } else if let Some(portal) = portal_near {
+          } else if let Some(portal) = portal_near.filter(|p| !world::door_enterable(*p)) {
               <p class="map-hint map-hint-large">
                   <BpmfAside text={ world::GateLabel::name(portal).to_string() } game={game.clone()} read=true compact=true />
                   { " · " }
