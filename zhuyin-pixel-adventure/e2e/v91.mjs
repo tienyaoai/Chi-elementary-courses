@@ -1605,7 +1605,10 @@ async function recordPadHold390Webm(browser, errors, shots) {
 }
 
 async function assertWalkSpriteAnim(page, errors, shots) {
-  await page.locator(".island-viewport").click({ position: { x: 200, y: 200 } });
+  const vp = await activeMapViewport(page);
+  if (await vp.count()) {
+    await vp.first().click({ position: { x: 200, y: 200 }, force: true });
+  }
   await sleep(100);
   await page.keyboard.down("ArrowRight");
   const frames = [];
@@ -1700,15 +1703,11 @@ async function assertFitPlayerMoves(page, errors, shots = []) {
   await ensureMapScreen(page);
   await setPlayerPos(page, 720, 1020);
   await focusMapForWalk(page);
-  await page.keyboard.up("ArrowRight");
-  await page.keyboard.up("ArrowLeft");
-  await page.keyboard.up("ArrowUp");
-  await page.keyboard.up("ArrowDown");
-  await assertWalkSpriteAnim(page, errors, shots);
-  const prog0 = await page.evaluate(() => {
-    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
-    return { x: p.player_x, y: p.player_y };
-  });
+  for (const k of ["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown"]) {
+    await page.keyboard.up(k);
+  }
+  await sleep(150);
+  const prog0 = await playerPos(page);
   const holdPad = page.locator('[data-testid="fit-pad-right"]');
   const holdBox = await holdPad.boundingBox();
   if (!holdBox) {
@@ -1720,16 +1719,14 @@ async function assertFitPlayerMoves(page, errors, shots = []) {
   await sleep(2000);
   await page.mouse.up({ button: "left" });
   await sleep(300);
-  const prog1 = await page.evaluate(() => {
-    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
-    return { x: p.player_x, y: p.player_y };
-  });
+  const prog1 = await playerPos(page);
   const walkShot = `${ART}/${TAG}-viewport-1280x800-walking.png`;
   await page.screenshot({ path: walkShot });
   shots.push(walkShot);
   if (prog1.x - prog0.x < 28) {
     errors.push(`fit hold ArrowRight: world Δx ${(prog1.x - prog0.x).toFixed(0)} (need >28)`);
   }
+  await assertWalkSpriteAnim(page, errors, shots);
   await setPlayerPos(page, 720, 1020);
   await focusMapForWalk(page);
   const progMid = await playerPos(page);
@@ -1788,6 +1785,7 @@ async function assertMapViewportHeightStable(page, baseHeight, errors, ctx = "")
 }
 
 async function runFitDesktopSuite(page, shots, errors) {
+  await ensureMapScreen(page);
   const sizes = [
     [1280, 800],
     [1440, 900],
