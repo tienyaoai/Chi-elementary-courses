@@ -765,9 +765,8 @@ body {
   position: absolute;
   z-index: 9900;
   pointer-events: none;
-  object-fit: contain;
   transform-origin: center bottom;
-  image-rendering: auto;
+  image-rendering: pixelated;
 }
 
 .island-bg {
@@ -834,11 +833,15 @@ body {
 
 .island-player {
   position: absolute;
-  max-height: 130px;
-  max-width: 120px;
   transform-origin: center bottom;
   pointer-events: none;
   user-select: none;
+  image-rendering: pixelated;
+}
+
+.island-player-walk {
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .map-hint-large {

@@ -87,7 +87,8 @@
       "full": "char1-strawhat-full.webp",
       "short": "草帽",
       "zhuyin": "ㄋㄧˇ",
-      "gender": "男"
+      "gender": "男",
+      "walk": "char1-strawhat-walk.webp"
     },
     {
       "id": "char2",
@@ -96,7 +97,8 @@
       "full": "char2-bluescarf-full.webp",
       "short": "藍巾",
       "zhuyin": "ㄋㄧˇ",
-      "gender": "男"
+      "gender": "男",
+      "walk": "char2-bluescarf-walk.webp"
     },
     {
       "id": "char3",
@@ -105,7 +107,8 @@
       "full": "char3-pinkpigtails-full.webp",
       "short": "粉妮",
       "zhuyin": "ㄋㄧˇ",
-      "gender": "女"
+      "gender": "女",
+      "walk": "char3-pinkpigtails-walk.webp"
     },
     {
       "id": "char4",
@@ -114,7 +117,8 @@
       "full": "char4-yellowoveralls-full.webp",
       "short": "小黃",
       "zhuyin": "ㄋㄧˇ",
-      "gender": "男"
+      "gender": "男",
+      "walk": "char4-yellowoveralls-walk.webp"
     },
     {
       "id": "char5",
@@ -123,7 +127,8 @@
       "full": "char5-glassescloak-full.webp",
       "short": "小博",
       "zhuyin": "ㄋㄧˇ",
-      "gender": "男"
+      "gender": "男",
+      "walk": "char5-glassescloak-walk.webp"
     },
     {
       "id": "char6",
@@ -132,7 +137,8 @@
       "full": "char6-tealtunic-full.webp",
       "short": "小青",
       "zhuyin": "ㄋㄧˇ",
-      "gender": "男"
+      "gender": "男",
+      "walk": "char6-tealtunic-walk.webp"
     },
     {
       "id": "char7",
@@ -141,7 +147,8 @@
       "full": "char7-orangehoodie-full.webp",
       "short": "小橘",
       "zhuyin": "ㄋㄧˇ",
-      "gender": "女"
+      "gender": "女",
+      "walk": "char7-orangehoodie-walk.webp"
     },
     {
       "id": "char8",
@@ -150,7 +157,8 @@
       "full": "char8-redribbon-full.webp",
       "short": "小紅",
       "zhuyin": "ㄋㄧˇ",
-      "gender": "女"
+      "gender": "女",
+      "walk": "char8-redribbon-walk.webp"
     },
     {
       "id": "char9",
@@ -159,7 +167,8 @@
       "full": "char9-sailor-full.webp",
       "short": "小葵",
       "zhuyin": "ㄋㄧˇ",
-      "gender": "女"
+      "gender": "女",
+      "walk": "char9-sailor-walk.webp"
     },
     {
       "id": "char10",
@@ -168,7 +177,8 @@
       "full": "char10-lavenderbuns-full.webp",
       "short": "紫丸",
       "zhuyin": "ㄋㄧˇ",
-      "gender": "女"
+      "gender": "女",
+      "walk": "char10-lavenderbuns-walk.webp"
     },
     {
       "id": "char11",
@@ -177,7 +187,8 @@
       "full": "char11-mintcardigan-full.webp",
       "short": "薄荷",
       "zhuyin": "ㄋㄧˇ",
-      "gender": "女"
+      "gender": "女",
+      "walk": "char11-mintcardigan-walk.webp"
     },
     {
       "id": "char12",
@@ -186,7 +197,8 @@
       "full": "char12-redcap-full.webp",
       "short": "小帽",
       "zhuyin": "ㄋㄧˇ",
-      "gender": "男"
+      "gender": "男",
+      "walk": "char12-redcap-walk.webp"
     }
   ],
   "enter_radius": 140,

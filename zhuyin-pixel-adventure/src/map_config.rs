@@ -26,6 +26,8 @@ pub struct CharacterEntry {
     pub slug: String,
     pub bust: String,
     pub full: String,
+    #[serde(default)]
+    pub walk: String,
     pub short: String,
     #[serde(default)]
     pub zhuyin: String,
@@ -181,6 +183,14 @@ pub fn full_url(entry: &CharacterEntry) -> String {
     format!("/characters/{}", entry.full)
 }
 
+pub fn walk_url(entry: &CharacterEntry) -> String {
+    if entry.walk.is_empty() {
+        full_url(entry)
+    } else {
+        format!("/characters/{}", entry.walk)
+    }
+}
+
 pub fn landmark_url(key: &str) -> String {
     let f = config().landmark_files.clone();
     let name = match key {
@@ -295,6 +305,9 @@ pub fn preload_urls() -> Vec<String> {
     for ch in &c.characters {
         urls.push(bust_url(ch));
         urls.push(full_url(ch));
+        if !ch.walk.is_empty() {
+            urls.push(walk_url(ch));
+        }
     }
     urls
 }
@@ -332,6 +345,13 @@ mod tests {
         for ch in &config().characters {
             assert!(root.join("characters").join(&ch.bust).is_file(), "{}", ch.bust);
             assert!(root.join("characters").join(&ch.full).is_file(), "{}", ch.full);
+            if !ch.walk.is_empty() {
+                assert!(
+                    root.join("characters").join(&ch.walk).is_file(),
+                    "{}",
+                    ch.walk
+                );
+            }
         }
         let lf = &config().landmark_files;
         for name in [&lf.chinese, &lf.english, &lf.math, &lf.treasure] {

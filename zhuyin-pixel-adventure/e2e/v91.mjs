@@ -6,7 +6,7 @@ import { PNG } from "pngjs";
 import path from "node:path";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.10";
+const TAG = process.env.E2E_TAG || "v9.11";
 const FIT_MIN = 700;
 const DIST = path.resolve("..", "dist");
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
@@ -413,7 +413,121 @@ async function assertDoorBubbleAtSchoolSizes(page, shots, errors) {
   await teleportSchoolDoor(page, true);
 }
 
+async function sampleHeroSprite(page) {
+  return page.evaluate(() => {
+    const el = document.querySelector('[data-testid="island-player"]');
+    if (!el) return null;
+    const rect = el.getBoundingClientRect();
+    return {
+      col: el.getAttribute("data-walk-col"),
+      row: el.getAttribute("data-walk-row"),
+      h: rect.height,
+      bg: getComputedStyle(el).backgroundPosition,
+    };
+  });
+}
+
+async function assertWalkSpriteAnim(page, errors, shots) {
+  await page.locator(".island-viewport").click({ position: { x: 200, y: 200 } });
+  await sleep(100);
+  await page.keyboard.down("ArrowRight");
+  const frames = [];
+  for (let i = 0; i < 4; i++) {
+    await sleep(125);
+    frames.push(await sampleHeroSprite(page));
+    const shot = `${ART}/${TAG}-walk-frame-${i}-1280.png`;
+    await page.screenshot({ path: shot });
+    shots.push(shot);
+  }
+  const firstCol = frames[0]?.col ?? "0";
+  const firstBg = frames[0]?.bg ?? "";
+  let sawChange = new Set(frames.map((f) => f?.col)).size >= 2;
+  if (!sawChange) {
+    try {
+      await page.waitForFunction(
+        ({ col0, bg0 }) => {
+          const el = document.querySelector('[data-testid="island-player"]');
+          if (!el) return false;
+          const col = el.getAttribute("data-walk-col");
+          const bg = getComputedStyle(el).backgroundPosition;
+          return col !== col0 || bg !== bg0;
+        },
+        { col0: firstCol, bg0: firstBg },
+        { timeout: 1500 }
+      );
+      sawChange = true;
+      frames.push(await sampleHeroSprite(page));
+    } catch {
+      sawChange = false;
+    }
+  }
+  await page.keyboard.up("ArrowRight");
+  await sleep(250);
+  const cols = frames.map((f) => f?.col);
+  const bgs = frames.map((f) => f?.bg);
+  if (!sawChange && new Set(cols).size < 2) {
+    errors.push(`walk sprite data-walk-col static across 125ms samples: ${cols.join(",")}`);
+  }
+  if (!sawChange && new Set(bgs).size < 2) {
+    errors.push(`walk sprite background-position static: ${bgs.join(" | ")}`);
+  }
+  const heights = frames.map((f) => f?.h).filter((h) => h != null);
+  if (heights.length >= 4 && Math.max(...heights) - Math.min(...heights) > 2) {
+    errors.push(
+      `walk sprite height jitter ${(Math.max(...heights) - Math.min(...heights)).toFixed(2)}px > 2`
+    );
+  }
+  if (frames[0]?.row !== "2") {
+    errors.push(`expected walk row 2 (right), got ${frames[0]?.row}`);
+  }
+}
+
+async function recordWalkAllDirections(browser, errors, shots) {
+  const ctx = await browser.newContext({
+    viewport: { width: 1280, height: 800 },
+    recordVideo: { dir: ART, size: { width: 1280, height: 800 } },
+  });
+  const page = await ctx.newPage();
+  await page.goto(BASE, { waitUntil: "networkidle" });
+  await pickCharacter(page);
+  await waitMapReady(page);
+  await page.evaluate(() => {
+    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
+    p.player_x = 720;
+    p.player_y = 780;
+    localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
+  });
+  await page.reload({ waitUntil: "networkidle" });
+  await waitMapReady(page);
+  for (const key of ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"]) {
+    await page.keyboard.down(key);
+    await sleep(1400);
+    await page.keyboard.up(key);
+    await sleep(350);
+  }
+  const vid = page.video();
+  await ctx.close();
+  if (!vid) {
+    errors.push("walk webm: no video handle");
+    return;
+  }
+  const src = await vid.path();
+  const dest = `${ART}/${TAG}-walk-4dir.webm`;
+  const fs = await import("node:fs/promises");
+  await fs.rename(src, dest);
+  shots.push(dest);
+}
+
 async function assertFitPlayerMoves(page, errors, shots = []) {
+  await page.evaluate(() => {
+    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
+    p.player_x = 1180;
+    p.player_y = 820;
+    localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
+  });
+  await page.reload({ waitUntil: "load" });
+  await waitMapReady(page);
+  await assertWalkSpriteAnim(page, errors, shots);
   const prog0 = await page.evaluate(() => {
     const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
     return { x: p.player_x, y: p.player_y };
@@ -605,6 +719,13 @@ async function main() {
     await pickCharacter(page);
     await waitMapReady(page);
     await assertViewportMode(page, "follow", errors);
+    await page.keyboard.down("ArrowRight");
+    await sleep(600);
+    const walk390 = `${ART}/${TAG}-viewport-390x844-walking.png`;
+    await page.screenshot({ path: walk390, fullPage: true });
+    shots.push(walk390);
+    await page.keyboard.up("ArrowRight");
+    await sleep(200);
     const mapShot = `${ART}/${TAG}-map-390x844.png`;
     const vpShot390 = `${ART}/${TAG}-viewport-390x844.png`;
     await page.screenshot({ path: vpShot390 });
@@ -718,6 +839,8 @@ async function main() {
     }
 
     await runFitDesktopSuite(page, shots, errors);
+
+    await recordWalkAllDirections(browser, errors, shots);
 
     const summary = {
       ok: errors.length === 0,

@@ -1,6 +1,7 @@
 use crate::components::{BpmfAside, FitDirPad};
 use crate::island_walk;
-use crate::map_config::{character_by_id, door_point, full_url, landmark_url, layer, MapOrientation};
+use crate::map_config::{character_by_id, door_point, landmark_url, layer, walk_url, MapOrientation};
+use crate::walk_sprite::{sprite_sheet_style, WalkFacing, FRAME_H, FRAME_W};
 use crate::map_display::{
     fit_metrics, orient_for_viewport, player_screen_boost, screen_to_world, view_mode,
     world_to_screen, FitMetrics, MapViewMode, LETTERBOX_SEA,
@@ -216,21 +217,13 @@ fn render_action_dock(
   }
 }
 
-fn walk_fx(phase: f32, vel: (f32, f32)) -> (f32, f32) {
-    use std::f32::consts::TAU;
-    let speed = vel.0.hypot(vel.1);
-    let moving = speed > 10.0;
-    let bob = if moving {
-        (phase * TAU * 4.0).sin() * 3.6
+fn walk_bob_px(phase: f32, vel: (f32, f32)) -> f32 {
+    let moving = vel.0.hypot(vel.1) > 10.0;
+    if moving {
+        0.0
     } else {
-        (phase * 0.45).sin() * 1.1
-    };
-    let squash = if moving {
-        1.0 - 0.034 * (phase * TAU * 4.0).sin().abs()
-    } else {
-        1.0 - 0.012 * (phase * 0.45).sin().abs()
-    };
-    (bob, squash)
+        (phase * 0.35).sin() * 1.0
+    }
 }
 
 fn label_offset_below_portal(portal: Portal) -> (f32, f32) {
@@ -291,7 +284,12 @@ pub struct IslandMapProps {
     pub py: f32,
     pub frame: u8,
     pub orient: MapOrientation,
-    pub facing_left: bool,
+    #[prop_or(WalkFacing::Down as u8)]
+    pub walk_facing: u8,
+    #[prop_or_default]
+    pub walk_active: bool,
+    #[prop_or_default]
+    pub walk_sheet_frame: u8,
     pub portal_near: Option<Portal>,
     pub door_portal: Option<Portal>,
   #[prop_or_default]
@@ -312,8 +310,14 @@ pub fn island_map(props: &IslandMapProps) -> Html {
     let lay = layer(orient);
     let map_w = lay.width;
     let map_h = lay.height;
-    let (walk_bob, walk_squash) = walk_fx(props.walk_phase, props.velocity);
-    let moving = props.velocity.0.hypot(props.velocity.1) > 10.0;
+    let walk_bob = walk_bob_px(props.walk_phase, props.velocity);
+    let moving = props.walk_active || props.velocity.0.hypot(props.velocity.1) > 10.0;
+    let walk_row = props.walk_facing.min(3);
+    let walk_col = if moving {
+        props.walk_sheet_frame.min(3)
+    } else {
+        0
+    };
     let fit = metrics.mode == MapViewMode::FitWholeIsland;
 
     {
@@ -433,11 +437,12 @@ pub fn island_map(props: &IslandMapProps) -> Html {
     if !fit {
         if let Some(ch) = character_by_id(&props.character_id) {
             let foot = props.py;
-            let flip = if props.facing_left { "scaleX(-1)" } else { "none" };
             let z = foot as i32 + 12000;
-            let player_transform = format!(
-                "{flip} translateY({walk_bob}px) scaleY({walk_squash})"
-            );
+            let follow_w = PLAYER_H * (FRAME_W / FRAME_H);
+            let sheet = walk_url(&ch);
+            let extra = format!("translateY({walk_bob}px)");
+            let player_style =
+                sprite_sheet_style(&sheet, walk_col, walk_row, follow_w, PLAYER_H, &extra);
             let dust = moving.then(|| html! {
                 <span class="dust-puff" style={format!("left:{}px;top:{}px;", props.px - 8.0, props.py - 6.0)}></span>
             });
@@ -460,9 +465,11 @@ pub fn island_map(props: &IslandMapProps) -> Html {
                         )}>
                         { follow_bubble }
                         { dust }
-                        <img class="island-player" src={full_url(&ch)} data-testid="island-player"
-                            style={format!("transform:{};", player_transform)}
-                            alt="" draggable="false" />
+                        <div class="island-player island-player-walk" data-testid="island-player"
+                            data-walk-col={walk_col.to_string()}
+                            data-walk-row={walk_row.to_string()}
+                            style={player_style}
+                            role="presentation"></div>
                     </div>
                 },
             ));
@@ -480,8 +487,11 @@ pub fn island_map(props: &IslandMapProps) -> Html {
             let pad_side = screen_w * 0.55;
             sx = sx.clamp(pad_side, metrics.vw - pad_side);
             sy = sy.clamp(pad_top, metrics.vh - 8.0);
-            let flip = if props.facing_left { "scaleX(-1)" } else { "none" };
             let bob_px = walk_bob * metrics.scale.max(0.25);
+            let sheet = walk_url(&ch);
+            let extra = format!("translate(-50%,-100%) translateY({bob_px}px)");
+            let player_style =
+                sprite_sheet_style(&sheet, walk_col, walk_row, screen_w, screen_h, &extra);
             let fit_bubble = props.door_portal.map(|portal| {
                 let slot = door_bubble_slot_fit(
                     sx,
@@ -511,11 +521,11 @@ pub fn island_map(props: &IslandMapProps) -> Html {
                         <span class="dust-puff dust-puff-fit"
                             style={format!("left:0;bottom:100%;margin-bottom:4px;")}></span>
                     }
-                    <img class="island-player-screen" src={full_url(&ch)} data-testid="island-player"
-                        style={format!(
-                            "width:{screen_w}px;height:{screen_h}px;transform:translate(-50%,-100%) {flip} translateY({bob_px}px) scaleY({walk_squash});"
-                        )}
-                        alt="" draggable="false" />
+                    <div class="island-player-screen" data-testid="island-player"
+                        data-walk-col={walk_col.to_string()}
+                        data-walk-row={walk_row.to_string()}
+                        style={player_style}
+                        role="presentation"></div>
                     { fit_bubble }
                 </div>
             }

@@ -4,6 +4,7 @@ use crate::grade1_screens::{Grade1Hub, Grade1Unit};
 use crate::input::Dir;
 use crate::island_walk;
 use crate::map_input::{install_continuous_map_move, slide_move, MapInputController, WALK_SPEED_PX_PER_SEC};
+use crate::walk_sprite::{facing_from_velocity, WalkFacing};
 use crate::map_config::{self, MapOrientation};
 use crate::pixel_art_preload::preload_urls;
 use crate::progress::PixelProgress;
@@ -60,6 +61,12 @@ fn apply_player_pos(
     px.set(nx);
     py.set(ny);
     let mut p = (**progress).clone();
+    if p.character_id.is_empty() {
+        let fresh = PixelProgress::load();
+        if !fresh.character_id.is_empty() {
+            p.character_id = fresh.character_id;
+        }
+    }
     p.player_x = nx;
     p.player_y = ny;
     p.save();
@@ -104,7 +111,9 @@ pub fn app() -> Html {
         map_config::coerce_player_coords(progress.player_x, progress.player_y, o).1
     });
     let frame = use_state(|| 0u8);
-    let facing_left = use_state(|| false);
+    let walk_facing = use_state(|| WalkFacing::Down as u8);
+    let walk_active = use_state(|| false);
+    let walk_sheet_frame = use_state(|| 0_u8);
     let walk_target = use_state(|| None::<(f32, f32)>);
     let velocity = use_state(|| (0.0_f32, 0.0_f32));
     let walk_phase = use_state(|| 0.0_f32);
@@ -186,7 +195,7 @@ pub fn app() -> Html {
         let px = px.clone();
         let py = py.clone();
         let frame = frame.clone();
-        let facing_left = facing_left.clone();
+        let walk_facing = walk_facing.clone();
         let progress = progress.clone();
         let orient = orient.clone();
         let velocity = velocity.clone();
@@ -201,12 +210,12 @@ pub fn app() -> Html {
                 return;
             }
             let (cx, cy) = *pos_live.borrow();
-            if vx.abs() > 1.0 {
-                facing_left.set(vx < 0.0);
+            if vx.hypot(vy) > 1.0 {
+                walk_facing.set(facing_from_velocity(vx, vy) as u8);
             } else if nx < cx - 0.5 {
-                facing_left.set(true);
+                walk_facing.set(WalkFacing::Left as u8);
             } else if nx > cx + 0.5 {
-                facing_left.set(false);
+                walk_facing.set(WalkFacing::Right as u8);
             }
             if (nx - cx).hypot(ny - cy) > 0.05 {
                 frame.set(*frame + 1);
@@ -216,6 +225,12 @@ pub fn app() -> Html {
             py.set(ny);
             *pos_live.borrow_mut() = (nx, ny);
             let mut p = (*progress).clone();
+            if p.character_id.is_empty() {
+                let fresh = PixelProgress::load();
+                if !fresh.character_id.is_empty() {
+                    p.character_id = fresh.character_id;
+                }
+            }
             p.player_x = nx;
             p.player_y = ny;
             p.save();
@@ -224,6 +239,26 @@ pub fn app() -> Html {
     };
 
     *pos_live.borrow_mut() = (*px, *py);
+    {
+        let walk_active = walk_active.clone();
+        let walk_sheet_frame = walk_sheet_frame.clone();
+        use_effect_with(*walk_active, move |active| {
+            let handle = if *active {
+                let walk_sheet_frame = walk_sheet_frame.clone();
+                Some(gloo::timers::callback::Interval::new(125, move || {
+                    walk_sheet_frame.set(((*walk_sheet_frame + 1) % 4) as u8);
+                }))
+            } else {
+                walk_sheet_frame.set(0);
+                None
+            };
+            move || {
+                if let Some(h) = handle {
+                    drop(h);
+                }
+            }
+        });
+    }
     let map_active = matches!(&*view, View::Map);
     let map_move_gate = use_memo((), |_| Rc::new(Cell::new(false)));
     map_move_gate.set(map_active);
@@ -237,6 +272,8 @@ pub fn app() -> Html {
         let orient = orient.clone();
         let velocity = velocity.clone();
         let walk_phase = walk_phase.clone();
+        let walk_facing = walk_facing.clone();
+        let walk_active = walk_active.clone();
         let prime_audio = prime_audio.clone();
         let map_move_gate = map_move_gate.clone();
         let pos_live = pos_live.clone();
@@ -250,6 +287,8 @@ pub fn app() -> Html {
                 let orient = orient.clone();
                 let velocity = velocity.clone();
                 let walk_phase = walk_phase.clone();
+                let walk_facing = walk_facing.clone();
+                let walk_active = walk_active.clone();
                 let map_move_gate = map_move_gate.clone();
                 let pos_live = pos_live.clone();
                 move |((dx, dy), (vx, vy)): ((f32, f32), (f32, f32))| {
@@ -261,11 +300,18 @@ pub fn app() -> Html {
                         if velocity.0.hypot(velocity.1) > 0.5 {
                             velocity.set((0.0, 0.0));
                         }
+                        walk_active.set(false);
                         return;
                     }
-                    walk_phase.set(
-                        *walk_phase + 0.016 * (speed / WALK_SPEED_PX_PER_SEC).clamp(0.25, 2.5),
-                    );
+                    if speed > 10.0 {
+                        walk_phase.set(*walk_phase + 0.016 * 2.0);
+                        walk_facing.set(facing_from_velocity(vx, vy) as u8);
+                        velocity.set((vx, vy));
+                        walk_active.set(true);
+                    } else {
+                        walk_phase.set(*walk_phase + 0.016 * 0.35);
+                        walk_active.set(false);
+                    }
                     let o = *orient;
                     let (x, y) = *pos_live.borrow();
                     if let Some((nx, ny)) = slide_move(x, y, dx, dy, o) {
@@ -442,15 +488,15 @@ pub fn app() -> Html {
                     let progress = progress.clone();
                     move |_| {
                         let (sx, sy) = map_config::spawn(orient);
-                        let mut p = (*progress).clone();
+                        let mut p = PixelProgress::load();
                         if p.player_x < 40.0 && p.player_y < 25.0 {
                             p.player_x = sx;
                             p.player_y = sy;
-                            p.save();
-                            progress.set(p.clone());
-                            px.set(sx);
-                            py.set(sy);
                         }
+                        p.save();
+                        progress.set(p.clone());
+                        px.set(p.player_x);
+                        py.set(p.player_y);
                         view.set(View::Map);
                     }
                 })}
@@ -485,7 +531,8 @@ pub fn app() -> Html {
                     <p class="loading-pixel">{"地圖載入中…"}</p>
                 } else {
                     <IslandMap character_id={progress.character_id.clone()} px={*px} py={*py} frame={*frame}
-                        orient={*orient} facing_left={*facing_left}
+                        orient={*orient} walk_facing={*walk_facing} walk_active={*walk_active}
+                        walk_sheet_frame={*walk_sheet_frame}
                         portal_near={portal_near}
                         door_portal={door_portal}
                         velocity={*velocity}
