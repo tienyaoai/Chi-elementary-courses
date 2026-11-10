@@ -64,7 +64,7 @@ fn render_action_dock(
     on_enter: Callback<Portal>,
 ) -> Html {
     html! {
-        <div class={if fit { "action-dock action-dock-fit-below" } else { "action-dock" }}>
+        <div class={if fit { "action-dock action-dock-fit-below" } else { "action-dock" }} data-testid={fit.then_some("fit-hint-strip")}>
             if let Some(portal) = portal_near {
                 <p class={if fit { "map-hint map-hint-fit" } else { "map-hint map-hint-large" }}>
                     <BpmfAside text={ world::GateLabel::name(portal).to_string() } game={game.clone()} read=true />

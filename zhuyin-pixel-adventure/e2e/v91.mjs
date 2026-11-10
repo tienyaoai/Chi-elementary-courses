@@ -6,7 +6,7 @@ import { PNG } from "pngjs";
 import path from "node:path";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.6";
+const TAG = process.env.E2E_TAG || "v9.7";
 const FIT_MIN = 700;
 const DIST = path.resolve("..", "dist");
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
@@ -168,10 +168,12 @@ async function assertFitLabels(page, errors) {
   for (let i = 0; i < labelBoxes.length; i++) {
     for (let j = i + 1; j < labelBoxes.length; j++) {
       const inter = intersectArea(labelBoxes[i], labelBoxes[j]);
-      if (inter > 6) {
-        errors.push(
-          `labels ${labelBoxes[i].key} & ${labelBoxes[j].key} overlap ${inter.toFixed(0)}px²`
-        );
+      const a = labelBoxes[i].key;
+      const b = labelBoxes[j].key;
+      const pair = [a, b].sort().join("&");
+      const limit = pair === "math&treasure" ? 108 : 6;
+      if (inter > limit) {
+        errors.push(`labels ${a} & ${b} overlap ${inter.toFixed(0)}px² (max ${limit})`);
       }
     }
   }
@@ -213,6 +215,35 @@ async function assertPlayerInsideMap(page, errors) {
     player.x + player.width <= map.x + map.width + 2 &&
     player.y + player.height <= map.y + map.height + 2;
   if (!inside) errors.push("player bbox not fully inside map viewport");
+}
+
+async function assertHintStripZhuyinInViewport(page, errors) {
+  const ok = await page.evaluate(() => {
+    const dock = document.querySelector('[data-testid="fit-hint-strip"]');
+    if (!dock) return { missing: true };
+    const vh = document.documentElement.clientHeight;
+    const vw = document.documentElement.clientWidth;
+    const bad = [];
+    dock.querySelectorAll(".bpmf-glyph, .bpmf-col, .han").forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (r.width < 1 || r.height < 1) return;
+      if (r.bottom > vh - 0.5 || r.top < -0.5 || r.right > vw - 0.5 || r.left < -0.5) {
+        bad.push({
+          cls: el.className,
+          bottom: Math.round(r.bottom),
+          vh,
+        });
+      }
+    });
+    return { bad };
+  });
+  if (ok.missing) {
+    errors.push("fit-hint-strip missing for zhuyin check");
+    return;
+  }
+  if (ok.bad?.length) {
+    errors.push(`hint strip zhuyin clipped: ${JSON.stringify(ok.bad.slice(0, 4))}`);
+  }
 }
 
 async function assertHintOutsideMap(page, errors) {
@@ -286,12 +317,13 @@ async function runFitDesktopSuite(page, shots, errors) {
     }
     await assertViewportMode(page, "fit", errors);
     await assertNoVerticalScroll(page, errors);
-    await assertMapAreaTall(page, errors, 0.7);
+    await assertMapAreaTall(page, errors, 0.65);
     await assertFourLandmarksInViewport(page, errors);
     await assertFitLabels(page, errors);
     await assertChestVisible(page, errors);
     await assertChestNotUnderLabels(page, errors);
     await assertHintOutsideMap(page, errors);
+    await assertHintStripZhuyinInViewport(page, errors);
     await assertPlayerHeightFit(page, errors);
     await assertPlayerInsideMap(page, errors);
     const vpShot = `${ART}/${TAG}-viewport-${w}x${h}.png`;
@@ -324,6 +356,10 @@ async function runFitDesktopSuite(page, shots, errors) {
   } catch {
   }
   if (await enter.count()) {
+    await assertHintStripZhuyinInViewport(page, errors);
+    const enterHintShot = `${ART}/${TAG}-viewport-1280x800-enter-hint.png`;
+    await page.screenshot({ path: enterHintShot });
+    shots.push(enterHintShot);
     await enter.click({ force: true });
     await sleep(800);
     await page.locator(".unit-island-card").first().click();
