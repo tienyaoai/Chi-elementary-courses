@@ -3,12 +3,14 @@ use crate::grade1::Grade1Bank;
 use crate::grade1_screens::{Grade1Hub, Grade1Unit};
 use crate::input::Dir;
 use crate::island_walk;
+use crate::map_input::{install_continuous_map_move, slide_move, MapInputController, WALK_SPEED_PX_PER_SEC};
 use crate::map_config::{self, MapOrientation};
 use crate::pixel_art_preload::preload_urls;
 use crate::progress::PixelProgress;
 use crate::screens::{CollectionScreen, SelectScreen};
 use crate::sounds::{play_reward, portal_blip};
 use crate::world::{self, Portal};
+use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::KeyboardEvent;
@@ -104,6 +106,10 @@ pub fn app() -> Html {
     let frame = use_state(|| 0u8);
     let facing_left = use_state(|| false);
     let walk_target = use_state(|| None::<(f32, f32)>);
+    let velocity = use_state(|| (0.0_f32, 0.0_f32));
+    let walk_phase = use_state(|| 0.0_f32);
+    let map_input = use_state(MapInputController::new);
+    let pos_live = use_memo((), |_| Rc::new(RefCell::new((0.0_f32, 0.0_f32))));
     let orient = use_state(world::detect_orientation);
     let map_fit = use_state(world::is_map_fit);
     let masks_ready = use_state(|| false);
@@ -183,7 +189,9 @@ pub fn app() -> Html {
         let facing_left = facing_left.clone();
         let progress = progress.clone();
         let orient = orient.clone();
-        Callback::from(move |(nx, ny): (f32, f32)| {
+        let velocity = velocity.clone();
+        let pos_live = pos_live.clone();
+        Callback::from(move |(nx, ny, vx, vy): (f32, f32, f32, f32)| {
             if !island_walk::masks_ready() {
                 return;
             }
@@ -192,14 +200,21 @@ pub fn app() -> Html {
             if !island_walk::can_stand(nx, ny, o) {
                 return;
             }
-            if nx < *px {
+            let (cx, cy) = *pos_live.borrow();
+            if vx.abs() > 1.0 {
+                facing_left.set(vx < 0.0);
+            } else if nx < cx - 0.5 {
                 facing_left.set(true);
-            } else if nx > *px {
+            } else if nx > cx + 0.5 {
                 facing_left.set(false);
             }
+            if (nx - cx).hypot(ny - cy) > 0.05 {
+                frame.set(*frame + 1);
+            }
+            velocity.set((vx, vy));
             px.set(nx);
             py.set(ny);
-            frame.set(*frame + 1);
+            *pos_live.borrow_mut() = (nx, ny);
             let mut p = (*progress).clone();
             p.player_x = nx;
             p.player_y = ny;
@@ -208,53 +223,62 @@ pub fn app() -> Html {
         })
     };
 
-    let move_dir = {
-        let px = px.clone();
-        let py = py.clone();
+    *pos_live.borrow_mut() = (*px, *py);
+    let map_active = matches!(&*view, View::Map);
+    let map_move_gate = use_memo((), |_| Rc::new(Cell::new(false)));
+    map_move_gate.set(map_active);
+    if !map_active {
+        (*map_input).held.borrow_mut().clear();
+    }
+    {
+        let map_input = map_input.clone();
         let walk_target = walk_target.clone();
         let try_move = try_move.clone();
-        Callback::from(move |dir: Dir| {
-            walk_target.set(None);
-            let (mut x, mut y) = (*px, *py);
-            match dir {
-                Dir::Up => y -= STEP,
-                Dir::Down => y += STEP,
-                Dir::Left => x -= STEP,
-                Dir::Right => x += STEP,
-                Dir::None => return,
-            }
-            try_move.emit((x, y));
-        })
-    };
-
-    let on_keydown = {
-        let move_dir = move_dir.clone();
-        let prime = prime_audio.clone();
-        let view = view.clone();
-        Callback::from(move |e: KeyboardEvent| {
-            if !matches!(*view, View::Map) {
-                return;
-            }
-            let dir = match e.key().as_str() {
-                "ArrowUp" | "w" | "W" => Dir::Up,
-                "ArrowDown" | "s" | "S" => Dir::Down,
-                "ArrowLeft" | "a" | "A" => Dir::Left,
-                "ArrowRight" | "d" | "D" => Dir::Right,
-                _ => match e.code().as_str() {
-                    "ArrowUp" | "KeyW" => Dir::Up,
-                    "ArrowDown" | "KeyS" => Dir::Down,
-                    "ArrowLeft" | "KeyA" => Dir::Left,
-                    "ArrowRight" | "KeyD" => Dir::Right,
-                    _ => Dir::None,
-                },
-            };
-            if dir != Dir::None {
-                e.prevent_default();
-                prime.emit(());
-                move_dir.emit(dir);
-            }
-        })
-    };
+        let orient = orient.clone();
+        let velocity = velocity.clone();
+        let walk_phase = walk_phase.clone();
+        let prime_audio = prime_audio.clone();
+        let map_move_gate = map_move_gate.clone();
+        let pos_live = pos_live.clone();
+        use_effect_with((), move |_| {
+            let on_clear = Callback::from({
+                let walk_target = walk_target.clone();
+                move |_| walk_target.set(None)
+            });
+            let on_frame = Callback::from({
+                let try_move = try_move.clone();
+                let orient = orient.clone();
+                let velocity = velocity.clone();
+                let walk_phase = walk_phase.clone();
+                let map_move_gate = map_move_gate.clone();
+                let pos_live = pos_live.clone();
+                move |((dx, dy), (vx, vy)): ((f32, f32), (f32, f32))| {
+                    if !map_move_gate.get() {
+                        return;
+                    }
+                    let speed = vx.hypot(vy);
+                    if speed < 0.5 && dx.hypot(dy) < 0.001 {
+                        if velocity.0.hypot(velocity.1) > 0.5 {
+                            velocity.set((0.0, 0.0));
+                        }
+                        return;
+                    }
+                    walk_phase.set(
+                        *walk_phase + 0.016 * (speed / WALK_SPEED_PX_PER_SEC).clamp(0.25, 2.5),
+                    );
+                    let o = *orient;
+                    let (x, y) = *pos_live.borrow();
+                    if let Some((nx, ny)) = slide_move(x, y, dx, dy, o) {
+                        try_move.emit((nx, ny, vx, vy));
+                    }
+                }
+            });
+            let ctrl = (*map_input).clone();
+            let teardown =
+                install_continuous_map_move(ctrl, on_clear, prime_audio.clone(), on_frame);
+            move || teardown()
+        });
+    }
 
     let on_map_click = {
         let walk_target = walk_target.clone();
@@ -282,8 +306,9 @@ pub fn app() -> Html {
             } else {
                 y + dy / dist * STEP
             };
-            if island_walk::can_stand(nx, ny, *orient) {
-                try_move.emit((nx, ny));
+            let o = *orient;
+            if let Some((nx, ny)) = slide_move(x, y, nx - x, ny - y, o) {
+                try_move.emit((nx, ny, 0.0, 0.0));
             } else {
                 walk_target.set(None);
             }
@@ -306,18 +331,75 @@ pub fn app() -> Html {
             let dist = (dx * dx + dy * dy).sqrt();
             if dist < STEP {
                 walk_target.set(None);
-                try_move.emit((tx, ty));
+                try_move.emit((tx, ty, 0.0, 0.0));
                 return;
             }
-            let nx = x + dx / dist * STEP;
-            let ny = y + dy / dist * STEP;
-            if !island_walk::can_stand(nx, ny, *orient) {
+            let step_x = dx / dist * STEP;
+            let step_y = dy / dist * STEP;
+            let o = *orient;
+            if let Some((nx, ny)) = slide_move(x, y, step_x, step_y, o) {
+                try_move.emit((nx, ny, 0.0, 0.0));
+            } else {
                 walk_target.set(None);
-                return;
             }
-            try_move.emit((nx, ny));
         }
     }));
+
+    let on_map_enter = Callback::from({
+        let view = view.clone();
+        move |portal: Portal| {
+            portal_blip();
+            match portal {
+                Portal::Chinese => view.set(View::ChineseHub),
+                Portal::English => view.set(View::Locked { subject: "英語" }),
+                Portal::Math => view.set(View::Locked { subject: "數學" }),
+                Portal::Treasure => view.set(View::Collection),
+            }
+        }
+    });
+
+    {
+        let view = view.clone();
+        let px = px.clone();
+        let py = py.clone();
+        let orient = orient.clone();
+        let on_map_enter = on_map_enter.clone();
+        use_effect_with(map_active, move |active| {
+            let listener = if *active {
+                let win = web_sys::window().unwrap();
+                let view_w = view.clone();
+                let px = px.clone();
+                let py = py.clone();
+                let orient = orient.clone();
+                let on_map_enter = on_map_enter.clone();
+                Some(gloo::events::EventListener::new(&win, "keydown", move |e| {
+                    let e = e.dyn_ref::<KeyboardEvent>().unwrap();
+                    if !matches!(*view_w, View::Map) {
+                        return;
+                    }
+                    let k = e.key();
+                    if k != "Enter" && k != " " {
+                        return;
+                    }
+                    let Some(portal) = world::portal_at_door(*px, *py, *orient) else {
+                        return;
+                    };
+                    if !world::door_enterable(portal) {
+                        return;
+                    }
+                    e.prevent_default();
+                    on_map_enter.emit(portal);
+                }))
+            } else {
+                None
+            };
+            move || {
+                if let Some(l) = listener {
+                    drop(l);
+                }
+            }
+        });
+    }
 
     let Some(game) = (*game).clone() else {
         return html! {
@@ -328,6 +410,7 @@ pub fn app() -> Html {
     };
 
     let portal_near = world::portal_near(*px, *py, *orient);
+    let door_portal = world::portal_at_door(*px, *py, *orient);
 
     let toggle_sound = {
         let progress = progress.clone();
@@ -404,25 +487,41 @@ pub fn app() -> Html {
                     <IslandMap character_id={progress.character_id.clone()} px={*px} py={*py} frame={*frame}
                         orient={*orient} facing_left={*facing_left}
                         portal_near={portal_near}
+                        door_portal={door_portal}
+                        velocity={*velocity}
+                        walk_phase={*walk_phase}
                         game={game.clone()}
                         on_map_click={on_map_click.clone()}
-                        on_dir={move_dir.clone()}
-                        on_interact={prime_audio.clone()}
-                        on_enter={Callback::from({
-                            let view = view.clone();
-                            move |portal| {
-                                portal_blip();
-                                match portal {
-                                    Portal::Chinese => view.set(View::ChineseHub),
-                                    Portal::English => view.set(View::Locked { subject: "英語" }),
-                                    Portal::Math => view.set(View::Locked { subject: "數學" }),
-                                    Portal::Treasure => view.set(View::Collection),
+                        on_pad_hold={Callback::from({
+                            let ctrl = (*map_input).clone();
+                            let clear = Callback::from({
+                                let walk_target = walk_target.clone();
+                                move |_| walk_target.set(None)
+                            });
+                            let prime = prime_audio.clone();
+                            move |(dir, down): (Dir, bool)| {
+                                if down {
+                                    clear.emit(());
+                                    prime.emit(());
                                 }
+                                ctrl.pad_hold(dir, down);
                             }
-                        })} />
+                        })}
+                        on_enter={on_map_enter.clone()} />
                 }
                 if !*map_fit {
-                    <TouchPad on_dir={move_dir.clone()} on_interact={prime_audio.clone()} />
+                    <TouchPad on_pad_hold={Callback::from({
+                            let ctrl = (*map_input).clone();
+                            let walk_target = walk_target.clone();
+                            let prime = prime_audio.clone();
+                            move |(dir, down): (Dir, bool)| {
+                                if down {
+                                    walk_target.set(None);
+                                    prime.emit(());
+                                }
+                                ctrl.pad_hold(dir, down);
+                            }
+                        })} />
                     <div class="map-actions">
                         <button type="button" class="pixel-btn ghost" onclick={Callback::from({
                             let view = view.clone();
@@ -534,7 +633,7 @@ pub fn app() -> Html {
     };
 
     html! {
-        <main class={shell_class} tabindex="0" onkeydown={on_keydown}>
+        <main class={shell_class}>
             { body }
         </main>
     }

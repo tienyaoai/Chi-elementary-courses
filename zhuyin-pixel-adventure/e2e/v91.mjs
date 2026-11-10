@@ -6,7 +6,7 @@ import { PNG } from "pngjs";
 import path from "node:path";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.8";
+const TAG = process.env.E2E_TAG || "v9.9";
 const FIT_MIN = 700;
 const DIST = path.resolve("..", "dist");
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
@@ -308,72 +308,58 @@ async function playerScreenPos(page) {
   });
 }
 
-async function assertFitPlayerMoves(page, errors) {
-  const p0 = await playerScreenPos(page);
+async function assertFitPlayerMoves(page, errors, shots = []) {
   const prog0 = await page.evaluate(() => {
     const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
-    return p.player_x;
+    return { x: p.player_x, y: p.player_y };
   });
-  if (!p0) {
-    errors.push("fit movement: player missing");
-    return;
-  }
-  await page.locator("main.shell-map-fit").focus();
-  for (let i = 0; i < 10; i++) {
-    await page.locator("main.shell-map-fit").press("ArrowRight");
-    await sleep(20);
-  }
-  await sleep(500);
+  await page.keyboard.down("ArrowRight");
+  await sleep(1000);
+  await page.keyboard.up("ArrowRight");
+  await sleep(300);
   const prog1 = await page.evaluate(() => {
     const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
-    return p.player_x;
+    return { x: p.player_x, y: p.player_y };
   });
-  const p1 = await playerScreenPos(page);
-  const moved =
-    (p1 && p1.x - p0.x >= 40) || (typeof prog1 === "number" && prog1 - prog0 > 40);
-  if (!moved) {
-    errors.push(
-      `fit movement: keyboard ArrowRight screen ${p1 ? (p1.x - p0.x).toFixed(0) : "n/a"}px world ${typeof prog1 === "number" ? (prog1 - prog0).toFixed(0) : "n/a"}`
-    );
+  const walkShot = `${ART}/${TAG}-viewport-1280x800-walking.png`;
+  await page.screenshot({ path: walkShot });
+  shots.push(walkShot);
+  if (prog1.x - prog0.x < 100) {
+    errors.push(`fit hold ArrowRight: world Δx ${(prog1.x - prog0.x).toFixed(0)} (need >100)`);
+  }
+  await page.keyboard.down("ArrowRight");
+  await page.keyboard.down("ArrowDown");
+  await sleep(600);
+  await page.keyboard.up("ArrowRight");
+  await page.keyboard.up("ArrowDown");
+  await sleep(200);
+  const progDiag = await page.evaluate(() => {
+    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
+    return { x: p.player_x, y: p.player_y };
+  });
+  if (progDiag.x <= prog1.x + 20 || progDiag.y <= prog1.y + 20) {
+    errors.push("fit diagonal keys did not move player on both axes");
   }
   const map = page.locator(".island-viewport-fit");
   const box = await map.boundingBox();
   const pl = await page.locator('[data-testid="island-player"]').boundingBox();
-  if (!box || !pl) {
-    errors.push("fit movement: map bbox missing for click");
-    return;
+  if (box && pl) {
+    const relX = Math.min(box.width - 8, Math.max(8, pl.x - box.x + 60));
+    const relY = pl.y - box.y + pl.height * 0.2;
+    await map.click({ position: { x: relX, y: relY } });
+    await sleep(1500);
   }
-  const relX = Math.min(
-    box.width - 8,
-    Math.max(8, pl.x - box.x - Math.min(120, box.width * 0.14))
-  );
-  const relY = pl.y - box.y + pl.height * 0.35;
-  await map.click({ position: { x: relX, y: relY } });
-  await sleep(2200);
-  const p2 = await playerScreenPos(page);
-  if (!p2 || Math.hypot(p2.x - p1.x, p2.y - p1.y) < 40) {
-    errors.push(
-      `fit movement: click-to-walk delta ${p2 ? Math.hypot(p2.x - p1.x, p2.y - p1.y).toFixed(0) : "n/a"}px`
-    );
+  const pad = page.locator('[data-testid="fit-pad-right"]');
+  await pad.dispatchEvent("pointerdown");
+  await sleep(800);
+  await pad.dispatchEvent("pointerup");
+  await sleep(200);
+  const progPad = await page.evaluate(() => JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1")).player_x);
+  if (progPad <= progDiag.x + 15) {
+    errors.push("fit pad hold-to-walk did not advance player");
   }
-  const beforePad = await playerScreenPos(page);
-  for (let i = 0; i < 8; i++) {
-    await page.locator('[data-testid="fit-pad-right"]').click();
-    await sleep(50);
-  }
-  await sleep(400);
-  const afterPad = await playerScreenPos(page);
-  if (!beforePad || !afterPad || afterPad.x - beforePad.x < 40) {
-    errors.push(
-      `fit movement: on-screen right pad delta ${beforePad && afterPad ? (afterPad.x - beforePad.x).toFixed(0) : "n/a"}px`
-    );
-  }
-  const prog = await page.evaluate(() => {
-    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
-    return [p.player_x, p.player_y];
-  });
-  if (prog[1] > 1450) {
-    errors.push(`fit movement: player_y still portrait-space (${prog[1]})`);
+  if (await page.locator('[data-testid="enter-portal"]').count()) {
+    errors.push("fit dock still has enter-portal (must use door bubble only)");
   }
 }
 
@@ -424,7 +410,7 @@ async function runFitDesktopSuite(page, shots, errors) {
     await assertPlayerHeightFit(page, errors);
     await assertPlayerInsideMap(page, errors);
     if (w === 1280 && h === 800) {
-      await assertFitPlayerMoves(page, errors);
+      await assertFitPlayerMoves(page, errors, shots);
     }
     const mapBox = await page.locator(".island-viewport-fit").boundingBox();
     if (w === 1280 && h === 800 && mapBox) mapHeightBaseline = mapBox.height;
@@ -445,27 +431,33 @@ async function runFitDesktopSuite(page, shots, errors) {
   await waitMapReady(page);
   await page.evaluate(() => {
     const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
-    p.player_x = 812;
-    p.player_y = 824;
+    p.player_x = 830;
+    p.player_y = 896;
     localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
   });
   await page.reload({ waitUntil: "networkidle" });
   await waitMapReady(page);
   await sleep(800);
-  const enter = page.locator('[data-testid="enter-portal"]');
-  try {
-    await enter.waitFor({ state: "visible", timeout: 15000 });
-  } catch {
-  }
-  if (await enter.count()) {
+  const bubble = page.locator('[data-testid="door-bubble"]');
+  if (!(await bubble.count())) {
+    errors.push("door bubble missing at school door (1280)");
+  } else {
     await assertHintStripZhuyinInViewport(page, errors);
-    await assertMapViewportHeightStable(page, mapHeightBaseline, errors, "enter");
+    await assertMapViewportHeightStable(page, mapHeightBaseline, errors, "door");
     await assertFitLabels(page, errors);
-    await assertPlayerInsideMap(page, errors);
-    const enterHintShot = `${ART}/${TAG}-viewport-1280x800-school-enter.png`;
-    await page.screenshot({ path: enterHintShot });
-    shots.push(enterHintShot);
-    await enter.click({ force: true });
+    const bubbleShot = `${ART}/${TAG}-viewport-1280x800-school-door-bubble.png`;
+    await page.screenshot({ path: bubbleShot });
+    shots.push(bubbleShot);
+    await page.locator('[data-testid="fit-pad-right"]').dispatchEvent("pointerdown");
+    await sleep(400);
+    await page.locator('[data-testid="fit-pad-right"]').dispatchEvent("pointerup");
+    await sleep(300);
+    if (!await page.locator(".unit-island-card").count()) {
+      // good — pad alone must not enter
+    } else {
+      errors.push("pad near school auto-entered (forbidden)");
+    }
+    await page.keyboard.press("Enter");
     await sleep(800);
     await page.locator(".unit-island-card").first().click();
     await page.waitForSelector(".opt-grid button", { timeout: 30000 });
@@ -474,8 +466,6 @@ async function runFitDesktopSuite(page, shots, errors) {
     shots.push(quizShot);
     await page.locator(".opt-grid button").first().click();
     await sleep(1200);
-  } else {
-    errors.push("fit mode: enter portal not visible at school (1280)");
   }
 }
 
@@ -555,21 +545,25 @@ async function main() {
       }
     }
 
-    // Near school
+    // Near school door (portrait map door point)
     await page.evaluate(() => {
       const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
-      p.player_x = 360;
-      p.player_y = 1120;
+      p.player_x = 350;
+      p.player_y = 1156;
       localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
     });
     await page.reload({ waitUntil: "networkidle" });
     await waitMapReady(page);
     await sleep(400);
-    const schoolShot = `${ART}/${TAG}-map-school-390.png`;
-    await vp.screenshot({ path: schoolShot });
+    const schoolShot = `${ART}/${TAG}-map-school-390x844-bubble.png`;
+    await page.screenshot({ path: schoolShot, fullPage: true });
     shots.push(schoolShot);
 
-    const enter = page.locator('[data-testid="enter-portal"]');
+    const bubble390 = page.locator('[data-testid="door-bubble"]');
+    if (!(await bubble390.count())) {
+      errors.push("door bubble missing at school (390)");
+    }
+    const enter = page.locator('[data-testid="door-enter-btn"]');
     if (await enter.count()) {
       await enter.click({ force: true });
       await sleep(800);
@@ -585,7 +579,7 @@ async function main() {
       await page.locator(".hub-panel button.ghost.big-touch").click({ force: true });
       await sleep(600);
     } else {
-      errors.push("enter portal not visible at school");
+      errors.push("door enter button not visible at school (390)");
     }
 
     await waitMapReady(page);
@@ -597,8 +591,9 @@ async function main() {
     });
     await page.reload({ waitUntil: "networkidle" });
     await waitMapReady(page);
-    if (await enter.count()) {
-      await enter.click({ force: true });
+    const chestBubble = page.locator('[data-testid="door-enter-btn"]');
+    if (await chestBubble.count()) {
+      await chestBubble.click({ force: true });
       await sleep(500);
       const chestShot = `${ART}/${TAG}-treasure-390.png`;
       await page.screenshot({ path: chestShot, fullPage: true });

@@ -32,6 +32,7 @@ pub fn is_map_fit() -> bool {
         .unwrap_or(false)
 }
 
+/// Near a building landmark (wide) — hints only, not door enter.
 pub fn portal_near(px: f32, py: f32, orient: MapOrientation) -> Option<Portal> {
     let lm = landmarks(orient);
     let checks: [(&str, crate::map_config::Point, Portal); 4] = [
@@ -53,6 +54,41 @@ pub fn portal_near(px: f32, py: f32, orient: MapOrientation) -> Option<Portal> {
         }
     }
     best.map(|(p, _)| p)
+}
+
+/// At the door — speech-bubble enter prompt.
+pub fn portal_at_door(px: f32, py: f32, orient: MapOrientation) -> Option<Portal> {
+    let checks: [(&str, Portal); 4] = [
+        ("chinese", Portal::Chinese),
+        ("english", Portal::English),
+        ("math", Portal::Math),
+        ("treasure", Portal::Treasure),
+    ];
+    let mut best: Option<(Portal, f32)> = None;
+    for (key, portal) in checks {
+        let (dx, dy) = map_config::door_point(key, orient);
+        let r = map_config::door_radius_for(key);
+        let d2 = (px - dx).powi(2) + (py - dy).powi(2);
+        if d2 <= r * r {
+            if best.map(|(_, bd)| d2 < bd).unwrap_or(true) {
+                best = Some((portal, d2));
+            }
+        }
+    }
+    best.map(|(p, _)| p)
+}
+
+pub fn door_enterable(portal: Portal) -> bool {
+    matches!(portal, Portal::Chinese | Portal::Treasure)
+}
+
+pub fn door_prompt_text(portal: Portal) -> String {
+    match portal {
+        Portal::Chinese => "進入國語學校？".to_string(),
+        Portal::Treasure => "進入寶箱收藏？".to_string(),
+        Portal::English => "進入英文燈塔？".to_string(),
+        Portal::Math => "進入數學工坊？".to_string(),
+    }
 }
 
 pub struct GateLabel;

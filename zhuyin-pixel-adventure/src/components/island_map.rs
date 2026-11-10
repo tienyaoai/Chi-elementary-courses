@@ -1,5 +1,4 @@
 use crate::components::{BpmfAside, FitDirPad};
-use crate::input::Dir;
 use crate::island_walk;
 use crate::map_config::{character_by_id, full_url, landmark_url, layer, MapOrientation};
 use crate::map_display::{
@@ -59,53 +58,24 @@ fn measure_viewport(vp: &NodeRef, props_orient: MapOrientation) -> FitMetrics {
 fn render_action_dock(
     fit: bool,
     portal_near: Option<Portal>,
-    enter_portal: Option<Portal>,
-    can_enter: bool,
     game: Rc<GameData>,
-    on_enter: Callback<Portal>,
-    on_dir: Callback<Dir>,
-    on_interact: Callback<()>,
+    on_pad_hold: Callback<(crate::input::Dir, bool)>,
 ) -> Html {
   if fit {
-    let enter_row = can_enter && enter_portal.is_some();
-  let pad = html! {
-      <FitDirPad on_dir={on_dir} on_interact={on_interact} />
-  };
     return html! {
         <div class="action-dock action-dock-fit-below" data-testid="fit-hint-strip">
-            if enter_row {
-                if let Some(portal) = enter_portal {
-                    <div class="fit-dock-row">
-                        <p class="map-hint map-hint-fit fit-dock-name">
-                            <BpmfAside text={ world::GateLabel::name(portal_near.unwrap_or(portal)).to_string() } game={game.clone()} read=true />
-                        </p>
-                        <div class="fit-dock-actions">
-                            { pad.clone() }
-                            <button type="button" class="enter-btn pixel-btn primary pulse fit-dock-enter" data-testid="enter-portal"
-                                onclick={Callback::from({
-                                    let on_enter = on_enter.clone();
-                                    move |_| on_enter.emit(portal)
-                                })}>
-                                <BpmfAside text={ world::GateLabel::enter_label(portal).to_string() } game={game.clone()} read=true />
-                            </button>
-                        </div>
-                    </div>
-                }
-            } else if let Some(portal) = portal_near {
-                <div class="fit-dock-row">
+            <div class="fit-dock-row">
+                if let Some(portal) = portal_near {
                     <p class="map-hint map-hint-fit fit-dock-name">
-                        <BpmfAside text={ world::GateLabel::name(portal).to_string() } game={game.clone()} read=true />
+                        <BpmfAside text={ world::GateLabel::hint(portal).to_string() } game={game.clone()} read=true />
                     </p>
-                    { pad.clone() }
-                </div>
-            } else {
-                <div class="fit-dock-row">
+                } else {
                     <p class={classes!("map-hint", "muted", "map-hint-fit", "fit-dock-name")}>
-                        <BpmfAside text={ "點地圖移動，或用方向鍵走到建築前".to_string() } game={game.clone()} read=true />
+                        <BpmfAside text={ "按住方向鍵或螢幕鍵盤走路".to_string() } game={game.clone()} read=true />
                     </p>
-                    { pad }
-                </div>
-            }
+                }
+                <FitDirPad on_pad_hold={on_pad_hold} />
+            </div>
         </div>
     };
   }
@@ -119,22 +89,28 @@ fn render_action_dock(
               </p>
           } else {
               <p class="map-hint muted">
-                  <BpmfAside text={ "點地圖移動，或用方向鍵走到建築前".to_string() } game={game.clone()} read=true />
+                  <BpmfAside text={ "按住方向鍵走到建築門口".to_string() } game={game.clone()} read=true />
               </p>
-          }
-          if can_enter {
-              if let Some(portal) = enter_portal {
-                  <button type="button" class="enter-btn pixel-btn primary pulse" data-testid="enter-portal"
-                      onclick={Callback::from({
-                          let on_enter = on_enter.clone();
-                          move |_| on_enter.emit(portal)
-                      })}>
-                      <BpmfAside text={ world::GateLabel::enter_label(portal).to_string() } game={game.clone()} read=true />
-                  </button>
-              }
           }
       </div>
   }
+}
+
+fn walk_fx(phase: f32, vel: (f32, f32)) -> (f32, f32) {
+    use std::f32::consts::TAU;
+    let speed = vel.0.hypot(vel.1);
+    let moving = speed > 10.0;
+    let bob = if moving {
+        (phase * TAU * 4.0).sin() * 3.6
+    } else {
+        (phase * 0.45).sin() * 1.1
+    };
+    let squash = if moving {
+        1.0 - 0.034 * (phase * TAU * 4.0).sin().abs()
+    } else {
+        1.0 - 0.012 * (phase * 0.45).sin().abs()
+    };
+    (bob, squash)
 }
 
 fn label_offset_below_portal(portal: Portal) -> (f32, f32) {
@@ -197,11 +173,14 @@ pub struct IslandMapProps {
     pub orient: MapOrientation,
     pub facing_left: bool,
     pub portal_near: Option<Portal>,
+    pub door_portal: Option<Portal>,
+  #[prop_or_default]
+    pub velocity: (f32, f32),
+    #[prop_or_default]
+    pub walk_phase: f32,
     pub on_enter: Callback<Portal>,
     pub on_map_click: Callback<(f32, f32)>,
-    pub on_dir: Callback<Dir>,
-    #[prop_or_default]
-    pub on_interact: Callback<()>,
+    pub on_pad_hold: Callback<(crate::input::Dir, bool)>,
     pub game: Rc<GameData>,
 }
 
@@ -213,7 +192,8 @@ pub fn island_map(props: &IslandMapProps) -> Html {
     let lay = layer(orient);
     let map_w = lay.width;
     let map_h = lay.height;
-    let bob = if props.frame % 2 == 0 { 0.0 } else { -4.0 };
+    let (walk_bob, walk_squash) = walk_fx(props.walk_phase, props.velocity);
+    let moving = props.velocity.0.hypot(props.velocity.1) > 10.0;
     let fit = metrics.mode == MapViewMode::FitWholeIsland;
 
     {
@@ -328,20 +308,22 @@ pub fn island_map(props: &IslandMapProps) -> Html {
         if let Some(ch) = character_by_id(&props.character_id) {
             let foot = props.py;
             let flip = if props.facing_left { "scaleX(-1)" } else { "none" };
-            let z = foot as i32 + 1;
-            let player_transform = format!("{flip} translateY({bob}px)");
+            let z = foot as i32 + 12000;
+            let player_transform = format!(
+                "{flip} translateY({walk_bob}px) scaleY({walk_squash})"
+            );
+            let dust = moving.then(|| html! {
+                <span class="dust-puff" style={format!("left:{}px;top:{}px;", props.px - 8.0, props.py - 6.0)}></span>
+            });
             layers.push((
                 foot,
                 html! {
-                    <img key="player" class="island-player" src={full_url(&ch)} data-testid="island-player"
-                        style={format!(
-                            "left:{}px;top:{}px;transform:{};z-index:{};",
-                            props.px - 55.0,
-                            props.py - PLAYER_H,
-                            player_transform,
-                            z
-                        )}
-                        alt="" draggable="false" />
+                    <div key="player-wrap" class="island-player-wrap" style={format!("left:{}px;top:{}px;z-index:{};", props.px - 55.0, props.py - PLAYER_H, z)}>
+                        { dust }
+                        <img class="island-player" src={full_url(&ch)} data-testid="island-player"
+                            style={format!("transform:{};", player_transform)}
+                            alt="" draggable="false" />
+                    </div>
                 },
             ));
         }
@@ -359,13 +341,19 @@ pub fn island_map(props: &IslandMapProps) -> Html {
             sx = sx.clamp(pad_side, metrics.vw - pad_side);
             sy = sy.clamp(pad_top, metrics.vh - 8.0);
             let flip = if props.facing_left { "scaleX(-1)" } else { "none" };
-            let bob_px = bob * metrics.scale.max(0.25);
+            let bob_px = walk_bob * metrics.scale.max(0.25);
             html! {
-                <img class="island-player-screen" src={full_url(&ch)} data-testid="island-player"
-                    style={format!(
-                        "left:{sx}px;top:{sy}px;width:{screen_w}px;height:{screen_h}px;transform:translate(-50%,-100%) {flip} translateY({bob_px}px);"
-                    )}
-                    alt="" draggable="false" />
+                <>
+                    if moving && props.frame % 4 == 0 {
+                        <span class="dust-puff dust-puff-fit"
+                            style={format!("left:{}px;top:{}px;", sx, sy - 6.0)}></span>
+                    }
+                    <img class="island-player-screen" src={full_url(&ch)} data-testid="island-player"
+                        style={format!(
+                            "left:{sx}px;top:{sy}px;width:{screen_w}px;height:{screen_h}px;transform:translate(-50%,-100%) {flip} translateY({bob_px}px) scaleY({walk_squash});"
+                        )}
+                        alt="" draggable="false" />
+                </>
             }
         } else {
             html! {}
@@ -384,6 +372,17 @@ pub fn island_map(props: &IslandMapProps) -> Html {
             })
             .collect();
         resolve_fit_label_overlaps(&mut label_pos);
+        let (psx, psy) = world_to_screen(props.px, props.py - 48.0, &metrics);
+        for (_, sx, sy) in label_pos.iter_mut() {
+            let dx = *sx - psx;
+            let dy = *sy - psy;
+            let d = dx.hypot(dy);
+            if d < 92.0 && d > 0.1 {
+                let push = (92.0 - d) * 0.85;
+                *sx += dx / d * push;
+                *sy += dy / d * push * 0.35;
+            }
+        }
         let pos_by: std::collections::HashMap<Portal, (f32, f32)> = label_pos
             .into_iter()
             .map(|(p, sx, sy)| (p, (sx, sy)))
@@ -392,8 +391,11 @@ pub fn island_map(props: &IslandMapProps) -> Html {
             <div class="island-fit-labels" aria-hidden="false">
                 { for landmark_defs.iter().map(|(key, _x, _y, portal)| {
                     let (sx, sy) = pos_by.get(portal).copied().unwrap_or((0.0, 0.0));
+                    let dx = sx - psx;
+                    let dy = sy - psy;
+                    let fade = if dx.hypot(dy) < 78.0 { " island-fit-label-faded" } else { "" };
                     html! {
-                        <div key={world::GateLabel::name(*portal)} class="island-fit-label"
+                        <div key={world::GateLabel::name(*portal)} class={classes!("island-fit-label", fade)}
                             data-testid={format!("fit-label-{key}")}
                             style={format!("left:{}px;top:{}px;", sx, sy)}>
                             <BpmfAside text={ world::GateLabel::name(*portal).to_string() } game={props.game.clone()} compact=true />
@@ -412,20 +414,37 @@ pub fn island_map(props: &IslandMapProps) -> Html {
         "island-viewport island-viewport-follow"
     };
 
-    let can_enter = matches!(
-        props.portal_near,
-        Some(Portal::Chinese | Portal::Treasure)
-    );
-    let enter_portal = props.portal_near;
+    let door_bubble = props.door_portal.map(|portal| {
+        let enterable = world::door_enterable(portal);
+        let prompt = world::door_prompt_text(portal);
+        let on_enter = props.on_enter.clone();
+        let game = props.game.clone();
+        let style = if fit {
+            let (sx, sy) = world_to_screen(props.px, props.py, &metrics);
+            format!("left:{}px;top:{}px;", sx + 8.0, sy - 118.0)
+        } else {
+            "left:50%;top:min(42%,420px);transform:translate(-50%,-100%);".to_string()
+        };
+        html! {
+            <div class="door-bubble" data-testid="door-bubble" style={style}>
+                <p class="door-bubble-text">
+                    <BpmfAside text={prompt} game={game.clone()} read=true />
+                </p>
+                if enterable {
+                    <button type="button" class="door-bubble-enter pixel-btn primary" data-testid="door-enter-btn"
+                        onclick={Callback::from(move |_| on_enter.emit(portal))}>
+                        <BpmfAside text={ "進入".to_string() } game={game} read=true />
+                    </button>
+                }
+            </div>
+        }
+    });
+
     let dock = render_action_dock(
         fit,
         props.portal_near,
-        enter_portal,
-        can_enter,
         props.game.clone(),
-        props.on_enter.clone(),
-        props.on_dir.clone(),
-        props.on_interact.clone(),
+        props.on_pad_hold.clone(),
     );
 
     html! {
@@ -439,6 +458,7 @@ pub fn island_map(props: &IslandMapProps) -> Html {
                 </div>
                 { label_overlay }
                 { player_screen }
+                { door_bubble.unwrap_or(html! {}) }
             </div>
             { dock }
         </div>

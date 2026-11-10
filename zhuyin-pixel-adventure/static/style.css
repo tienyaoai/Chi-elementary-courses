@@ -609,6 +609,76 @@ body {
   display: none;
 }
 
+.island-player-wrap {
+  position: absolute;
+  transform-origin: center bottom;
+  pointer-events: none;
+}
+
+.island-fit-label-faded {
+  opacity: 0.52;
+}
+
+.door-bubble {
+  position: absolute;
+  z-index: 9950;
+  pointer-events: auto;
+  max-width: min(92vw, 18rem);
+  padding: 0.55rem 0.65rem 0.6rem;
+  background: #fffef8;
+  border: 2.5px solid var(--ink);
+  border-radius: 14px;
+  box-shadow: 3px 3px 0 #2c3e50;
+}
+
+.door-bubble::after {
+  content: "";
+  position: absolute;
+  left: 1.1rem;
+  bottom: -10px;
+  border: 10px solid transparent;
+  border-top-color: var(--ink);
+}
+
+.door-bubble-text {
+  margin: 0 0 0.4rem;
+}
+
+.door-bubble-enter {
+  width: 100%;
+  min-height: 2.5rem;
+  font-size: 1.1rem;
+}
+
+.dust-puff {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  border-radius: 50%;
+  background: rgba(210, 185, 140, 0.85);
+  opacity: 0.75;
+  pointer-events: none;
+  animation: dust-fade 0.35s ease-out forwards;
+}
+
+.dust-puff-fit {
+  z-index: 9895;
+}
+
+@keyframes dust-fade {
+  to {
+    transform: scale(1.8) translateY(6px);
+    opacity: 0;
+  }
+}
+
+.touch-pad-fit,
+.touch-pad-fit .pad-btn-fit {
+  touch-action: none;
+  user-select: none;
+}
+
 .island-player-screen {
   position: absolute;
   z-index: 9900;

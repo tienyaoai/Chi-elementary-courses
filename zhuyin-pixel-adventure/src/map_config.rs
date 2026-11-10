@@ -90,6 +90,37 @@ fn default_enter_treasure() -> u32 {
     88
 }
 
+/// Foot position at building door (smaller than landmark anchor).
+pub fn door_point(portal: &str, orient: MapOrientation) -> (f32, f32) {
+    let lm = landmarks(orient);
+    let (x, y) = match portal {
+        "chinese" => (lm.chinese.x, lm.chinese.y),
+        "english" => (lm.english.x, lm.english.y),
+        "math" => (lm.math.x, lm.math.y),
+        "treasure" => (lm.treasure.x, lm.treasure.y),
+        _ => return (0.0, 0.0),
+    };
+    let (dx, dy) = match (portal, orient) {
+        ("chinese", MapOrientation::Landscape) => (18.0, 72.0),
+        ("chinese", MapOrientation::Portrait) => (8.0, 58.0),
+        ("english", MapOrientation::Landscape) => (-22.0, 88.0),
+        ("english", MapOrientation::Portrait) => (-12.0, 70.0),
+        ("math", MapOrientation::Landscape) => (12.0, 78.0),
+        ("math", MapOrientation::Portrait) => (6.0, 62.0),
+        ("treasure", MapOrientation::Landscape) => (0.0, 42.0),
+        ("treasure", MapOrientation::Portrait) => (0.0, 38.0),
+        _ => (0.0, 48.0),
+    };
+    (x as f32 + dx, y as f32 + dy)
+}
+
+pub fn door_radius_for(portal: &str) -> f32 {
+    match portal {
+        "treasure" => 52.0,
+        _ => 58.0,
+    }
+}
+
 pub fn enter_radius_for(portal: &str) -> f32 {
     let c = config();
     let r = match portal {

@@ -19,6 +19,7 @@ pub mod world;
 pub mod map_config;
 pub mod map_display;
 pub mod island_walk;
+pub mod map_input;
 pub mod kid_text;
 
 pub use app::App;
