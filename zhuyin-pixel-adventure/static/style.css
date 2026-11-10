@@ -978,6 +978,75 @@ body {
   margin-bottom: 0.55rem;
 }
 
+/* 直向手機：HUD 單行膠囊，地圖吃滿剩餘高度 */
+.map-screen:not(.map-screen-fit) {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100dvh - 1.5rem);
+  max-height: calc(100dvh - 1.5rem);
+}
+
+.map-screen:not(.map-screen-fit) .hud {
+  flex: 0 0 auto;
+  max-height: 72px;
+  min-height: 0;
+  margin-bottom: 0.4rem;
+  align-items: center;
+}
+
+.map-screen:not(.map-screen-fit) .hud-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.map-screen:not(.map-screen-fit) .hud-title .bpmf-aside-read .han {
+  font-size: 1.35rem;
+}
+
+.map-screen:not(.map-screen-fit) .hud-sound-btn {
+  flex: 0 0 auto;
+  max-width: none;
+  min-height: 0;
+  max-height: 3.25rem;
+  padding: 0.32rem 0.55rem;
+  white-space: nowrap;
+  border-radius: 999px;
+}
+
+.map-screen:not(.map-screen-fit) .hud-sound-btn .bpmf-aside-compact {
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.map-screen:not(.map-screen-fit) .hud-sound-btn .bpmf-aside-compact .han {
+  font-size: 1.65rem;
+  line-height: 1.22;
+}
+
+.map-screen:not(.map-screen-fit) .hud-sound-btn .bpmf-aside-compact .bpmf-col {
+  font-size: 1.1rem;
+  line-height: 1.16;
+  min-width: 1.05rem;
+}
+
+.map-screen:not(.map-screen-fit) .island-map-shell {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.map-screen:not(.map-screen-fit) .island-viewport-follow {
+  flex: 1 1 auto;
+  min-height: 280px;
+  height: auto;
+  max-height: none;
+}
+
 .hud-title {
   flex: 1 1 auto;
   min-width: 0;

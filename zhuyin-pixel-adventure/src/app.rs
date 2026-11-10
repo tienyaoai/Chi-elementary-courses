@@ -524,7 +524,7 @@ pub fn app() -> Html {
                         </button>
                     }
                     <button type="button" class="hud-btn hud-sound-btn" onclick={toggle_sound.clone()}>
-                        <BpmfAside text={sound_label} game={game.clone()} compact={*map_fit} read={!*map_fit} />
+                        <BpmfAside text={sound_label} game={game.clone()} compact={true} />
                     </button>
                 </div>
                 if !*masks_ready {

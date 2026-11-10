@@ -6,7 +6,7 @@ import { PNG } from "pngjs";
 import path from "node:path";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.11";
+const TAG = process.env.E2E_TAG || "v9.12";
 const FIT_MIN = 700;
 const DIST = path.resolve("..", "dist");
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
@@ -374,6 +374,21 @@ async function teleportSchoolDoor(page, landscape) {
   await sleep(600);
 }
 
+async function assertPhoneHudCompact(page, errors) {
+  const hud = await page.locator(".map-screen .hud").first().boundingBox();
+  if (!hud) {
+    errors.push("phone hud missing");
+    return;
+  }
+  if (hud.height > 72) {
+    errors.push(`phone hud height ${hud.height.toFixed(1)}px > 72px`);
+  }
+  const sound = await page.locator(".hud-sound-btn").boundingBox();
+  if (sound && sound.height > 58) {
+    errors.push(`hud sound pill too tall: ${sound.height.toFixed(1)}px`);
+  }
+}
+
 async function assertDoorBubbleAtSchoolSizes(page, shots, errors) {
   const sizes = [
     [1280, 800],
@@ -391,14 +406,20 @@ async function assertDoorBubbleAtSchoolSizes(page, shots, errors) {
     }
     await assertDoorBubbleLayout(page, errors, `school-bubble-${w}x${h}`);
     if (w === 1280 && h === 800) {
-      const shot = `${ART}/${TAG}-viewport-1280x800-school-door-bubble.png`;
-      await page.screenshot({ path: shot });
+      const shot = `${ART}/${TAG}-door-bubble-1280x800.png`;
+      await page.locator(".island-viewport").screenshot({ path: shot });
       shots.push(shot);
+      const legacy = `${ART}/${TAG}-viewport-1280x800-school-door-bubble.png`;
+      await page.screenshot({ path: legacy });
+      shots.push(legacy);
     }
     if (w === 390 && h === 844) {
-      const shot = `${ART}/${TAG}-viewport-390x844-school-door-bubble.png`;
-      await page.screenshot({ path: shot, fullPage: true });
+      const shot = `${ART}/${TAG}-door-bubble-390x844.png`;
+      await page.locator(".island-viewport").screenshot({ path: shot });
       shots.push(shot);
+      const legacy = `${ART}/${TAG}-viewport-390x844-school-door-bubble.png`;
+      await page.screenshot({ path: legacy, fullPage: true });
+      shots.push(legacy);
       const dock = await page.locator(".action-dock").boundingBox();
       if (dock && dock.height > 88) {
         errors.push(`390 dock hint strip too tall: ${dock.height.toFixed(0)}px`);
@@ -718,6 +739,7 @@ async function main() {
 
     await pickCharacter(page);
     await waitMapReady(page);
+    await assertPhoneHudCompact(page, errors);
     await assertViewportMode(page, "follow", errors);
     await page.keyboard.down("ArrowRight");
     await sleep(600);
