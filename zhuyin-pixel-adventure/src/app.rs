@@ -315,12 +315,26 @@ pub fn app() -> Html {
                     move |_| view.set(View::Collection)
                 })} />
         },
-        View::Map => html! {
+        View::Map => {
+            let sound_label = if progress.sound {
+                "關閉音效".to_string()
+            } else {
+                "開啟音效".to_string()
+            };
+            html! {
             <div class={classes!("map-screen", (*map_fit).then_some("map-screen-fit"))}>
-                <div class="hud">
+                <div class={classes!("hud", (*map_fit).then_some("hud-fit"))}>
                     <span class="hud-title"><BpmfAside text={ "學習冒險島".to_string() } game={game.clone()} read=true /></span>
-                    <button type="button" class="hud-btn" onclick={toggle_sound.clone()}>
-                        <BpmfAside text={ if progress.sound { "關閉音效".to_string() } else { "開啟音效".to_string() } } game={game.clone()} read=true />
+                    if *map_fit {
+                        <button type="button" class="hud-btn hud-ghost" onclick={Callback::from({
+                            let view = view.clone();
+                            move |_| view.set(View::Select)
+                        })}>
+                            <BpmfAside text={ "換角色".to_string() } game={game.clone()} compact=true />
+                        </button>
+                    }
+                    <button type="button" class="hud-btn hud-sound-btn" onclick={toggle_sound.clone()}>
+                        <BpmfAside text={sound_label} game={game.clone()} compact={*map_fit} read={!*map_fit} />
                     </button>
                 </div>
                 if !*masks_ready {
@@ -344,20 +358,23 @@ pub fn app() -> Html {
                             }
                         })} />
                 }
-                <TouchPad on_dir={move_dir.clone()} on_interact={prime_audio.clone()} />
-                <div class="map-actions">
-                    <button type="button" class="pixel-btn ghost" onclick={Callback::from({
-                        let view = view.clone();
-                        move |_| view.set(View::Select)
-                    })}>
-                        <BpmfAside text={ "換角色".to_string() } game={game.clone()} read=true />
-                    </button>
-                </div>
-                if matches!(portal_near, Some(Portal::English | Portal::Math)) {
+                if !*map_fit {
+                    <TouchPad on_dir={move_dir.clone()} on_interact={prime_audio.clone()} />
+                    <div class="map-actions">
+                        <button type="button" class="pixel-btn ghost" onclick={Callback::from({
+                            let view = view.clone();
+                            move |_| view.set(View::Select)
+                        })}>
+                            <BpmfAside text={ "換角色".to_string() } game={game.clone()} read=true />
+                        </button>
+                    </div>
+                }
+                if !*map_fit && matches!(portal_near, Some(Portal::English | Portal::Math)) {
                     <p class="locked-hint"><BpmfAside text={ "這個科目即將開放".to_string() } game={game.clone()} read=true /></p>
                 }
             </div>
-        },
+            }
+        }
         View::ChineseHub => html! {
             <Grade1Hub game={game.clone()} bank={(*bank).clone()} progress={(*progress).clone()}
                 on_exit={Callback::from({

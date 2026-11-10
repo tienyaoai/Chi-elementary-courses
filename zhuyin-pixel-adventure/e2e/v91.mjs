@@ -6,7 +6,7 @@ import { PNG } from "pngjs";
 import path from "node:path";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.4";
+const TAG = process.env.E2E_TAG || "v9.5";
 const FIT_MIN = 700;
 const DIST = path.resolve("..", "dist");
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
@@ -177,6 +177,51 @@ async function assertFitLabels(page, errors) {
   }
 }
 
+async function assertNoVerticalScroll(page, errors) {
+  const scroll = await page.evaluate(() => ({
+    sh: document.documentElement.scrollHeight,
+    ch: document.documentElement.clientHeight,
+  }));
+  if (scroll.sh > scroll.ch + 2) {
+    errors.push(`vertical scroll ${scroll.sh} > ${scroll.ch}`);
+  }
+}
+
+async function assertMapAreaTall(page, errors, minRatio = 0.7) {
+  const vp = page.viewportSize();
+  const map = await page.locator(".island-viewport-fit").boundingBox();
+  if (!vp || !map) {
+    errors.push("fit map box missing for height ratio");
+    return;
+  }
+  const ratio = map.height / vp.height;
+  if (ratio < minRatio - 0.02) {
+    errors.push(`map height ratio ${(ratio * 100).toFixed(0)}% < ${minRatio * 100}%`);
+  }
+}
+
+async function assertPlayerInsideMap(page, errors) {
+  const map = await page.locator(".island-viewport-fit").boundingBox();
+  const player = await page.locator('[data-testid="island-player"]').boundingBox();
+  if (!map || !player) {
+    errors.push("player/map box missing for inside check");
+    return;
+  }
+  const inside =
+    player.x >= map.x - 2 &&
+    player.y >= map.y - 2 &&
+    player.x + player.width <= map.x + map.width + 2 &&
+    player.y + player.height <= map.y + map.height + 2;
+  if (!inside) errors.push("player bbox not fully inside map viewport");
+}
+
+async function assertChestVisible(page, errors) {
+  const chest = await page.locator('[data-testid="landmark-treasure"]').boundingBox();
+  if (!chest || chest.width < 8 || chest.height < 8) {
+    errors.push("treasure chest sprite not visible");
+  }
+}
+
 async function assertPlayerHeightFit(page, errors, minPx = 64) {
   const hasFit = await page.locator(".island-viewport-fit").count();
   if (!hasFit) return;
@@ -209,9 +254,13 @@ async function runFitDesktopSuite(page, shots, errors) {
       errors.push(`${w}x${h} below fit threshold`);
     }
     await assertViewportMode(page, "fit", errors);
+    await assertNoVerticalScroll(page, errors);
+    await assertMapAreaTall(page, errors, 0.7);
     await assertFourLandmarksInViewport(page, errors);
     await assertFitLabels(page, errors);
+    await assertChestVisible(page, errors);
     await assertPlayerHeightFit(page, errors);
+    await assertPlayerInsideMap(page, errors);
     const vpShot = `${ART}/${TAG}-viewport-${w}x${h}.png`;
     await page.screenshot({ path: vpShot });
     shots.push(vpShot);

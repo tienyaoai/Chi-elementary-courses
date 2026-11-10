@@ -55,12 +55,50 @@ fn measure_viewport(vp: &NodeRef, props_orient: MapOrientation) -> FitMetrics {
     m
 }
 
+fn render_action_dock(
+    fit: bool,
+    portal_near: Option<Portal>,
+    enter_portal: Option<Portal>,
+    can_enter: bool,
+    game: Rc<GameData>,
+    on_enter: Callback<Portal>,
+) -> Html {
+    html! {
+        <div class={if fit { "action-dock action-dock-fit" } else { "action-dock" }}>
+            if let Some(portal) = portal_near {
+                <p class={if fit { "map-hint map-hint-fit" } else { "map-hint map-hint-large" }}>
+                    <BpmfAside text={ world::GateLabel::name(portal).to_string() } game={game.clone()} read=true />
+                    if !fit {
+                        { " · " }
+                        <BpmfAside text={ world::GateLabel::hint(portal).to_string() } game={game.clone()} read=true />
+                    }
+                </p>
+            } else {
+                <p class={classes!("map-hint", "muted", fit.then_some("map-hint-fit"))}>
+                    <BpmfAside text={ "點地圖移動，或用方向鍵走到建築前".to_string() } game={game.clone()} read=true />
+                </p>
+            }
+            if can_enter {
+                if let Some(portal) = enter_portal {
+                    <button type="button" class="enter-btn pixel-btn primary pulse" data-testid="enter-portal"
+                        onclick={Callback::from({
+                            let on_enter = on_enter.clone();
+                            move |_| on_enter.emit(portal)
+                        })}>
+                        <BpmfAside text={ world::GateLabel::enter_label(portal).to_string() } game={game.clone()} read=true />
+                    </button>
+                }
+            }
+        </div>
+    }
+}
+
 fn label_offset_below_portal(portal: Portal) -> (f32, f32) {
     match portal {
-        Portal::Chinese => (0.0, 58.0),
-        Portal::Treasure => (-28.0, 72.0),
-        Portal::Math => (8.0, 56.0),
-        Portal::English => (0.0, 60.0),
+        Portal::Chinese => (-42.0, 54.0),
+        Portal::Treasure => (52.0, 44.0),
+        Portal::Math => (14.0, 52.0),
+        Portal::English => (0.0, 58.0),
     }
 }
 
@@ -181,7 +219,11 @@ pub fn island_map(props: &IslandMapProps) -> Html {
     for (key, x, y, _) in landmark_defs {
         let url = landmark_url(key);
         let foot_y = y as f32;
-        let z = foot_y as i32;
+        let z = if key == "treasure" {
+            foot_y as i32 + 500
+        } else {
+            foot_y as i32
+        };
         layers.push((
             foot_y,
             html! {
@@ -220,9 +262,14 @@ pub fn island_map(props: &IslandMapProps) -> Html {
 
     let player_screen = if fit {
         if let Some(ch) = character_by_id(&props.character_id) {
-            let (sx, sy) = world_to_screen(props.px, props.py, &metrics);
+            let (mut sx, mut sy) = world_to_screen(props.px, props.py, &metrics);
             let screen_h = (metrics.scale * PLAYER_H * player_boost).max(PLAYER_MIN_SCREEN_PX);
             let screen_w = screen_h * 0.92;
+            let pad_top = screen_h + 6.0;
+            let pad_side = screen_w * 0.55;
+            let dock_band = 72.0_f32;
+            sx = sx.clamp(pad_side, metrics.vw - pad_side);
+            sy = sy.clamp(pad_top, metrics.vh - dock_band - 6.0);
             let flip = if props.facing_left { "scaleX(-1)" } else { "none" };
             let bob_px = bob * metrics.scale.max(0.25);
             html! {
@@ -270,9 +317,25 @@ pub fn island_map(props: &IslandMapProps) -> Html {
         Some(Portal::Chinese | Portal::Treasure)
     );
     let enter_portal = props.portal_near;
+    let dock_in = render_action_dock(
+        true,
+        props.portal_near,
+        enter_portal,
+        can_enter,
+        props.game.clone(),
+        props.on_enter.clone(),
+    );
+    let dock_out = render_action_dock(
+        false,
+        props.portal_near,
+        enter_portal,
+        can_enter,
+        props.game.clone(),
+        props.on_enter.clone(),
+    );
 
     html! {
-        <div class="island-map-shell">
+        <div class={classes!("island-map-shell", fit.then_some("island-map-shell-fit"))}>
             <div ref={viewport_ref} class={viewport_class} onclick={on_click}
                 style={if fit { format!("background:{LETTERBOX_SEA};") } else { String::new() }}>
                 <div class="island-world island-world-layer" style={world_style}>
@@ -282,31 +345,9 @@ pub fn island_map(props: &IslandMapProps) -> Html {
                 </div>
                 { label_overlay }
                 { player_screen }
+                if fit { { dock_in } }
             </div>
-            <div class="action-dock">
-                if let Some(portal) = props.portal_near {
-                    <p class="map-hint map-hint-large">
-                        <BpmfAside text={ world::GateLabel::name(portal).to_string() } game={props.game.clone()} read=true />
-                        { " · " }
-                        <BpmfAside text={ world::GateLabel::hint(portal).to_string() } game={props.game.clone()} read=true />
-                    </p>
-                } else {
-                    <p class="map-hint muted">
-                        <BpmfAside text={ "點地圖移動，或用方向鍵走到建築前".to_string() } game={props.game.clone()} read=true />
-                    </p>
-                }
-                if can_enter {
-                    if let Some(portal) = enter_portal {
-                        <button type="button" class="enter-btn pixel-btn primary pulse" data-testid="enter-portal"
-                            onclick={Callback::from({
-                                let on_enter = props.on_enter.clone();
-                                move |_| on_enter.emit(portal)
-                            })}>
-                            <BpmfAside text={ world::GateLabel::enter_label(portal).to_string() } game={props.game.clone()} read=true />
-                        </button>
-                    }
-                }
-            </div>
+            if !fit { { dock_out } }
         </div>
     }
 }
