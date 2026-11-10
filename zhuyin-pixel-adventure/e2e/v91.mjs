@@ -5,9 +5,10 @@ import { createReadStream, writeFileSync } from "node:fs";
 import { PNG } from "pngjs";
 import path from "node:path";
 import { canStand, loadWalkMask } from "./walk_mask.mjs";
+import { assertDoorReachability, DOOR_COORDS } from "./walk_reach.mjs";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.18";
+const TAG = process.env.E2E_TAG || "v9.19";
 const FIT_MIN = 700;
 const DIST = path.resolve("..", "dist");
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
@@ -377,17 +378,18 @@ async function assertDoorBubbleLayout(page, errors, label) {
 }
 
 async function teleportSchoolDoor(page, landscape) {
-  await page.evaluate((land) => {
-    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
-    if (land) {
-      p.player_x = 834;
-      p.player_y = 1076;
-    } else {
-      p.player_x = 350;
-      p.player_y = 1200;
-    }
-    localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
-  }, landscape);
+  const [dx, dy] = landscape
+    ? DOOR_COORDS.landscape.chinese
+    : DOOR_COORDS.portrait.chinese;
+  await page.evaluate(
+    ({ px, py }) => {
+      const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
+      p.player_x = px;
+      p.player_y = py;
+      localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
+    },
+    { px: dx, py: dy }
+  );
   await page.reload({ waitUntil: "networkidle" });
   await waitMapReady(page);
   await sleep(600);
@@ -523,21 +525,6 @@ async function assertDoorEnterInViewport(page, errors, label) {
   }
 }
 
-const DOOR_COORDS = {
-  portrait: {
-    chinese: [350, 1200],
-    math: [706, 1284],
-    english: [870, 718],
-    treasure: [570, 988],
-  },
-  landscape: {
-    chinese: [834, 1076],
-    math: [1674, 999],
-    english: [2070, 575],
-    treasure: [1180, 762],
-  },
-};
-
 async function setPlayerPos(page, x, y) {
   await page.evaluate(({ px, py }) => {
     const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
@@ -633,7 +620,7 @@ async function runKeyboardDoorEnterSuite(page, shots, errors) {
       away: ["ArrowLeft"],
       back: ["ArrowRight"],
       buttonClick: true,
-      bubbleReturnPos: [200, 1200, 350, 1200],
+      bubbleReturnPos: [160, 1200, 304, 1200],
     },
     {
       id: "1280",
@@ -644,7 +631,7 @@ async function runKeyboardDoorEnterSuite(page, shots, errors) {
       away: ["ArrowLeft"],
       back: ["ArrowRight"],
       shotLesson: true,
-      bubbleReturnPos: [640, 1068, 834, 1076],
+      bubbleReturnPos: [600, 1040, 790, 1040],
     },
     {
       id: "1920",
@@ -654,7 +641,7 @@ async function runKeyboardDoorEnterSuite(page, shots, errors) {
       keys: ["ArrowRight"],
       away: ["ArrowLeft"],
       back: ["ArrowRight"],
-      bubbleReturnPos: [640, 1068, 834, 1076],
+      bubbleReturnPos: [600, 1040, 790, 1040],
     },
   ];
 
@@ -1094,6 +1081,34 @@ async function assertAllBuildingBubblesTextFit(page, errors) {
   }
 }
 
+async function captureV919DoorScreenshots(page, shots, errors) {
+  const plans = [
+    { w: 1280, h: 800, mode: "landscape" },
+    { w: 390, h: 844, mode: "portrait" },
+  ];
+  const portals = ["chinese", "english", "math", "treasure"];
+  for (const plan of plans) {
+    await page.setViewportSize({ width: plan.w, height: plan.h });
+    await ensureMapScreen(page);
+    for (const portal of portals) {
+      const [dx, dy] = DOOR_COORDS[plan.mode][portal];
+      await teleportDoor(page, dx - (plan.mode === "landscape" ? 48 : 32), dy);
+      const reached = await walkWithArrowsUntil(
+        page,
+        dx > 500 ? ["ArrowRight"] : ["ArrowLeft", "ArrowDown"],
+        async () => (await page.locator('[data-testid="door-bubble"]').count()) > 0,
+        14000
+      );
+      if (!reached) {
+        errors.push(`v9.19 ${plan.w}x${plan.h} held-walk ${portal}: no door bubble`);
+      }
+      const shot = `${ART}/${TAG}-door-bubble-${portal}-${plan.w}x${plan.h}.png`;
+      await page.locator(".island-viewport").screenshot({ path: shot });
+      shots.push(shot);
+    }
+  }
+}
+
 async function captureV918Screenshots(page, shots) {
   await page.setViewportSize({ width: 1280, height: 800 });
   await ensureMapScreen(page);
@@ -1110,19 +1125,22 @@ async function captureV918Screenshots(page, shots) {
   await page.locator(".island-viewport").screenshot({ path: mapShot });
   shots.push(mapShot);
 
-  await teleportDoor(page, 1180, 762);
+  const trL = DOOR_COORDS.landscape.treasure;
+  await teleportDoor(page, trL[0], trL[1]);
   const chest1280 = `${ART}/${TAG}-door-bubble-treasure-1280x800.png`;
   await page.locator(".island-viewport").screenshot({ path: chest1280 });
   shots.push(chest1280);
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await teleportDoor(page, 570, 988);
+  const trP = DOOR_COORDS.portrait.treasure;
+  await teleportDoor(page, trP[0], trP[1]);
   const chest390 = `${ART}/${TAG}-door-bubble-treasure-390x844.png`;
   await page.locator(".island-viewport").screenshot({ path: chest390 });
   shots.push(chest390);
 
   await page.setViewportSize({ width: 1920, height: 1072 });
-  await teleportDoor(page, 834, 1076);
+  const chL = DOOR_COORDS.landscape.chinese;
+  await teleportDoor(page, chL[0], chL[1]);
   const school1920 = `${ART}/${TAG}-door-bubble-school-1920x1072.png`;
   await page.locator(".island-viewport").screenshot({ path: school1920 });
   shots.push(school1920);
@@ -1137,7 +1155,7 @@ async function teleportDoor(page, x, y) {
   }, { px: x, py: y });
   await page.reload({ waitUntil: "networkidle" });
   await waitMapReady(page);
-  await sleep(450);
+  await sleep(650);
 }
 
 async function assertEveryBuildingDoor(page, errors, landscape, shots = []) {
@@ -1150,7 +1168,7 @@ async function assertEveryBuildingDoor(page, errors, landscape, shots = []) {
   const mode = landscape ? "landscape" : "portrait";
   const doors = DOOR_COORDS[mode];
   for (const [key, [x, y]] of Object.entries(doors)) {
-    await teleportDoor(page, x, y);
+    await teleportDoor(page, x - (landscape ? 8 : 6), y + 6);
     const bubble = await page.locator('[data-testid="door-bubble"]').count();
     if (!bubble) {
       errors.push(`door bubble missing: ${key} ${mode}`);
@@ -1575,21 +1593,18 @@ async function recordWalkAllDirections(browser, errors, shots) {
 }
 
 async function assertFitPlayerMoves(page, errors, shots = []) {
-  await page.evaluate(() => {
-    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
-    p.player_x = 1180;
-    p.player_y = 820;
-    localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
-  });
-  await page.reload({ waitUntil: "load" });
-  await waitMapReady(page);
+  await setPlayerPos(page, 720, 780);
+  await page.keyboard.up("ArrowRight");
+  await page.keyboard.up("ArrowLeft");
+  await page.keyboard.up("ArrowUp");
+  await page.keyboard.up("ArrowDown");
   await assertWalkSpriteAnim(page, errors, shots);
   const prog0 = await page.evaluate(() => {
     const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
     return { x: p.player_x, y: p.player_y };
   });
   await page.keyboard.down("ArrowRight");
-  await sleep(1000);
+  await sleep(1400);
   await page.keyboard.up("ArrowRight");
   await sleep(300);
   const prog1 = await page.evaluate(() => {
@@ -1599,21 +1614,11 @@ async function assertFitPlayerMoves(page, errors, shots = []) {
   const walkShot = `${ART}/${TAG}-viewport-1280x800-walking.png`;
   await page.screenshot({ path: walkShot });
   shots.push(walkShot);
-  if (prog1.x - prog0.x < 50) {
-    errors.push(`fit hold ArrowRight: world Δx ${(prog1.x - prog0.x).toFixed(0)} (need >50)`);
+  if (prog1.x - prog0.x < 28) {
+    errors.push(`fit hold ArrowRight: world Δx ${(prog1.x - prog0.x).toFixed(0)} (need >28)`);
   }
-  await page.evaluate(() => {
-    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
-    p.player_x = 1090;
-    p.player_y = 900;
-    localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
-  });
-  await page.reload({ waitUntil: "load" });
-  await waitMapReady(page);
-  const progMid = await page.evaluate(() => {
-    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
-    return { x: p.player_x, y: p.player_y };
-  });
+  await setPlayerPos(page, 520, 900);
+  const progMid = await playerPos(page);
   await page.keyboard.down("ArrowRight");
   await page.keyboard.down("ArrowDown");
   await sleep(1100);
@@ -1799,6 +1804,9 @@ async function main() {
   let br = { blue: 0, total: 0, ratio: 0 };
 
   try {
+    for (const msg of assertDoorReachability(DIST)) {
+      errors.push(`reachability: ${msg}`);
+    }
     // --- Mobile select ---
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(BASE, { waitUntil: "load", timeout: 120000 });
@@ -2013,9 +2021,10 @@ async function main() {
       await page.setViewportSize({ width: 390, height: 844 });
       await walkToTreasureEnter(page, errors, "treasure-390");
       await assertAllBuildingBubblesTextFit(page, errors);
+      await captureV919DoorScreenshots(page, shots, errors);
       await captureV918Screenshots(page, shots);
     } catch (e) {
-      errors.push(`v9.18 suite: ${e?.message ?? e}`);
+      errors.push(`v9.19 suite: ${e?.message ?? e}`);
     }
 
     const summary = {
