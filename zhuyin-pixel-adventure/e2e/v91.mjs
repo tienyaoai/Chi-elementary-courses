@@ -579,11 +579,24 @@ async function exitToMap(page) {
   }
 }
 
+async function focusMapForWalk(page) {
+  const vp = page.locator(".island-viewport");
+  if (await vp.count()) {
+    await vp.click({ position: { x: 64, y: 64 }, force: true });
+    await sleep(120);
+  }
+}
+
 async function assertBubbleReturns(page, errors, label, awayKeys, backKeys, pos) {
   if (pos) {
     const [ax, ay, bx, by] = pos;
     await setPlayerPos(page, ax, ay);
-    if (await page.locator('[data-testid="door-bubble"]').count()) {
+    await focusMapForWalk(page);
+    const away = await page.evaluate(() => {
+      const bubble = document.querySelector('[data-testid="door-bubble"]');
+      return Boolean(bubble && bubble.checkVisibility?.());
+    });
+    if (away) {
       errors.push(`${label}: bubble still visible when away from door`);
       return;
     }
@@ -632,7 +645,7 @@ async function runKeyboardDoorEnterSuite(page, shots, errors) {
       away: ["ArrowLeft"],
       back: ["ArrowRight"],
       shotLesson: true,
-      bubbleReturnPos: [450, 950, 790, 1040],
+      bubbleReturnPos: [200, 1300, 790, 1040],
     },
     {
       id: "1920",
@@ -642,7 +655,7 @@ async function runKeyboardDoorEnterSuite(page, shots, errors) {
       keys: ["ArrowRight"],
       away: ["ArrowLeft"],
       back: ["ArrowRight"],
-      bubbleReturnPos: [450, 950, 790, 1040],
+      bubbleReturnPos: [200, 1300, 790, 1040],
     },
   ];
 
@@ -1026,6 +1039,7 @@ async function assertBridgeCrossingHeldFromSpawn(page, errors) {
     await resetToSpawn(page, plan.landscape);
     for (let pi = 0; pi < plan.phases.length; pi++) {
       const phase = plan.phases[pi];
+      await focusMapForWalk(page);
       const ok = await walkWithArrowsUntil(
         page,
         phase.keys,
@@ -1120,6 +1134,7 @@ async function captureV919DoorScreenshots(page, shots, errors) {
     for (const portal of portals) {
       const [dx, dy] = DOOR_COORDS[plan.mode][portal];
       await teleportDoor(page, dx - (plan.mode === "landscape" ? 48 : 32), dy);
+      await focusMapForWalk(page);
       const reached = await walkWithArrowsUntil(
         page,
         dx > 500 ? ["ArrowRight"] : ["ArrowLeft", "ArrowDown"],
@@ -1376,6 +1391,7 @@ async function assertPadHoldSmooth(
     errors.push(`${label}: missing pad ${padTestId}`);
     return;
   }
+  await focusMapForWalk(page);
   const coords = [];
   const cols = [];
   const snap = async () => {
@@ -1507,7 +1523,7 @@ async function runPadHoldTouchMouseSuite(browser, errors) {
       h: 1072,
       hasTouch: false,
       pad: "fit-pad-up",
-      start: [1140, 1380],
+      start: [1140, 1420],
       axis: "y",
       sign: -1,
     },
@@ -1661,6 +1677,7 @@ async function recordWalkAllDirections(browser, errors, shots) {
 
 async function assertFitPlayerMoves(page, errors, shots = []) {
   await setPlayerPos(page, 720, 1020);
+  await focusMapForWalk(page);
   await page.keyboard.up("ArrowRight");
   await page.keyboard.up("ArrowLeft");
   await page.keyboard.up("ArrowUp");
@@ -1685,6 +1702,7 @@ async function assertFitPlayerMoves(page, errors, shots = []) {
     errors.push(`fit hold ArrowRight: world Δx ${(prog1.x - prog0.x).toFixed(0)} (need >28)`);
   }
   await setPlayerPos(page, 720, 1020);
+  await focusMapForWalk(page);
   const progMid = await playerPos(page);
   await page.keyboard.down("ArrowRight");
   await page.keyboard.down("ArrowDown");

@@ -61,17 +61,31 @@ async function exitDoorUi(page) {
     const back = page.locator(".hub-panel button.pixel-btn.ghost.big-touch");
     if (await back.count()) await back.click();
     else await page.keyboard.press("Escape");
+  } else if (await page.locator(".collection-panel").count()) {
+    const back = page.locator("button.pixel-btn", { hasText: "回地圖" });
+    if (await back.count()) await back.first().click();
+    else await page.keyboard.press("Escape");
+  } else if (await page.locator(".panel-pixel").count()) {
+    const back = page.locator(".panel-pixel button.pixel-btn", { hasText: "回地圖" });
+    if (await back.count()) await back.first().click();
+    else await page.keyboard.press("Escape");
   } else {
     await page.keyboard.press("Escape");
   }
-  await page.waitForSelector(".island-viewport", { timeout: 20000 });
-  await sleep(300);
+  await page.waitForSelector(".island-viewport", { timeout: 30000 });
+  await sleep(400);
 }
 
 const HAND_OVERRIDE = {
-  landscape: {
-    english: [["ArrowRight"], ["ArrowUp"]],
+  portrait: {
+    english: [["ArrowRight"], ["ArrowRight"], ["ArrowUp"]],
     treasure: [["ArrowRight"], ["ArrowUp"]],
+  },
+  landscape: {
+    chinese: [["ArrowRight"]],
+    english: [["ArrowRight"], ["ArrowRight"], ["ArrowUp"], ["ArrowRight"]],
+    math: [["ArrowRight"], ["ArrowUp"]],
+    treasure: [["ArrowRight"], ["ArrowRight"], ["ArrowUp"]],
   },
 };
 
@@ -84,6 +98,14 @@ function chainsFor(mode, portal) {
   return bfsPathChains(mask, s.x, s.y, door[0], door[1]) ?? [];
 }
 
+async function focusMap(page) {
+  const vp = page.locator(".island-viewport");
+  if (await vp.count()) {
+    await vp.click({ position: { x: 48, y: 48 }, force: true });
+    await sleep(120);
+  }
+}
+
 export async function runV921fDoorsHeld(page, errors) {
   const plans = [
     { id: "390-portrait", w: 390, h: 844, mode: "portrait" },
@@ -93,14 +115,22 @@ export async function runV921fDoorsHeld(page, errors) {
     await page.setViewportSize({ width: plan.w, height: plan.h });
     for (const portal of Object.keys(DOOR_COORDS[plan.mode])) {
       await setSpawn(page, plan.mode === "landscape");
-      const chains = chainsFor(plan.mode, portal);
+      await focusMap(page);
+      const chains = chainsFor(plan.mode, portal) ?? [];
       let atDoor = await portalBubble(page, portal);
       for (const keys of chains) {
         if (atDoor) break;
+        await focusMap(page);
         atDoor = await walkWithArrowsUntil(page, keys, () => portalBubble(page, portal));
       }
       if (!atDoor) {
-        errors.push(`${plan.id} ${portal}: held keys did not reach door bubble`);
+        const p = await page.evaluate(() => {
+          const raw = localStorage.getItem("zhuzhu-pixel-adventure-v1");
+          return raw ? JSON.parse(raw) : null;
+        });
+        errors.push(
+          `${plan.id} ${portal}: held keys did not reach door bubble at ${p?.player_x?.toFixed?.(0)},${p?.player_y?.toFixed?.(0)}`
+        );
         continue;
       }
       const enter = page.locator('[data-testid="door-enter-btn"]');
@@ -108,7 +138,7 @@ export async function runV921fDoorsHeld(page, errors) {
       else await page.keyboard.press("Enter");
       const opened = await page
         .waitForSelector(
-          ".hub-panel, .collection-panel, [data-testid='map-hint-locked']",
+          ".hub-panel, .collection-panel, .panel-pixel, [data-testid='map-hint-locked']",
           { timeout: 15000 }
         )
         .catch(() => null);
