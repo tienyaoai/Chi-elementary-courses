@@ -63,42 +63,113 @@ fn render_action_dock(
     game: Rc<GameData>,
     on_enter: Callback<Portal>,
 ) -> Html {
-    html! {
-        <div class={if fit { "action-dock action-dock-fit-below" } else { "action-dock" }} data-testid={fit.then_some("fit-hint-strip")}>
-            if let Some(portal) = portal_near {
-                <p class={if fit { "map-hint map-hint-fit" } else { "map-hint map-hint-large" }}>
+  if fit {
+    let enter_row = can_enter && enter_portal.is_some();
+    return html! {
+        <div class="action-dock action-dock-fit-below" data-testid="fit-hint-strip">
+            if enter_row {
+                if let Some(portal) = enter_portal {
+                    <div class="fit-dock-row">
+                        <p class="map-hint map-hint-fit fit-dock-name">
+                            <BpmfAside text={ world::GateLabel::name(portal_near.unwrap_or(portal)).to_string() } game={game.clone()} read=true />
+                        </p>
+                        <button type="button" class="enter-btn pixel-btn primary pulse fit-dock-enter" data-testid="enter-portal"
+                            onclick={Callback::from({
+                                let on_enter = on_enter.clone();
+                                move |_| on_enter.emit(portal)
+                            })}>
+                            <BpmfAside text={ world::GateLabel::enter_label(portal).to_string() } game={game.clone()} read=true />
+                        </button>
+                    </div>
+                }
+            } else if let Some(portal) = portal_near {
+                <p class="map-hint map-hint-fit fit-dock-name">
                     <BpmfAside text={ world::GateLabel::name(portal).to_string() } game={game.clone()} read=true />
-                    if !fit {
-                        { " · " }
-                        <BpmfAside text={ world::GateLabel::hint(portal).to_string() } game={game.clone()} read=true />
-                    }
                 </p>
             } else {
-                <p class={classes!("map-hint", "muted", fit.then_some("map-hint-fit"))}>
+                <p class={classes!("map-hint", "muted", "map-hint-fit")}>
                     <BpmfAside text={ "點地圖移動，或用方向鍵走到建築前".to_string() } game={game.clone()} read=true />
                 </p>
             }
-            if can_enter {
-                if let Some(portal) = enter_portal {
-                    <button type="button" class="enter-btn pixel-btn primary pulse" data-testid="enter-portal"
-                        onclick={Callback::from({
-                            let on_enter = on_enter.clone();
-                            move |_| on_enter.emit(portal)
-                        })}>
-                        <BpmfAside text={ world::GateLabel::enter_label(portal).to_string() } game={game.clone()} read=true />
-                    </button>
-                }
-            }
         </div>
-    }
+    };
+  }
+  html! {
+      <div class="action-dock">
+          if let Some(portal) = portal_near {
+              <p class="map-hint map-hint-large">
+                  <BpmfAside text={ world::GateLabel::name(portal).to_string() } game={game.clone()} read=true />
+                  { " · " }
+                  <BpmfAside text={ world::GateLabel::hint(portal).to_string() } game={game.clone()} read=true />
+              </p>
+          } else {
+              <p class="map-hint muted">
+                  <BpmfAside text={ "點地圖移動，或用方向鍵走到建築前".to_string() } game={game.clone()} read=true />
+              </p>
+          }
+          if can_enter {
+              if let Some(portal) = enter_portal {
+                  <button type="button" class="enter-btn pixel-btn primary pulse" data-testid="enter-portal"
+                      onclick={Callback::from({
+                          let on_enter = on_enter.clone();
+                          move |_| on_enter.emit(portal)
+                      })}>
+                      <BpmfAside text={ world::GateLabel::enter_label(portal).to_string() } game={game.clone()} read=true />
+                  </button>
+              }
+          }
+      </div>
+  }
 }
 
 fn label_offset_below_portal(portal: Portal) -> (f32, f32) {
     match portal {
-        Portal::Chinese => (-38.0, 52.0),
-        Portal::Treasure => (0.0, 46.0),
-        Portal::Math => (12.0, 50.0),
-        Portal::English => (0.0, 56.0),
+        Portal::Chinese => (-58.0, 36.0),
+        Portal::Treasure => (108.0, 28.0),
+        Portal::Math => (-108.0, 72.0),
+        Portal::English => (12.0, 52.0),
+    }
+}
+
+fn fit_label_size(portal: Portal) -> (f32, f32) {
+    match portal {
+        Portal::Chinese => (170.0, 40.0),
+        Portal::English => (170.0, 40.0),
+        Portal::Math => (172.0, 40.0),
+        Portal::Treasure => (172.0, 40.0),
+    }
+}
+
+fn resolve_fit_label_overlaps(positions: &mut [(Portal, f32, f32)]) {
+    const PAD: f32 = 8.0;
+    for _ in 0..10 {
+        for i in 0..positions.len() {
+            for j in (i + 1)..positions.len() {
+                let (pa, ax, ay) = positions[i];
+                let (pb, bx, by) = positions[j];
+                let (wa, ha) = fit_label_size(pa);
+                let (wb, hb) = fit_label_size(pb);
+                let overlap_x = (wa + wb) * 0.5 - (bx - ax).abs();
+                let overlap_y = (ha + hb) - (by.max(ay) - ay.min(by + hb));
+                if overlap_x > PAD && overlap_y > PAD {
+                    if overlap_x <= overlap_y {
+                        let shift = overlap_x * 0.5 + PAD;
+                        if bx >= ax {
+                            positions[j].1 += shift;
+                        } else {
+                            positions[j].1 -= shift;
+                        }
+                    } else {
+                        let shift = overlap_y * 0.5 + PAD;
+                        if by >= ay {
+                            positions[j].2 += shift;
+                        } else {
+                            positions[j].2 -= shift;
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -286,11 +357,23 @@ pub fn island_map(props: &IslandMapProps) -> Html {
     };
 
     let label_overlay = if fit {
+        let mut label_pos: Vec<(Portal, f32, f32)> = landmark_defs
+            .iter()
+            .map(|(_, x, y, portal)| {
+                let (dx, below) = label_offset_below_portal(*portal);
+                let (sx, sy) = world_to_screen(*x as f32 + dx, *y as f32 + below, &metrics);
+                (*portal, sx, sy)
+            })
+            .collect();
+        resolve_fit_label_overlaps(&mut label_pos);
+        let pos_by: std::collections::HashMap<Portal, (f32, f32)> = label_pos
+            .into_iter()
+            .map(|(p, sx, sy)| (p, (sx, sy)))
+            .collect();
         html! {
             <div class="island-fit-labels" aria-hidden="false">
-                { for landmark_defs.iter().map(|(key, x, y, portal)| {
-                    let (dx, below) = label_offset_below_portal(*portal);
-                    let (sx, sy) = world_to_screen(*x as f32 + dx, *y as f32 + below, &metrics);
+                { for landmark_defs.iter().map(|(key, _x, _y, portal)| {
+                    let (sx, sy) = pos_by.get(portal).copied().unwrap_or((0.0, 0.0));
                     html! {
                         <div key={world::GateLabel::name(*portal)} class="island-fit-label"
                             data-testid={format!("fit-label-{key}")}

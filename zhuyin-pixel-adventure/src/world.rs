@@ -1,6 +1,6 @@
 use crate::map_config::{self, landmarks, MapOrientation, Point};
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum Portal {
     Chinese,
     English,

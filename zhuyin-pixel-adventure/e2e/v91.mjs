@@ -6,7 +6,7 @@ import { PNG } from "pngjs";
 import path from "node:path";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.7";
+const TAG = process.env.E2E_TAG || "v9.8";
 const FIT_MIN = 700;
 const DIST = path.resolve("..", "dist");
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
@@ -168,12 +168,10 @@ async function assertFitLabels(page, errors) {
   for (let i = 0; i < labelBoxes.length; i++) {
     for (let j = i + 1; j < labelBoxes.length; j++) {
       const inter = intersectArea(labelBoxes[i], labelBoxes[j]);
-      const a = labelBoxes[i].key;
-      const b = labelBoxes[j].key;
-      const pair = [a, b].sort().join("&");
-      const limit = pair === "math&treasure" ? 108 : 6;
-      if (inter > limit) {
-        errors.push(`labels ${a} & ${b} overlap ${inter.toFixed(0)}px² (max ${limit})`);
+      if (inter > 6) {
+        errors.push(
+          `labels ${labelBoxes[i].key} & ${labelBoxes[j].key} overlap ${inter.toFixed(0)}px²`
+        );
       }
     }
   }
@@ -221,17 +219,22 @@ async function assertHintStripZhuyinInViewport(page, errors) {
   const ok = await page.evaluate(() => {
     const dock = document.querySelector('[data-testid="fit-hint-strip"]');
     if (!dock) return { missing: true };
-    const vh = document.documentElement.clientHeight;
+    const db = dock.getBoundingClientRect();
     const vw = document.documentElement.clientWidth;
     const bad = [];
     dock.querySelectorAll(".bpmf-glyph, .bpmf-col, .han").forEach((el) => {
       const r = el.getBoundingClientRect();
       if (r.width < 1 || r.height < 1) return;
-      if (r.bottom > vh - 0.5 || r.top < -0.5 || r.right > vw - 0.5 || r.left < -0.5) {
+      if (
+        r.bottom > db.bottom + 10 ||
+        r.top < db.top - 2 ||
+        r.right > vw - 0.5 ||
+        r.left < -0.5
+      ) {
         bad.push({
           cls: el.className,
           bottom: Math.round(r.bottom),
-          vh,
+          dockBottom: Math.round(db.bottom),
         });
       }
     });
@@ -296,6 +299,20 @@ async function assertPlayerHeightFit(page, errors, minPx = 64) {
   }
 }
 
+async function assertMapViewportHeightStable(page, baseHeight, errors, ctx = "") {
+  const map = await page.locator(".island-viewport-fit").boundingBox();
+  if (!map || baseHeight == null) return;
+  if (Math.abs(map.height - baseHeight) > 4) {
+    errors.push(
+      `${ctx} map viewport height ${map.height.toFixed(0)} != baseline ${baseHeight.toFixed(0)}`
+    );
+  }
+  const dock = await page.locator(".action-dock-fit-below").boundingBox();
+  if (dock && dock.height > 100) {
+    errors.push(`${ctx} hint strip too tall: ${dock.height.toFixed(0)}px`);
+  }
+}
+
 async function runFitDesktopSuite(page, shots, errors) {
   const sizes = [
     [1280, 800],
@@ -307,6 +324,7 @@ async function runFitDesktopSuite(page, shots, errors) {
   await page.goto(BASE, { waitUntil: "networkidle" });
   await pickCharacter(page);
   await waitMapReady(page);
+  let mapHeightBaseline = null;
   for (const [w, h] of sizes) {
     await page.setViewportSize({ width: w, height: h });
     await page.reload({ waitUntil: "networkidle" });
@@ -326,6 +344,8 @@ async function runFitDesktopSuite(page, shots, errors) {
     await assertHintStripZhuyinInViewport(page, errors);
     await assertPlayerHeightFit(page, errors);
     await assertPlayerInsideMap(page, errors);
+    const mapBox = await page.locator(".island-viewport-fit").boundingBox();
+    if (w === 1280 && h === 800 && mapBox) mapHeightBaseline = mapBox.height;
     const vpShot = `${ART}/${TAG}-viewport-${w}x${h}.png`;
     await page.screenshot({ path: vpShot });
     shots.push(vpShot);
@@ -357,7 +377,10 @@ async function runFitDesktopSuite(page, shots, errors) {
   }
   if (await enter.count()) {
     await assertHintStripZhuyinInViewport(page, errors);
-    const enterHintShot = `${ART}/${TAG}-viewport-1280x800-enter-hint.png`;
+    await assertMapViewportHeightStable(page, mapHeightBaseline, errors, "enter");
+    await assertFitLabels(page, errors);
+    await assertPlayerInsideMap(page, errors);
+    const enterHintShot = `${ART}/${TAG}-viewport-1280x800-school-enter.png`;
     await page.screenshot({ path: enterHintShot });
     shots.push(enterHintShot);
     await enter.click({ force: true });

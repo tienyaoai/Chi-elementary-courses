@@ -53,6 +53,215 @@ body {
   }
 }
 
+/* 大螢幕整島 fit：地圖為主體，HUD 單行，不捲動 */
+@media (min-width: 700px) and (min-height: 700px) {
+  html:has(.shell-map-fit),
+  body:has(.shell-map-fit) {
+    overflow: hidden;
+    height: 100dvh;
+    max-height: 100dvh;
+  }
+
+  .shell-pixel.shell-map-fit {
+    width: 100vw;
+    max-width: 100vw;
+    padding: 0.3rem 0.45rem 0.55rem;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #3d8ec4;
+  }
+
+  .map-screen-fit {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .map-screen-fit .hud-fit {
+    flex: 0 0 auto;
+    flex-direction: row;
+    align-items: center;
+    min-height: 4rem;
+    max-height: 5rem;
+    margin-bottom: 0.25rem;
+    gap: 0.5rem;
+  }
+
+  .map-screen-fit .hud-fit .hud-title {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .map-screen-fit .hud-btn {
+    max-width: none;
+    min-height: 2.75rem;
+    padding: 0.35rem 0.65rem;
+    white-space: nowrap;
+  }
+
+  .map-screen-fit .hud-btn .bpmf-aside-read {
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  .map-screen-fit .hud-ghost {
+    background: #fff8e8;
+  }
+
+  .map-screen-fit .island-map-shell-fit {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .map-screen-fit .island-viewport-fit {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
+    max-height: 100%;
+    width: 100%;
+    border-width: 3px;
+    box-sizing: border-box;
+  }
+
+  .map-screen-fit .touch-pad,
+  .map-screen-fit .map-actions,
+  .map-screen-fit .locked-hint {
+    display: none;
+  }
+
+  .island-map-shell-fit .action-dock-fit-below {
+    flex: 0 0 6.15rem;
+    height: 6.15rem;
+    min-height: 6.15rem;
+    max-height: 6.15rem;
+    margin: 0.15rem 0 0;
+    padding: 0.34rem 0.55rem 0.5rem;
+    background: #fff8e8;
+    border: 2px solid var(--ink);
+    border-radius: 10px;
+    box-shadow: 2px 2px 0 #2c3e50;
+    overflow: hidden;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+  }
+
+  .fit-dock-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+    min-width: 0;
+    max-height: 100%;
+    height: 100%;
+    overflow: hidden;
+    flex-wrap: nowrap;
+  }
+
+  .fit-dock-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: calc(100% - 9.5rem);
+    margin: 0;
+    overflow: hidden;
+  }
+
+  .fit-dock-name .bpmf-aside-read {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
+
+  .fit-dock-row .fit-dock-name .han {
+    font-size: 1.28rem;
+  }
+
+  .fit-dock-row .fit-dock-name .bpmf-col {
+    font-size: 0.92rem;
+    line-height: 1.05;
+  }
+
+  .fit-dock-enter {
+    flex: 0 0 auto;
+    margin: 0;
+    width: auto;
+    min-height: 2.65rem;
+    max-height: 100%;
+    padding: 0.35rem 0.75rem;
+    font-size: 1.05rem;
+    max-width: 9rem;
+  }
+
+  .island-map-shell-fit .action-dock-fit-below .enter-btn.fit-dock-enter {
+    width: auto;
+    max-width: 9rem;
+    margin: 0;
+  }
+
+  .map-hint-fit {
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.35;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    width: 100%;
+  }
+
+  .action-dock-fit-below .map-hint-fit .bpmf-aside-read {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    row-gap: 0.12rem;
+  }
+
+  .action-dock-fit-below .bpmf-aside-read .han-unit {
+    display: inline-flex;
+    align-items: baseline;
+    vertical-align: baseline;
+  }
+
+  .action-dock-fit-below .bpmf-aside-read .han {
+    font-size: 1.52rem;
+    line-height: 1.15;
+    vertical-align: baseline;
+  }
+
+  .action-dock-fit-below .bpmf-aside-read .bpmf-col {
+    font-size: 1.02rem;
+    line-height: 1.1;
+    padding-bottom: 0;
+  }
+
+  .action-dock-fit-below .bpmf-glyph {
+    line-height: 1.1;
+  }
+
+  .fit-dock-enter .bpmf-aside-read {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: baseline;
+  }
+
+  .shell-map-fit .island-fit-labels {
+    z-index: 8800;
+  }
+}
+
 /* 國字右側直排注音 */
 .bpmf-aside {
   display: inline;
@@ -98,6 +307,31 @@ body {
 
 .bpmf-aside-lg .bpmf-col {
   font-size: 0.55em;
+}
+
+/* 地圖 fit 膠囊標籤：單行國字 + 右側直排注音 */
+.bpmf-aside-compact {
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  white-space: nowrap;
+  line-height: 1.1;
+}
+
+.bpmf-aside-compact .han {
+  font-size: 23px;
+  line-height: 1.1;
+}
+
+.bpmf-aside-compact .bpmf-col {
+  font-size: 0.55rem;
+  line-height: 1;
+  min-width: 0.7rem;
+}
+
+.bpmf-aside-compact .han-unit {
+  margin: 0 0.05em 0 0;
 }
 
 /* 低年級閱讀：國字與注音同步放大 */
@@ -251,25 +485,98 @@ body {
 .island-viewport {
   position: relative;
   width: 100%;
-  height: min(58vh, 520px);
-  min-height: 320px;
   overflow: hidden;
   border: 4px solid var(--ink);
   box-shadow: 6px 6px 0 #2c3e50;
-  background: #2d6b2d;
   touch-action: manipulation;
   cursor: pointer;
 }
 
-@media (min-width: 900px) {
-  .island-viewport {
-    height: min(70vh, 680px);
-  }
+.island-viewport-follow {
+  height: min(58vh, 520px);
+  min-height: 320px;
+  background: #2d6b2d;
 }
 
-.island-world {
+.island-viewport-fit {
+  height: min(85vh, 900px);
+  min-height: 280px;
+  background: #3d8ec4;
+}
+
+.island-map-shell-fit .island-viewport-fit {
+  height: auto;
+  min-height: 0;
+  max-height: none;
+}
+
+.island-world,
+.island-world-layer {
   position: absolute;
-  will-change: left, top;
+  will-change: transform, left, top;
+  transform-origin: center center;
+}
+
+.island-fit-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 8800;
+}
+
+.island-fit-label {
+  position: absolute;
+  transform: translate(-50%, 0);
+  padding: 0.12rem 0.5rem;
+  background: rgba(255, 254, 250, 0.9);
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 1px 2px 0 #0002;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.island-viewport-fit .island-fit-label {
+  max-height: 36px;
+  overflow: visible;
+}
+
+/* fit 模式：地標與角色用「地圖像素」尺寸，勿用 vh/vw 放大 */
+.island-viewport-fit .island-landmark.lm-chinese {
+  max-height: 300px;
+  max-width: 280px;
+}
+
+.island-viewport-fit .island-landmark.lm-english {
+  max-height: 248px;
+  max-width: 225px;
+}
+
+.island-viewport-fit .island-landmark.lm-math {
+  max-height: 228px;
+  max-width: 205px;
+}
+
+.island-viewport-fit .island-landmark.lm-treasure {
+  height: 104px;
+  width: auto;
+  min-width: 88px;
+  max-height: 104px;
+  max-width: 100px;
+  z-index: 2000;
+}
+
+.island-viewport-fit .island-player {
+  display: none;
+}
+
+.island-player-screen {
+  position: absolute;
+  z-index: 9900;
+  pointer-events: none;
+  object-fit: contain;
+  transform-origin: center bottom;
+  image-rendering: auto;
 }
 
 .island-bg {

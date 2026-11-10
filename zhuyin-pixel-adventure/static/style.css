@@ -129,9 +129,9 @@ body {
   .map-screen-fit .island-viewport-fit {
     flex: 1 1 auto;
     min-height: 0;
-    height: 100%;
+    height: auto;
+    max-height: 100%;
     width: 100%;
-    max-height: none;
     border-width: 3px;
     box-sizing: border-box;
   }
@@ -143,22 +143,73 @@ body {
   }
 
   .island-map-shell-fit .action-dock-fit-below {
-    flex: 0 0 auto;
+    flex: 0 0 6.15rem;
+    height: 6.15rem;
+    min-height: 6.15rem;
+    max-height: 6.15rem;
     margin: 0.15rem 0 0;
-    padding: 0.55rem 0.6rem 0.7rem;
+    padding: 0.34rem 0.55rem 0.5rem;
     background: #fff8e8;
     border: 2px solid var(--ink);
     border-radius: 10px;
     box-shadow: 2px 2px 0 #2c3e50;
-    min-height: 5.25rem;
-    max-height: none;
-    overflow: visible;
+    overflow: hidden;
     box-sizing: border-box;
+    display: flex;
+    align-items: center;
   }
 
-  .island-map-shell-fit .action-dock-fit-below:has(.enter-btn) {
-    min-height: 7.75rem;
-    padding-bottom: 0.75rem;
+  .fit-dock-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+    min-width: 0;
+    max-height: 100%;
+    height: 100%;
+    overflow: hidden;
+    flex-wrap: nowrap;
+  }
+
+  .fit-dock-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: calc(100% - 9.5rem);
+    margin: 0;
+    overflow: hidden;
+  }
+
+  .fit-dock-name .bpmf-aside-read {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
+
+  .fit-dock-row .fit-dock-name .han {
+    font-size: 1.28rem;
+  }
+
+  .fit-dock-row .fit-dock-name .bpmf-col {
+    font-size: 0.92rem;
+    line-height: 1.05;
+  }
+
+  .fit-dock-enter {
+    flex: 0 0 auto;
+    margin: 0;
+    width: auto;
+    min-height: 2.65rem;
+    max-height: 100%;
+    padding: 0.35rem 0.75rem;
+    font-size: 1.05rem;
+    max-width: 9rem;
+  }
+
+  .island-map-shell-fit .action-dock-fit-below .enter-btn.fit-dock-enter {
+    width: auto;
+    max-width: 9rem;
+    margin: 0;
   }
 
   .map-hint-fit {
@@ -168,47 +219,46 @@ body {
     white-space: normal;
     overflow: visible;
     text-overflow: unset;
+    width: 100%;
   }
 
   .action-dock-fit-below .map-hint-fit .bpmf-aside-read {
     display: inline-flex;
     flex-wrap: wrap;
-    align-items: flex-end;
-    row-gap: 0.15rem;
+    align-items: baseline;
+    row-gap: 0.12rem;
+  }
+
+  .action-dock-fit-below .bpmf-aside-read .han-unit {
+    display: inline-flex;
+    align-items: baseline;
+    vertical-align: baseline;
   }
 
   .action-dock-fit-below .bpmf-aside-read .han {
-    font-size: 1.65rem;
-    line-height: 1.22;
+    font-size: 1.52rem;
+    line-height: 1.15;
+    vertical-align: baseline;
   }
 
   .action-dock-fit-below .bpmf-aside-read .bpmf-col {
-    font-size: 1.1rem;
-    line-height: 1.16;
-    padding-bottom: 0.14em;
+    font-size: 1.02rem;
+    line-height: 1.1;
+    padding-bottom: 0;
   }
 
   .action-dock-fit-below .bpmf-glyph {
-    line-height: 1.12;
+    line-height: 1.1;
   }
 
-  .island-map-shell-fit .action-dock-fit-below .enter-btn {
-    margin-top: 0.35rem;
-    min-height: 2.85rem;
-    padding: 0.5rem 0.75rem;
-    font-size: 1.15rem;
-    width: auto;
-    max-width: 12rem;
-  }
-
-  .island-map-shell-fit .action-dock-fit-below .enter-btn .bpmf-aside-read {
+  .fit-dock-enter .bpmf-aside-read {
     display: inline-flex;
     flex-direction: row;
-    align-items: flex-end;
+    align-items: baseline;
   }
 
-  .island-fit-labels {
-    z-index: 9400;
+  .shell-map-fit .island-fit-labels {
+    z-index: 8800;
   }
 }
 
@@ -454,6 +504,12 @@ body {
   background: #3d8ec4;
 }
 
+.island-map-shell-fit .island-viewport-fit {
+  height: auto;
+  min-height: 0;
+  max-height: none;
+}
+
 .island-world,
 .island-world-layer {
   position: absolute;
@@ -465,7 +521,7 @@ body {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 9500;
+  z-index: 8800;
 }
 
 .island-fit-label {
@@ -516,7 +572,7 @@ body {
 
 .island-player-screen {
   position: absolute;
-  z-index: 9200;
+  z-index: 9900;
   pointer-events: none;
   object-fit: contain;
   transform-origin: center bottom;
