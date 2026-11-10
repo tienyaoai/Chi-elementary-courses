@@ -8,7 +8,7 @@ import path from "node:path";
 import { footOnLand, isWaterPixel, loadWalkMask } from "./walk_mask.mjs";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.21d";
+const TAG = process.env.E2E_TAG || "v9.21e";
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
 const HOLD_MS = 3000;
 const STEP_MS = 50;
@@ -122,10 +122,10 @@ async function resetPos(page, x, y) {
 function startFor(view, planId) {
   if (view.w >= 700) {
     const table = {
-      right: [600, 1070],
-      left: [2300, 1010],
-      up: [1820, 1250],
-      down: [1790, 200],
+      right: [1100, 1020],
+      left: [1740, 1020],
+      up: [1880, 1160],
+      down: [1880, 600],
     };
     return table[planId];
   }
@@ -362,8 +362,33 @@ async function assertLabelInViewport(page, key, errors) {
 async function auditFootLandAfterHolds(browser, errors) {
   const dist = path.resolve("..", "dist");
   const plans = [
-    { orient: "portrait", w: 390, h: 844, touch: true, starts: [[120, 1240], [235, 1695], [304, 1200], [884, 724]] },
-    { orient: "landscape", w: 1280, h: 800, touch: false, starts: [[200, 1030], [1775, 400], [1600, 1310]] },
+    {
+      orient: "portrait",
+      w: 390,
+      h: 844,
+      touch: true,
+      starts: [[120, 1240], [235, 1695], [304, 1200], [884, 724]],
+    },
+    {
+      orient: "landscape",
+      w: 1280,
+      h: 800,
+      touch: false,
+      starts: [
+        [600, 1070],
+        [1100, 1020],
+        [1900, 1050],
+        [2100, 1000],
+        [1880, 1160],
+      ],
+    },
+    {
+      orient: "landscape",
+      w: 1920,
+      h: 1072,
+      touch: false,
+      starts: [[1900, 1050], [2100, 1000], [1880, 1160]],
+    },
   ];
   const maskP = loadWalkMask(dist, "portrait");
   const maskL = loadWalkMask(dist, "landscape");
@@ -556,6 +581,9 @@ export async function runV920WalkVerify(browser, errors = []) {
   }
 
   await auditFootLandAfterHolds(browser, errors);
+
+  const { runV921eDeliver } = await import("./v921e_deliver.mjs");
+  await runV921eDeliver(browser, errors);
 
   writeFileSync(`${ART}/${TAG}-walk-verify-report.json`, JSON.stringify(report, null, 2));
   return report;

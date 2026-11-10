@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regenerate walk-*.bin from island map art (water pixels = blocked)."""
+"""Regenerate walk-*.bin from island map art (only path + lawn; water/trees blocked)."""
 from __future__ import annotations
 
 import struct
@@ -22,10 +22,53 @@ def is_water(r: int, g: int, b: int, a: int) -> bool:
         return True
     if b > 60 and r < 80 and g < 120 and b > r + 30:
         return True
-    # shore / shallow (teal) in map art
     if b >= 85 and g >= 85 and b > r + 12 and g > r + 35:
         return True
     return False
+
+
+def is_pathish(r: int, g: int, b: int, a: int) -> bool:
+    if a < 128 or is_water(r, g, b, a):
+        return False
+    if r > 105 and g > 82 and b < r - 4 and g < r and r < 210:
+        return True
+    return False
+
+
+def is_lawn(r: int, g: int, b: int, a: int) -> bool:
+    """Open grass tiles (not dark forest canopy)."""
+    if a < 128 or is_water(r, g, b, a):
+        return False
+    if is_pathish(r, g, b, a):
+        return True
+    if r < 28:
+        return False
+    if g < 75 or g > 210:
+        return False
+    if g < r + 12:
+        return False
+    if b > g - 8:
+        return False
+    return True
+
+
+def is_tree_or_cliff(r: int, g: int, b: int, a: int) -> bool:
+    if a < 128:
+        return True
+    if is_water(r, g, b, a):
+        return True
+    # dark canopy (not bright lawn)
+    if g >= 90:
+        return False
+    if g >= 50 and r <= 55 and b <= 85 and g > r + 15 and g < 88:
+        return True
+    return False
+
+
+def is_walk_surface(r: int, g: int, b: int, a: int) -> bool:
+    if is_tree_or_cliff(r, g, b, a):
+        return False
+    return is_lawn(r, g, b, a)
 
 
 def build_walk_mask(img: Image.Image, step: int = 4) -> tuple[int, int, bytes]:
@@ -35,17 +78,17 @@ def build_walk_mask(img: Image.Image, step: int = 4) -> tuple[int, int, bytes]:
     px = img.convert("RGBA").load()
     for my in range(mh):
         for mx in range(mw):
-            walk = False
-            for dy in range(step):
-                for dx in range(step):
-                    x, y = mx * step + dx, my * step + dy
-                    if x >= w or y >= h:
-                        continue
-                    r, g, b, a = px[x, y]
-                    if not is_water(r, g, b, a):
-                        walk = True
-                        break
-                if walk:
+            samples = [
+                (mx * step + step // 2, my * step + step // 2),
+                (mx * step + 1, my * step + step // 2),
+                (mx * step + step - 1, my * step + step // 2),
+                (mx * step + step // 2, my * step + 1),
+                (mx * step + step // 2, my * step + step - 1),
+            ]
+            walk = True
+            for x, y in samples:
+                if x >= w or y >= h or not is_walk_surface(*px[x, y]):
+                    walk = False
                     break
             i = my * mw + mx
             if walk:

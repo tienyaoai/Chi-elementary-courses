@@ -1041,6 +1041,24 @@ body {
 }
 
 /* 直向手機：整屏固定高度，禁止頁面捲動 */
+/* Keep map world decoded while lesson UI is on top (no island-bg reload). */
+.map-screen-keeper {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.lesson-overlay-stack {
+  position: relative;
+  z-index: 5;
+  min-height: 100dvh;
+}
+
 .map-screen:not(.map-screen-fit) {
   display: flex;
   flex-direction: column;
