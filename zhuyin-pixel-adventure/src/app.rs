@@ -6,7 +6,7 @@ use crate::island_walk;
 use crate::map_input::{
     install_continuous_map_move, slide_move, DoorEnterProbe, MapInputController, WALK_SPEED_PX_PER_SEC,
 };
-use crate::walk_sprite::{facing_from_velocity, WalkFacing};
+use crate::walk_sprite::WalkFacing;
 use crate::map_config::{self, MapOrientation};
 use crate::pixel_art_preload::preload_urls;
 use crate::progress::PixelProgress;
@@ -202,24 +202,6 @@ pub fn app() -> Html {
         crate::sounds::prime_audio();
     });
 
-    let advance_walk_anim = {
-        let walk_active = walk_active.clone();
-        let walk_sheet_frame = walk_sheet_frame.clone();
-        let walk_anim_accum = walk_anim_accum.clone();
-        let walk_phase = walk_phase.clone();
-        move |dt_ms: f32, speed: f32| {
-            if speed > 0.5 {
-                walk_active.set(true);
-                walk_phase.set(*walk_phase + dt_ms * 0.002);
-                let mut acc = walk_anim_accum.borrow_mut();
-                let ms = acc.get_or_insert(0.0);
-                *ms += dt_ms;
-                let frame = ((*ms / 125.0).floor() as u8) % 4;
-                walk_sheet_frame.set(frame);
-            }
-        }
-    };
-
     let try_move = {
         let px = px.clone();
         let py = py.clone();
@@ -231,28 +213,23 @@ pub fn app() -> Html {
         let pos_live = pos_live.clone();
         let walk_active = walk_active.clone();
         let walk_sheet_frame = walk_sheet_frame.clone();
-        let walk_anim_accum = walk_anim_accum.clone();
         let walk_phase = walk_phase.clone();
         let last_progress_save = last_progress_save.clone();
-        let advance_walk_anim = advance_walk_anim.clone();
         Callback::from(move |(nx, ny, vx, vy): (f32, f32, f32, f32)| {
-            if !island_walk::masks_ready() {
-                return;
-            }
             let o = *orient;
             let (nx, ny) = island_walk::clamp_to_map(nx, ny, o);
-            if !island_walk::can_stand(nx, ny, o) {
+            if island_walk::masks_ready() && !island_walk::can_stand(nx, ny, o) {
                 return;
             }
             let (cx, cy) = *pos_live.borrow();
-            if vx.hypot(vy) > 1.0 {
-                walk_facing.set(facing_from_velocity(vx, vy) as u8);
-            } else if nx < cx - 0.5 {
-                walk_facing.set(WalkFacing::Left as u8);
-            } else if nx > cx + 0.5 {
-                walk_facing.set(WalkFacing::Right as u8);
+            let adx = nx - cx;
+            let ady = ny - cy;
+            if adx.hypot(ady) > 0.01 {
+                if let Some(face) = crate::walk_sprite::facing_from_axis(adx, ady) {
+                    walk_facing.set(face as u8);
+                }
             }
-            let moved = (nx - cx).hypot(ny - cy) > 0.01;
+            let moved = adx.hypot(ady) > 0.01;
             if moved {
                 frame.set(*frame + 1);
             }
@@ -263,9 +240,6 @@ pub fn app() -> Html {
             } else {
                 0.0
             };
-            if moved && speed > 0.5 {
-                advance_walk_anim(16.0, speed);
-            }
             velocity.set((vx, vy));
             px.set(nx);
             py.set(ny);
@@ -361,14 +335,14 @@ pub fn app() -> Html {
                 let walk_anim_accum = walk_anim_accum.clone();
                 let map_move_gate = map_move_gate.clone();
                 let pos_live = pos_live.clone();
+                let map_input = map_input.clone();
                 move |((dx, dy), (vx, vy), dt): ((f32, f32), (f32, f32), f32)| {
                     if !map_move_gate.get() {
                         return;
                     }
                     let dt_ms = (dt * 1000.0).max(0.5);
-                    let speed = vx.hypot(vy);
-                    let moved = dx.hypot(dy) > 0.001;
-                    if speed < 0.5 && !moved {
+                    let input_active = map_input.input_active();
+                    if !input_active {
                         if velocity.0.hypot(velocity.1) > 0.5 {
                             velocity.set((0.0, 0.0));
                         }
@@ -377,18 +351,18 @@ pub fn app() -> Html {
                         walk_sheet_frame.set(0);
                         return;
                     }
-                    if speed > 0.5 {
-                        walk_facing.set(facing_from_velocity(vx, vy) as u8);
-                        velocity.set((vx, vy));
-                        walk_active.set(true);
-                        walk_phase.set(*walk_phase + dt * 2.0);
+                    if let Some(face) = map_input.walk_facing_from_input() {
+                        walk_facing.set(face as u8);
+                    }
+                    velocity.set((vx, vy));
+                    walk_active.set(true);
+                    walk_phase.set(*walk_phase + dt * 2.0);
+                    {
                         let mut acc = walk_anim_accum.borrow_mut();
                         let ms = acc.get_or_insert(0.0);
                         *ms += dt_ms;
                         let frame = ((*ms / 125.0).floor() as u8) % 4;
                         walk_sheet_frame.set(frame);
-                    } else if !moved {
-                        walk_phase.set(*walk_phase + dt * 0.35);
                     }
                     let o = *orient;
                     let (x, y) = *pos_live.borrow();

@@ -25,13 +25,41 @@ pub fn facing_from_velocity(vx: f32, vy: f32) -> WalkFacing {
     if vx.abs() >= vy.abs() {
         if vx < -0.5 {
             WalkFacing::Left
-        } else {
+        } else if vx > 0.5 {
             WalkFacing::Right
+        } else if vy < -0.5 {
+            WalkFacing::Up
+        } else {
+            WalkFacing::Down
         }
     } else if vy < -0.5 {
         WalkFacing::Up
-    } else {
+    } else if vy > 0.5 {
         WalkFacing::Down
+    } else if vx < -0.5 {
+        WalkFacing::Left
+    } else {
+        WalkFacing::Right
+    }
+}
+
+/// Stable facing while an arrow is held (dominant axis), not from collision-sliced velocity.
+pub fn facing_from_axis(dx: f32, dy: f32) -> Option<WalkFacing> {
+    let ax = dx.abs();
+    let ay = dy.abs();
+    if ax < 0.01 && ay < 0.01 {
+        return None;
+    }
+    if ax >= ay {
+        if dx < 0.0 {
+            Some(WalkFacing::Left)
+        } else {
+            Some(WalkFacing::Right)
+        }
+    } else if dy < 0.0 {
+        Some(WalkFacing::Up)
+    } else {
+        Some(WalkFacing::Down)
     }
 }
 

@@ -1,6 +1,7 @@
 //! Window-level held keys + RAF movement (arrows / WASD). Pad hold writes the same key set.
 
 use crate::input::Dir;
+use crate::walk_sprite::{facing_from_axis, WalkFacing};
 use crate::island_walk;
 use crate::map_config::MapOrientation;
 use crate::world::{self, Portal};
@@ -40,6 +41,24 @@ impl HeldKeys {
 
     pub fn any(&self) -> bool {
         self.up || self.down || self.left || self.right
+    }
+
+    pub fn intent_axis(&self) -> (f32, f32) {
+        let mut dx = 0.0_f32;
+        let mut dy = 0.0_f32;
+        if self.left {
+            dx -= 1.0;
+        }
+        if self.right {
+            dx += 1.0;
+        }
+        if self.up {
+            dy -= 1.0;
+        }
+        if self.down {
+            dy += 1.0;
+        }
+        (dx, dy)
     }
 
     pub fn axis_unit(&self) -> (f32, f32) {
@@ -86,7 +105,7 @@ fn arrow_like(dir: Dir) -> bool {
     matches!(dir, Dir::Up | Dir::Down | Dir::Left | Dir::Right)
 }
 
-/// Slide along walk mask: try full step, then X-only, then Y-only.
+/// Slide along walk mask: try full step, then axis-only, in substeps so corners don't dead-stop.
 pub fn slide_move(x: f32, y: f32, dx: f32, dy: f32, orient: MapOrientation) -> Option<(f32, f32)> {
     if !island_walk::masks_ready() {
         let nx = x + dx;
@@ -97,20 +116,39 @@ pub fn slide_move(x: f32, y: f32, dx: f32, dy: f32, orient: MapOrientation) -> O
         let (nx, ny) = island_walk::clamp_to_map(nx, ny, orient);
         island_walk::can_stand(nx, ny, orient).then_some((nx, ny))
     };
-    if let Some(p) = try_pt(x + dx, y + dy) {
-        return Some(p);
-    }
-    if dx.abs() > 0.001 {
-        if let Some(p) = try_pt(x + dx, y) {
-            return Some(p);
+    let steps = 3u8;
+    let mut cur = (x, y);
+    let mut moved = false;
+    for i in 0..steps {
+        let t0 = i as f32 / steps as f32;
+        let t1 = (i + 1) as f32 / steps as f32;
+        let sdx = dx * (t1 - t0);
+        let sdy = dy * (t1 - t0);
+        let (cx, cy) = cur;
+        if let Some(p) = try_pt(cx + sdx, cy + sdy) {
+            cur = p;
+            moved = true;
+            continue;
+        }
+        if sdx.abs() > 0.001 {
+            if let Some(p) = try_pt(cx + sdx, cy) {
+                cur = p;
+                moved = true;
+                continue;
+            }
+        }
+        if sdy.abs() > 0.001 {
+            if let Some(p) = try_pt(cx, cy + sdy) {
+                cur = p;
+                moved = true;
+            }
         }
     }
-    if dy.abs() > 0.001 {
-        if let Some(p) = try_pt(x, y + dy) {
-            return Some(p);
-        }
+    if moved {
+        Some(cur)
+    } else {
+        None
     }
-    None
 }
 
 const PAD_TAP_WALK_MS: f64 = 150.0;
@@ -125,6 +163,18 @@ pub struct MapInputController {
 }
 
 impl MapInputController {
+    pub fn walk_facing_from_input(&self) -> Option<WalkFacing> {
+        let keys = *self.held.borrow();
+        if !keys.any() {
+            return None;
+        }
+        let (dx, dy) = keys.intent_axis();
+        facing_from_axis(dx, dy)
+    }
+
+    pub fn input_active(&self) -> bool {
+        self.held.borrow().any() || self.pad_held_dir.borrow().is_some()
+    }
     pub fn new() -> Self {
         Self {
             held: Rc::new(RefCell::new(HeldKeys::default())),
@@ -144,6 +194,17 @@ impl MapInputController {
         self.cancel_pad_release();
         self.pad_pressed_at.borrow_mut().take();
         self.pad_held_dir.borrow_mut().take();
+        self.held.borrow_mut().clear();
+    }
+
+    /// Window blur — keep on-screen pad hold if the pointer is still down.
+    pub fn clear_keyboard_held(&self) {
+        self.cancel_pad_release();
+        if self.pad_held_dir.borrow().is_some() {
+            self.held.borrow_mut().clear();
+            return;
+        }
+        self.pad_pressed_at.borrow_mut().take();
         self.held.borrow_mut().clear();
     }
 
@@ -264,12 +325,19 @@ pub fn install_continuous_map_move(
             });
 
             let blur = EventListener::new(&win, "blur", move |_| {
-                ctrl_blur.clear_held();
+                ctrl_blur.clear_keyboard_held();
             });
             let vis = EventListener::new(&win, "visibilitychange", move |_| {
                 ctrl_vis.clear_held();
             });
-            let pointer_up = EventListener::new(&win, "pointerup", move |_| {
+            let pointer_up = EventListener::new(&win, "pointerup", move |e| {
+                if e
+                    .dyn_ref::<web_sys::PointerEvent>()
+                    .map(|ev| ev.button())
+                    != Some(0)
+                {
+                    return;
+                }
                 ctrl_ptr_up.pad_pointer_released();
             });
             let pointer_cancel = EventListener::new(&win, "pointercancel", move |_| {
