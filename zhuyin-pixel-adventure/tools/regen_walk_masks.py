@@ -85,11 +85,14 @@ def build_walk_mask(img: Image.Image, step: int = 4) -> tuple[int, int, bytes]:
                 (mx * step + step // 2, my * step + 1),
                 (mx * step + step // 2, my * step + step - 1),
             ]
-            walk = True
+            flags = []
             for x, y in samples:
-                if x >= w or y >= h or not is_walk_surface(*px[x, y]):
-                    walk = False
-                    break
+                if x >= w or y >= h:
+                    flags.append(False)
+                else:
+                    flags.append(is_walk_surface(*px[x, y]))
+            # Center must be walkable; allow one cardinal tree edge in a 4px cell (keeps roads/bridge connected).
+            walk = bool(flags) and flags[0] and sum(1 for f in flags if f) >= 3
             i = my * mw + mx
             if walk:
                 bits[i // 8] |= 1 << (i % 8)

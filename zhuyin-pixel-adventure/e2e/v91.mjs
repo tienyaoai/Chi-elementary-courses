@@ -9,7 +9,7 @@ import { assertDoorReachability, DOOR_COORDS } from "./walk_reach.mjs";
 import { runV920WalkVerify } from "./v920_walk_verify.mjs";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.21e";
+const TAG = process.env.E2E_TAG || "v9.21f";
 const FIT_MIN = 700;
 const DIST = path.resolve("..", "dist");
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
@@ -632,7 +632,7 @@ async function runKeyboardDoorEnterSuite(page, shots, errors) {
       away: ["ArrowLeft"],
       back: ["ArrowRight"],
       shotLesson: true,
-      bubbleReturnPos: [600, 1040, 790, 1040],
+      bubbleReturnPos: [450, 950, 790, 1040],
     },
     {
       id: "1920",
@@ -642,7 +642,7 @@ async function runKeyboardDoorEnterSuite(page, shots, errors) {
       keys: ["ArrowRight"],
       away: ["ArrowLeft"],
       back: ["ArrowRight"],
-      bubbleReturnPos: [600, 1040, 790, 1040],
+      bubbleReturnPos: [450, 950, 790, 1040],
     },
   ];
 
@@ -1507,7 +1507,7 @@ async function runPadHoldTouchMouseSuite(browser, errors) {
       h: 1072,
       hasTouch: false,
       pad: "fit-pad-up",
-      start: [1820, 1250],
+      start: [1140, 1380],
       axis: "y",
       sign: -1,
     },
@@ -1660,7 +1660,7 @@ async function recordWalkAllDirections(browser, errors, shots) {
 }
 
 async function assertFitPlayerMoves(page, errors, shots = []) {
-  await setPlayerPos(page, 720, 780);
+  await setPlayerPos(page, 720, 1020);
   await page.keyboard.up("ArrowRight");
   await page.keyboard.up("ArrowLeft");
   await page.keyboard.up("ArrowUp");
@@ -1684,7 +1684,7 @@ async function assertFitPlayerMoves(page, errors, shots = []) {
   if (prog1.x - prog0.x < 28) {
     errors.push(`fit hold ArrowRight: world Δx ${(prog1.x - prog0.x).toFixed(0)} (need >28)`);
   }
-  await setPlayerPos(page, 520, 900);
+  await setPlayerPos(page, 720, 1020);
   const progMid = await playerPos(page);
   await page.keyboard.down("ArrowRight");
   await page.keyboard.down("ArrowDown");
@@ -2089,6 +2089,9 @@ async function main() {
 
     try {
       await assertBridgeCrossingHeldFromSpawn(page, errors);
+      const { runV921fDoorsHeld } = await import("./v921f_doors_held.mjs");
+      await runV921fDoorsHeld(page, errors);
+      await ensureMapScreen(page);
       await page.setViewportSize({ width: 1280, height: 800 });
       await walkToTreasureEnter(page, errors, "treasure-1280");
       await page.setViewportSize({ width: 390, height: 844 });
