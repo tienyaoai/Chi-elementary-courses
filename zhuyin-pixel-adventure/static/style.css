@@ -638,8 +638,9 @@ body {
 .door-bubble-compact {
   width: max-content;
   min-width: 9.5rem;
-  max-width: min(92vw, 13rem);
+  max-width: min(92vw, 22rem);
   padding: 0.1rem 0.42rem 0.12rem;
+  box-sizing: border-box;
 }
 
 .door-bubble-inner {
@@ -653,6 +654,13 @@ body {
   margin: 0;
   white-space: normal;
   line-height: 1.15;
+  max-width: 100%;
+  overflow: visible;
+}
+
+.island-viewport-fit .door-bubble-compact.door-bubble-viewport {
+  min-width: 11rem;
+  max-width: min(calc(100vw - 1.5rem), 22rem);
 }
 
 .door-bubble-compact .bpmf-aside-read .han-plain,
@@ -762,12 +770,12 @@ body {
   transform: translateX(-50%);
   top: calc(100% + 8px);
   bottom: auto;
-  max-width: min(13rem, calc(100% - 16px));
+  max-width: min(22rem, calc(100% - 16px));
 }
 
 .island-viewport-follow .door-bubble-compact {
   min-width: 0;
-  max-width: min(13rem, calc(100vw - 16px));
+  max-width: min(22rem, calc(100vw - 16px));
   box-sizing: border-box;
 }
 

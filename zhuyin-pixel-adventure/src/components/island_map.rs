@@ -18,8 +18,8 @@ use zhuyin_island_wasm::data::GameData;
 const PLAYER_H: f32 = 110.0;
 const PLAYER_MIN_SCREEN_PX: f32 = 64.0;
 /// Compact door bubble size for placement / clamp (px in viewport).
-const DOOR_BUBBLE_W: f32 = 196.0;
-const DOOR_BUBBLE_H: f32 = 72.0;
+const DOOR_BUBBLE_W: f32 = 280.0;
+const DOOR_BUBBLE_H: f32 = 88.0;
 const VIEWPORT_PAD: f32 = 8.0;
 const FOLLOW_CAM_LIFT: f32 = 58.0;
 const FOLLOW_VIEW_MARGIN: f32 = 24.0;

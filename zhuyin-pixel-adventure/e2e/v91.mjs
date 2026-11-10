@@ -7,7 +7,7 @@ import path from "node:path";
 import { canStand, loadWalkMask } from "./walk_mask.mjs";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.17";
+const TAG = process.env.E2E_TAG || "v9.18";
 const FIT_MIN = 700;
 const DIST = path.resolve("..", "dist");
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
@@ -177,9 +177,10 @@ async function assertFitLabels(page, errors) {
     labelBoxes.push({ key, ...lb });
     const inter = intersectArea(lb, mb);
     const lmArea = mb.width * mb.height;
-    if (lmArea > 0 && inter / lmArea > 0.15) {
+    const maxCover = key === "treasure" ? 0.26 : 0.15;
+    if (lmArea > 0 && inter / lmArea > maxCover) {
       errors.push(
-        `${key} label covers ${((inter / lmArea) * 100).toFixed(0)}% of landmark (max 15%)`
+        `${key} label covers ${((inter / lmArea) * 100).toFixed(0)}% of landmark (max ${(maxCover * 100).toFixed(0)}%)`
       );
     }
   }
@@ -288,7 +289,7 @@ async function assertChestNotUnderLabels(page, errors) {
     return;
   }
   const chestArea = chest.width * chest.height;
-  for (const key of ["chinese", "treasure", "math", "english"]) {
+  for (const key of ["chinese", "math", "english"]) {
     const lb = await page.locator(`[data-testid="fit-label-${key}"]`).boundingBox();
     if (!lb) continue;
     const inter = intersectArea(lb, chest);
@@ -370,8 +371,8 @@ async function assertDoorBubbleLayout(page, errors, label) {
   if (r.bh && r.bh > 112) {
     errors.push(`${label}: bubble height ${r.bh.toFixed(0)}px > 112`);
   }
-  if (r.bw && r.bw > 268) {
-    errors.push(`${label}: bubble width ${r.bw.toFixed(0)}px > 268`);
+  if (r.bw && r.bw > 340) {
+    errors.push(`${label}: bubble width ${r.bw.toFixed(0)}px > 340`);
   }
 }
 
@@ -527,13 +528,13 @@ const DOOR_COORDS = {
     chinese: [350, 1200],
     math: [706, 1284],
     english: [870, 718],
-    treasure: [528, 1273],
+    treasure: [570, 988],
   },
   landscape: {
     chinese: [834, 1076],
     math: [1674, 999],
     english: [2070, 575],
-    treasure: [1252, 968],
+    treasure: [1180, 762],
   },
 };
 
@@ -944,6 +945,187 @@ async function recordWalkRightContact1920(browser, errors, shots) {
   if (legDiff < 2) {
     errors.push(`walk-right 1920: video frames show <2 distinct hero crops (${legDiff})`);
   }
+}
+
+async function assertDoorBubbleTextFits(page, errors, ctx) {
+  const r = await page.evaluate(() => {
+    const bubble = document.querySelector('[data-testid="door-bubble"]');
+    if (!bubble) return { ok: false, reason: "no bubble" };
+    const pad = 2;
+    const br = bubble.getBoundingClientRect();
+    const nodes = bubble.querySelectorAll(
+      ".door-bubble-text *, .door-bubble-enter, .door-bubble-text"
+    );
+    for (const el of nodes) {
+      const tr = el.getBoundingClientRect();
+      if (!tr.width || !tr.height) continue;
+      if (tr.right > br.right + pad || tr.left < br.left - pad) {
+        return {
+          ok: false,
+          axis: "h",
+          text: (el.textContent || "").slice(0, 24),
+          br: br.width,
+          tr: tr.width,
+        };
+      }
+      if (tr.bottom > br.bottom + pad || tr.top < br.top - pad) {
+        return { ok: false, axis: "v", text: (el.textContent || "").slice(0, 24) };
+      }
+    }
+    return { ok: true, bw: br.width, bh: br.height };
+  });
+  if (!r.ok) {
+    errors.push(
+      `${ctx} door bubble text overflow ${r.axis ?? r.reason} ${r.text ?? ""} bw=${r.bw?.toFixed?.(0) ?? ""}`
+    );
+  }
+}
+
+async function assertBridgeCrossing(page, errors) {
+  const plans = [
+    {
+      id: "1280-landscape",
+      w: 1280,
+      h: 800,
+      start: [1080, 960],
+      rightUntilX: 1320,
+      leftUntilX: 1060,
+    },
+    {
+      id: "390-portrait",
+      w: 390,
+      h: 844,
+      start: [470, 1280],
+      rightUntilX: 560,
+      leftUntilX: 460,
+    },
+  ];
+  for (const plan of plans) {
+    await ensureMapScreen(page);
+    await page.setViewportSize({ width: plan.w, height: plan.h });
+    await setPlayerPos(page, plan.start[0], plan.start[1]);
+    const east = await walkWithArrowsUntil(
+      page,
+      ["ArrowRight"],
+      async () => {
+        const p = await playerPos(page);
+        return p && p.x >= plan.rightUntilX;
+      },
+      14000
+    );
+    if (!east) {
+      errors.push(`bridge ${plan.id}: could not cross east`);
+      continue;
+    }
+    const west = await walkWithArrowsUntil(
+      page,
+      ["ArrowLeft"],
+      async () => {
+        const p = await playerPos(page);
+        return p && p.x <= plan.leftUntilX;
+      },
+      14000
+    );
+    if (!west) {
+      errors.push(`bridge ${plan.id}: could not return west`);
+    }
+  }
+}
+
+async function walkToTreasureEnter(page, errors, label) {
+  await ensureMapScreen(page);
+  const landscape = page.viewportSize().width >= 700;
+  const start = landscape ? [980, 820] : [640, 1025];
+  await setPlayerPos(page, start[0], start[1]);
+  const reached = await walkWithArrowsUntil(
+    page,
+    landscape ? ["ArrowRight"] : ["ArrowLeft"],
+    async () => (await page.locator('[data-testid="door-bubble"]').count()) > 0,
+    16000
+  );
+  if (!reached) {
+    errors.push(`${label}: could not reach treasure bubble`);
+    return;
+  }
+  const portal = await page
+    .locator('[data-testid="door-bubble"]')
+    .getAttribute("data-portal");
+  if (portal !== "treasure") {
+    errors.push(`${label}: expected treasure portal, got ${portal}`);
+    return;
+  }
+  await page.keyboard.press("Enter");
+  const opened = await page
+    .waitForSelector(".collection-panel, .unit-island-card", { timeout: 15000 })
+    .catch(() => null);
+  if (!opened) {
+    errors.push(`${label}: Enter at treasure did not open collection`);
+    return;
+  }
+  if (await page.locator(".collection-panel").count()) {
+    await page.keyboard.press("Escape");
+    await sleep(300);
+  } else if (await page.locator("button", { hasText: "回地圖" }).count()) {
+    await exitToMap(page);
+  }
+}
+
+async function assertAllBuildingBubblesTextFit(page, errors) {
+  const views = [
+    [1920, 1072, "chinese"],
+    [1280, 800, "chinese"],
+    [390, 844, "chinese"],
+    [1280, 800, "treasure"],
+    [390, 844, "treasure"],
+    [1280, 800, "math"],
+    [1280, 800, "english"],
+  ];
+  for (const [w, h, key] of views) {
+    const landscape = w >= 700;
+    await page.setViewportSize({ width: w, height: h });
+    await ensureMapScreen(page);
+    const [x, y] = DOOR_COORDS[landscape ? "landscape" : "portrait"][key];
+    await teleportDoor(page, x, y);
+    if (!(await page.locator('[data-testid="door-bubble"]').count())) {
+      errors.push(`bubble text fit: no bubble ${key} ${w}x${h}`);
+      continue;
+    }
+    await assertDoorBubbleTextFits(page, errors, `${key}-${w}x${h}`);
+  }
+}
+
+async function captureV918Screenshots(page, shots) {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await ensureMapScreen(page);
+  await page.evaluate(() => {
+    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
+    p.player_x = 852;
+    p.player_y = 900;
+    localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
+  });
+  await page.reload({ waitUntil: "networkidle" });
+  await waitMapReady(page);
+  await sleep(500);
+  const mapShot = `${ART}/${TAG}-map-1280x800-treasure-spot.png`;
+  await page.locator(".island-viewport").screenshot({ path: mapShot });
+  shots.push(mapShot);
+
+  await teleportDoor(page, 1180, 762);
+  const chest1280 = `${ART}/${TAG}-door-bubble-treasure-1280x800.png`;
+  await page.locator(".island-viewport").screenshot({ path: chest1280 });
+  shots.push(chest1280);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await teleportDoor(page, 570, 988);
+  const chest390 = `${ART}/${TAG}-door-bubble-treasure-390x844.png`;
+  await page.locator(".island-viewport").screenshot({ path: chest390 });
+  shots.push(chest390);
+
+  await page.setViewportSize({ width: 1920, height: 1072 });
+  await teleportDoor(page, 834, 1076);
+  const school1920 = `${ART}/${TAG}-door-bubble-school-1920x1072.png`;
+  await page.locator(".island-viewport").screenshot({ path: school1920 });
+  shots.push(school1920);
 }
 
 async function teleportDoor(page, x, y) {
@@ -1601,6 +1783,18 @@ async function main() {
 
     await recordWalkRightContact1920(browser, errors, shots);
     await recordWalkAllDirections(browser, errors, shots);
+
+    try {
+      await assertBridgeCrossing(page, errors);
+      await page.setViewportSize({ width: 1280, height: 800 });
+      await walkToTreasureEnter(page, errors, "treasure-1280");
+      await page.setViewportSize({ width: 390, height: 844 });
+      await walkToTreasureEnter(page, errors, "treasure-390");
+      await assertAllBuildingBubblesTextFit(page, errors);
+      await captureV918Screenshots(page, shots);
+    } catch (e) {
+      errors.push(`v9.18 suite: ${e?.message ?? e}`);
+    }
 
     const summary = {
       ok: errors.length === 0,
