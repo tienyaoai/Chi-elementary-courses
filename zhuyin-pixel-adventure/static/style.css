@@ -142,25 +142,15 @@ body {
     display: none;
   }
 
-  .island-viewport-fit .action-dock-fit {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 9800;
-    margin: 0;
-    padding: 0.35rem 0.55rem 0.45rem;
-    background: rgba(255, 248, 232, 0.94);
-    border: none;
-    border-top: 2px solid var(--ink);
-    border-radius: 0;
-    box-shadow: none;
-    pointer-events: none;
-  }
-
-  .island-viewport-fit .action-dock-fit .enter-btn,
-  .island-viewport-fit .action-dock-fit button {
-    pointer-events: auto;
+  .island-map-shell-fit .action-dock-fit-below {
+    flex: 0 0 auto;
+    margin: 0.2rem 0 0;
+    padding: 0.35rem 0.55rem 0.4rem;
+    background: #fff8e8;
+    border: 2px solid var(--ink);
+    border-radius: 10px;
+    box-shadow: 2px 2px 0 #2c3e50;
+    max-height: 4.5rem;
   }
 
   .map-hint-fit {
@@ -172,10 +162,10 @@ body {
     text-overflow: ellipsis;
   }
 
-  .island-viewport-fit .action-dock-fit .enter-btn {
-    margin-top: 0.35rem;
-    min-height: 2.65rem;
-    padding: 0.5rem 0.75rem;
+  .island-map-shell-fit .action-dock-fit-below .enter-btn {
+    margin-top: 0.3rem;
+    min-height: 2.55rem;
+    padding: 0.45rem 0.7rem;
     font-size: 1.15rem;
     width: auto;
     max-width: 12rem;

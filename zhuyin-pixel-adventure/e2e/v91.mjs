@@ -6,7 +6,7 @@ import { PNG } from "pngjs";
 import path from "node:path";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.5";
+const TAG = process.env.E2E_TAG || "v9.6";
 const FIT_MIN = 700;
 const DIST = path.resolve("..", "dist");
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
@@ -215,6 +215,37 @@ async function assertPlayerInsideMap(page, errors) {
   if (!inside) errors.push("player bbox not fully inside map viewport");
 }
 
+async function assertHintOutsideMap(page, errors) {
+  const map = await page.locator(".island-viewport-fit").boundingBox();
+  const dock = await page.locator(".action-dock-fit-below").boundingBox();
+  if (!map || !dock) {
+    errors.push("fit map or hint dock-below missing");
+    return;
+  }
+  if (dock.y < map.y + map.height - 1) {
+    errors.push("hint strip overlaps map viewport (dock top above map bottom)");
+  }
+  const inter = intersectArea(map, dock);
+  if (inter > 4) errors.push(`hint strip intersects map by ${inter.toFixed(0)}px²`);
+}
+
+async function assertChestNotUnderLabels(page, errors) {
+  const chest = await page.locator('[data-testid="landmark-treasure"]').boundingBox();
+  if (!chest) {
+    errors.push("treasure chest missing for label overlap check");
+    return;
+  }
+  const chestArea = chest.width * chest.height;
+  for (const key of ["chinese", "treasure", "math", "english"]) {
+    const lb = await page.locator(`[data-testid="fit-label-${key}"]`).boundingBox();
+    if (!lb) continue;
+    const inter = intersectArea(lb, chest);
+    if (chestArea > 0 && inter / chestArea > 0.12) {
+      errors.push(`label ${key} covers ${((inter / chestArea) * 100).toFixed(0)}% of chest sprite`);
+    }
+  }
+}
+
 async function assertChestVisible(page, errors) {
   const chest = await page.locator('[data-testid="landmark-treasure"]').boundingBox();
   if (!chest || chest.width < 8 || chest.height < 8) {
@@ -259,6 +290,8 @@ async function runFitDesktopSuite(page, shots, errors) {
     await assertFourLandmarksInViewport(page, errors);
     await assertFitLabels(page, errors);
     await assertChestVisible(page, errors);
+    await assertChestNotUnderLabels(page, errors);
+    await assertHintOutsideMap(page, errors);
     await assertPlayerHeightFit(page, errors);
     await assertPlayerInsideMap(page, errors);
     const vpShot = `${ART}/${TAG}-viewport-${w}x${h}.png`;
@@ -417,8 +450,8 @@ async function main() {
     await waitMapReady(page);
     await page.evaluate(() => {
       const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
-      p.player_x = 350;
-      p.player_y = 1370;
+      p.player_x = 528;
+      p.player_y = 1235;
       localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
     });
     await page.reload({ waitUntil: "networkidle" });

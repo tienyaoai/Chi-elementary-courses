@@ -64,7 +64,7 @@ fn render_action_dock(
     on_enter: Callback<Portal>,
 ) -> Html {
     html! {
-        <div class={if fit { "action-dock action-dock-fit" } else { "action-dock" }}>
+        <div class={if fit { "action-dock action-dock-fit-below" } else { "action-dock" }}>
             if let Some(portal) = portal_near {
                 <p class={if fit { "map-hint map-hint-fit" } else { "map-hint map-hint-large" }}>
                     <BpmfAside text={ world::GateLabel::name(portal).to_string() } game={game.clone()} read=true />
@@ -95,10 +95,10 @@ fn render_action_dock(
 
 fn label_offset_below_portal(portal: Portal) -> (f32, f32) {
     match portal {
-        Portal::Chinese => (-42.0, 54.0),
-        Portal::Treasure => (52.0, 44.0),
-        Portal::Math => (14.0, 52.0),
-        Portal::English => (0.0, 58.0),
+        Portal::Chinese => (-38.0, 52.0),
+        Portal::Treasure => (0.0, 46.0),
+        Portal::Math => (12.0, 50.0),
+        Portal::English => (0.0, 56.0),
     }
 }
 
@@ -267,9 +267,8 @@ pub fn island_map(props: &IslandMapProps) -> Html {
             let screen_w = screen_h * 0.92;
             let pad_top = screen_h + 6.0;
             let pad_side = screen_w * 0.55;
-            let dock_band = 72.0_f32;
             sx = sx.clamp(pad_side, metrics.vw - pad_side);
-            sy = sy.clamp(pad_top, metrics.vh - dock_band - 6.0);
+            sy = sy.clamp(pad_top, metrics.vh - 8.0);
             let flip = if props.facing_left { "scaleX(-1)" } else { "none" };
             let bob_px = bob * metrics.scale.max(0.25);
             html! {
@@ -317,16 +316,8 @@ pub fn island_map(props: &IslandMapProps) -> Html {
         Some(Portal::Chinese | Portal::Treasure)
     );
     let enter_portal = props.portal_near;
-    let dock_in = render_action_dock(
-        true,
-        props.portal_near,
-        enter_portal,
-        can_enter,
-        props.game.clone(),
-        props.on_enter.clone(),
-    );
-    let dock_out = render_action_dock(
-        false,
+    let dock = render_action_dock(
+        fit,
         props.portal_near,
         enter_portal,
         can_enter,
@@ -345,9 +336,8 @@ pub fn island_map(props: &IslandMapProps) -> Html {
                 </div>
                 { label_overlay }
                 { player_screen }
-                if fit { { dock_in } }
             </div>
-            if !fit { { dock_out } }
+            { dock }
         </div>
     }
 }
