@@ -121,15 +121,15 @@ def main() -> None:
         }
 
     with zipfile.ZipFile(spr_zip) as zf:
-        for name in (
-            "schoolhouse-chinese.png",
-            "lighthouse-english.png",
-            "workshop-math.png",
-            "treasure-chest.png",
-        ):
+        building_specs = {
+            "schoolhouse-chinese.png": 320,
+            "lighthouse-english.png": 280,
+            "workshop-math.png": 260,
+            "treasure-chest.png": 200,
+        }
+        for name, th in building_specs.items():
             raw = zf.read(f"landmarks/{name}")
             im = Image.open(BytesIO(raw)).convert("RGBA")
-            th = 320
             tw = im.width * th // im.height
             im = im.resize((tw, th), Image.Resampling.LANCZOS)
             im.save(OUT_LM / name.replace(".png", ".webp"), format="WEBP", lossless=True)
@@ -229,6 +229,12 @@ def main() -> None:
         },
         "characters": char_defs,
         "enter_radius": 140,
+        "enter_radius_by_portal": {
+            "chinese": 140,
+            "english": 120,
+            "math": 120,
+            "treasure": 88,
+        },
         "walk_overrides_portrait": [
             {
                 "x": bridge_p["x"] - 110,

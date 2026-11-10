@@ -1,0 +1,919 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap");
+
+:root {
+  --pixel-bg: #5c94fc;
+  --pixel-grass: #6fbf4a;
+  --ink: #1a1a2e;
+  --panel: #fff8e8;
+  --accent: #e86a3c;
+  --bpmf: #b45309;
+  --type-root: 1.125rem;
+  --line-body: 1.55;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  font-size: var(--type-root);
+  line-height: var(--line-body);
+  background: linear-gradient(180deg, #87ceeb 0%, #b8e0ff 42%, #7ad84f 42%, #5cbd3a 100%);
+  background-attachment: fixed;
+  color: var(--ink);
+  image-rendering: pixelated;
+  overflow-x: hidden;
+}
+
+.shell-pixel {
+  width: min(100%, 28rem);
+  margin: 0 auto;
+  padding: 0.65rem 0.85rem 2rem;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+@media (min-width: 520px) {
+  .shell-pixel.shell-wide {
+    width: min(100%, 40rem);
+    max-width: 640px;
+  }
+}
+
+/* 國字右側直排注音 */
+.bpmf-aside {
+  display: inline;
+  line-height: 1.5;
+}
+
+.han-unit {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0.16em 0.12em 0;
+  vertical-align: middle;
+  gap: 0.06em;
+}
+
+.han {
+  font-size: 1.2em;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+.bpmf-col {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.12em;
+  padding: 0.08em 0.1em;
+  font-size: 0.52em;
+  line-height: 1.12;
+  color: var(--bpmf);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  min-width: 1em;
+}
+
+.bpmf-glyph {
+  display: block;
+}
+
+.bpmf-aside-lg .han {
+  font-size: 1.4em;
+}
+
+.bpmf-aside-lg .bpmf-col {
+  font-size: 0.55em;
+}
+
+/* 低年級閱讀：國字與注音同步放大 */
+.bpmf-aside-read .han {
+  font-size: 1.65rem;
+  line-height: 1.22;
+}
+
+.bpmf-aside-read .bpmf-col {
+  font-size: 1.1rem;
+  min-width: 1.05rem;
+  line-height: 1.16;
+}
+
+.lesson-read .bpmf-aside-read .han {
+  font-size: 1.72rem;
+}
+
+.lesson-read .bpmf-aside-read .bpmf-col {
+  font-size: 1.14rem;
+}
+
+.han-plain {
+  margin: 0 0.08em;
+  font-size: 1.05em;
+}
+
+.panel-pixel {
+  background: var(--panel);
+  border: 4px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  padding: 1.1rem 1rem 1.35rem;
+  margin-top: 0.5rem;
+}
+
+.pixel-title {
+  margin: 0 0 0.65rem;
+  text-align: center;
+}
+
+.pixel-sub {
+  text-align: center;
+  margin: 0.65rem 0;
+  line-height: 1.5;
+}
+
+.select-partner-line {
+  display: flex;
+  justify-content: center;
+  overflow-x: auto;
+  padding: 0 0.15rem;
+}
+
+.select-partner-line .bpmf-aside-read {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  letter-spacing: -0.03em;
+}
+
+@media (max-width: 420px) {
+  .select-partner-line .bpmf-aside-read .han {
+    font-size: 1.5rem;
+  }
+
+  .select-partner-line .bpmf-aside-read .bpmf-col {
+    font-size: 1rem;
+  }
+}
+
+.char-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1rem 0;
+}
+
+@media (min-width: 360px) {
+  .char-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.char-card {
+  background: #fff;
+  border: 3px solid var(--ink);
+  padding: 0.55rem;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 #0003;
+  min-height: 11rem;
+}
+
+.char-card.selected {
+  outline: 3px solid var(--accent);
+  background: #fff3c4;
+}
+
+.char-preview {
+  width: 98px;
+  height: 128px;
+  image-rendering: pixelated;
+  display: block;
+  margin: 0 auto;
+  background: #8ed56a;
+}
+
+.pixel-name {
+  display: block;
+  margin-top: 0.35rem;
+}
+
+.pixel-btn {
+  display: block;
+  width: 100%;
+  margin: 0.55rem 0;
+  padding: 0.85rem 1rem;
+  border: 3px solid var(--ink);
+  background: #fff;
+  font-size: 1.125rem;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 var(--ink);
+  line-height: 1.35;
+}
+
+.pixel-btn.big-touch,
+.lesson-btn {
+  min-height: 3.25rem;
+}
+
+.pixel-btn.primary {
+  background: #ffd15a;
+}
+
+.pixel-btn.ghost {
+  background: #eef2ff;
+}
+
+.pixel-btn:disabled {
+  opacity: 0.45;
+}
+
+.map-frame {
+  text-align: center;
+  width: 100%;
+}
+
+.island-map-shell {
+  width: 100%;
+}
+
+.island-viewport {
+  position: relative;
+  width: 100%;
+  height: min(58vh, 520px);
+  min-height: 320px;
+  overflow: hidden;
+  border: 4px solid var(--ink);
+  box-shadow: 6px 6px 0 #2c3e50;
+  background: #2d6b2d;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+
+@media (min-width: 900px) {
+  .island-viewport {
+    height: min(70vh, 680px);
+  }
+}
+
+.island-world {
+  position: absolute;
+  will-change: left, top;
+}
+
+.island-bg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+.island-landmark {
+  position: absolute;
+  height: auto;
+  width: auto;
+  transform: translate(-50%, -92%);
+  transform-origin: center bottom;
+  pointer-events: none;
+  user-select: none;
+}
+
+.island-landmark.lm-chinese {
+  max-height: min(34vh, 300px);
+  max-width: min(50vw, 280px);
+}
+
+.island-landmark.lm-english {
+  max-height: min(30vh, 255px);
+  max-width: min(44vw, 230px);
+}
+
+.island-landmark.lm-math {
+  max-height: min(28vh, 235px);
+  max-width: min(40vw, 210px);
+}
+
+/* 寶箱約為學校寬 37%、高度接近角色全身 */
+.island-landmark.lm-treasure {
+  max-height: min(14vh, 106px);
+  max-width: min(19vw, 102px);
+}
+
+@media (min-width: 900px) {
+  .island-landmark.lm-chinese {
+    max-height: 300px;
+    max-width: 280px;
+  }
+
+  .island-landmark.lm-english {
+    max-height: 248px;
+    max-width: 225px;
+  }
+
+  .island-landmark.lm-math {
+    max-height: 228px;
+    max-width: 205px;
+  }
+
+  .island-landmark.lm-treasure {
+    max-height: 104px;
+    max-width: 100px;
+  }
+}
+
+.island-player {
+  position: absolute;
+  max-height: 130px;
+  max-width: 120px;
+  transform-origin: center bottom;
+  pointer-events: none;
+  user-select: none;
+}
+
+.map-hint-large {
+  font-size: 1.12rem;
+  font-weight: 600;
+}
+
+.char-card-bust {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.55rem;
+  min-height: 11rem;
+}
+
+.char-bust-img {
+  width: 100%;
+  max-width: 118px;
+  height: auto;
+  max-height: 150px;
+  object-fit: contain;
+}
+
+.char-grid-12 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 520px) {
+  .char-grid-12 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 900px) {
+  .char-grid-12 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.pixel-canvas {
+  display: block;
+  width: 100%;
+  max-width: min(100vw - 1.5rem, 616px);
+  height: auto;
+  border: 4px solid var(--ink);
+  box-shadow: 6px 6px 0 #2c3e50;
+  background: #2d5016;
+  image-rendering: pixelated;
+  margin: 0 auto;
+}
+
+.action-dock {
+  margin-top: 0.75rem;
+  padding: 0.85rem;
+  background: #fff8e8ee;
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.action-dock .enter-btn {
+  margin-top: 0.55rem;
+  width: 100%;
+  max-width: 100%;
+}
+
+@keyframes pulse-btn {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.enter-btn.pulse {
+  animation: pulse-btn 1.2s ease-in-out infinite;
+  font-size: 1.35rem;
+  font-weight: 700;
+  min-height: 3.25rem;
+  padding: 0.85rem 1rem;
+}
+
+.map-hint {
+  margin: 0.45rem 0;
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+.map-hint.muted {
+  opacity: 0.9;
+}
+
+.enter-btn {
+  margin: 0.5rem auto;
+}
+
+.enter-label-text {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.touch-pad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.85rem;
+}
+
+.pad-row {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.pad-btn {
+  width: 3.65rem;
+  height: 3.65rem;
+  font-size: 1.55rem;
+  border: 3px solid var(--ink);
+  background: #fff;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 0.35rem;
+  margin-bottom: 0.55rem;
+}
+
+.hud-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.hud-title .bpmf-aside-read {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.map-screen .hud-title .bpmf-aside-read .han {
+  font-size: 1.35rem;
+}
+
+.map-screen .hud-title .bpmf-aside-read .bpmf-col {
+  font-size: 0.92rem;
+}
+
+.hud-btn {
+  flex: 0 0 auto;
+  border: 2px solid var(--ink);
+  background: #fff;
+  padding: 0.35rem 0.45rem;
+  font-size: 0.82rem;
+  min-height: 2.5rem;
+  max-width: 6.2rem;
+  line-height: 1.2;
+}
+
+.char-card .pixel-name .han-plain {
+  font-size: 1.65rem;
+  line-height: 1.22;
+}
+
+.map-actions {
+  display: flex;
+  gap: 0.55rem;
+  margin-top: 0.25rem;
+}
+
+.map-actions .pixel-btn {
+  flex: 1;
+  font-size: 1.05rem;
+}
+
+.locked-hint {
+  text-align: center;
+  background: #fff;
+  border: 2px dashed #889;
+  padding: 0.65rem;
+  font-size: 1.05rem;
+  line-height: 1.45;
+}
+
+.lesson-panel {
+  background: var(--panel);
+  border: 4px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  padding: 1.15rem 1rem 1.35rem;
+  margin-top: 0.5rem;
+}
+
+.lesson-read {
+  padding-bottom: 1.75rem;
+}
+
+.lesson-head {
+  margin: 0 0 0.85rem;
+  text-align: center;
+}
+
+.lesson-step {
+  text-align: center;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0.35rem 0 0.65rem;
+}
+
+.lesson-ask {
+  text-align: center;
+  margin: 0.85rem 0 1rem;
+  line-height: 1.55;
+}
+
+/* 題目圖：大字、高對比、留白 */
+.quiz-picture {
+  min-height: 8.5rem;
+  width: 100%;
+  max-width: 20rem;
+  margin: 0.5rem auto 1rem;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 4px solid var(--ink);
+  border-radius: 16px;
+  box-shadow: 4px 4px 0 #0002;
+}
+
+.quiz-picture.order-picture {
+  min-height: 7.5rem;
+}
+
+.quiz-emoji {
+  font-size: clamp(4.75rem, 20vw, 7.25rem);
+  line-height: 1;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+}
+
+.quiz-swatch {
+  display: block;
+  width: clamp(5.5rem, 42vw, 8.5rem);
+  height: clamp(5.5rem, 42vw, 8.5rem);
+  border: 4px solid var(--ink);
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 2px #00000018;
+}
+
+.quiz-digit {
+  font-size: clamp(4.25rem, 18vw, 6.75rem);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.opt-grid {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0.85rem 0 1rem;
+}
+
+.opt-pixel {
+  border: 3px solid var(--ink);
+  background: #fff;
+  padding: 0.95rem 0.9rem;
+  text-align: left;
+  min-height: 3.85rem;
+  width: 100%;
+  line-height: 1.45;
+}
+
+.chip-row-pixel,
+.sentence-pixel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin: 0.85rem 0;
+  justify-content: center;
+}
+
+.chip-pixel {
+  border: 3px solid var(--ink);
+  background: #fff7df;
+  padding: 0.65rem 0.85rem;
+  line-height: 1.5;
+  min-height: 3.1rem;
+}
+
+.feedback-soft {
+  color: #1a5c45;
+  text-align: center;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  margin: 0.65rem 0;
+}
+
+.collection-panel .reward-item {
+  font-size: 1.05rem;
+}
+
+.reward-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.reward-item {
+  display: flex;
+  gap: 0.85rem;
+  padding: 0.85rem;
+  margin-bottom: 0.65rem;
+  border: 3px solid #ccc;
+  opacity: 0.55;
+  align-items: flex-start;
+}
+
+.reward-item.owned {
+  opacity: 1;
+  border-color: var(--accent);
+  background: #fff;
+}
+
+.reward-icon {
+  font-size: 2.35rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.reward-desc {
+  margin: 0.35rem 0 0;
+  line-height: 1.45;
+}
+
+.victory {
+  text-align: center;
+}
+
+.loading-pixel {
+  text-align: center;
+  color: #fff;
+  padding: 3rem;
+  font-size: 1.15rem;
+}
+
+/* v5 國語小島選關與題圖 */
+.hub-panel .pixel-title {
+  margin-bottom: 0.5rem;
+}
+
+.teacher-note {
+  margin: 0.65rem 0 1rem;
+  font-size: 0.85rem;
+  color: #4a5568;
+}
+
+.teacher-note-summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.teacher-unit-list {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  line-height: 1.45;
+}
+
+.unit-island-grid {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1rem 0 1.25rem;
+}
+
+.unit-island-card {
+  border: 4px solid var(--ink);
+  background: #fffef8;
+  border-radius: 14px;
+  padding: 1rem 1.1rem 1.15rem;
+  text-align: center;
+  width: 100%;
+  box-shadow: 4px 4px 0 #0002;
+  min-height: 5.5rem;
+}
+
+.unit-island-card.cleared {
+  border-color: var(--accent);
+  background: #f3fff8;
+}
+
+.unit-island-title .han {
+  font-size: clamp(1.55rem, 7vw, 2.05rem);
+  line-height: 1.2;
+}
+
+.unit-island-title .bpmf-col {
+  font-size: clamp(1rem, 4.5vw, 1.25rem);
+}
+
+.unit-progress-label {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0.5rem 0 0;
+}
+
+.unit-badge {
+  display: inline-block;
+  margin-top: 0.35rem;
+  font-weight: 800;
+  color: #1a5c45;
+}
+
+.qtype-pill {
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0.25rem 0 0.5rem;
+  color: #3d4a6a;
+}
+
+.han-hidden-zhuyin .han {
+  border-bottom: 4px dashed #8a9ab0;
+  padding-bottom: 0.15rem;
+}
+
+.pixel-picture-frame {
+  display: block;
+  position: relative;
+  width: min(100%, 20rem);
+  margin: 0.65rem auto 0.85rem;
+}
+
+.pixel-picture-frame.compact {
+  width: 100%;
+  margin: 0 auto 0.35rem;
+}
+
+.pixel-picture-frame.large {
+  width: 100%;
+  margin: 0;
+}
+
+.pixel-picture-placeholder {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #e8f4ff;
+  border: 4px solid var(--ink);
+  border-radius: 14px;
+  box-shadow: 4px 4px 0 #0002;
+}
+
+.pixel-picture-frame.loaded .pixel-picture-placeholder {
+  display: none;
+}
+
+.pixel-picture-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  image-rendering: pixelated;
+  border: 4px solid var(--ink);
+  border-radius: 14px;
+  background: #e8f4ff;
+  box-shadow: 4px 4px 0 #0002;
+}
+
+.pixel-picture-img.pixel-picture-pending {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+
+.pixel-picture-frame.loaded .pixel-picture-img {
+  position: static;
+  opacity: 1;
+}
+
+.pixel-picture-img.compact {
+  margin: 0 auto;
+}
+
+.opt-pixel-image {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 8.5rem;
+  justify-content: center;
+}
+
+.opt-grid-image-match {
+  gap: 0.75rem;
+}
+
+.opt-pixel-image-only {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  min-height: auto;
+  padding: 0.5rem;
+  width: 100%;
+}
+
+.opt-pixel-image-only .pixel-picture-frame,
+.opt-pixel-image-only .pixel-picture-frame.large {
+  width: 100%;
+  max-width: none;
+}
+
+.pixel-picture-img.pixel-picture-large {
+  width: 100%;
+  max-width: none;
+}
+
+.opt-zhuyin-symbol {
+  font-size: clamp(2rem, 9vw, 2.75rem);
+  font-family: var(--bpmf-font, inherit);
+  line-height: 1.2;
+  display: block;
+  text-align: center;
+  width: 100%;
+}
+
+.opt-plain-text {
+  font-size: clamp(1.45rem, 6.5vw, 1.85rem);
+  font-weight: 700;
+}
+
+.explain-box {
+  margin: 1rem 0;
+  padding: 0.85rem 1rem;
+  border: 3px solid var(--ink);
+  background: #f7fbff;
+  border-radius: 12px;
+}
+
+.explain-target {
+  font-size: 1.35rem;
+  font-weight: 800;
+  text-align: center;
+  margin: 0 0 0.5rem;
+  font-family: var(--bpmf-font, inherit);
+}
+
+.explain-text {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 390px) {
+  .unit-island-title .han {
+    font-size: 1.72rem;
+  }
+
+  .pixel-picture-frame {
+    width: 100%;
+    max-width: none;
+  }
+
+  .opt-pixel-image-only {
+    padding: 0.45rem;
+  }
+}

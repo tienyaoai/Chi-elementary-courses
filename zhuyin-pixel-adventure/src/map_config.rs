@@ -53,6 +53,8 @@ pub struct MapConfigFile {
     pub characters: Vec<CharacterEntry>,
     pub enter_radius: u32,
     #[serde(default)]
+    pub enter_radius_by_portal: EnterRadiusByPortal,
+    #[serde(default)]
     pub walk_overrides_portrait: Vec<WalkRect>,
     #[serde(default)]
     pub walk_overrides_landscape: Vec<WalkRect>,
@@ -64,6 +66,44 @@ pub struct Landmarks {
     pub english: Point,
     pub math: Point,
     pub treasure: Point,
+}
+
+#[derive(Clone, Debug, Deserialize, Default)]
+pub struct EnterRadiusByPortal {
+    #[serde(default = "default_enter_chinese")]
+    pub chinese: u32,
+    #[serde(default = "default_enter_building")]
+    pub english: u32,
+    #[serde(default = "default_enter_building")]
+    pub math: u32,
+    #[serde(default = "default_enter_treasure")]
+    pub treasure: u32,
+}
+
+fn default_enter_chinese() -> u32 {
+    140
+}
+fn default_enter_building() -> u32 {
+    120
+}
+fn default_enter_treasure() -> u32 {
+    88
+}
+
+pub fn enter_radius_for(portal: &str) -> f32 {
+    let c = config();
+    let r = match portal {
+        "chinese" => c.enter_radius_by_portal.chinese,
+        "english" => c.enter_radius_by_portal.english,
+        "math" => c.enter_radius_by_portal.math,
+        "treasure" => c.enter_radius_by_portal.treasure,
+        _ => c.enter_radius,
+    };
+    if r == 0 {
+        c.enter_radius as f32
+    } else {
+        r as f32
+    }
 }
 
 #[derive(Clone, Debug, Deserialize)]

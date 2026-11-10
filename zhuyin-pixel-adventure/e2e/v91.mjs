@@ -6,6 +6,7 @@ import { PNG } from "pngjs";
 import path from "node:path";
 
 const ART = "/opt/cursor/artifacts";
+const TAG = process.env.E2E_TAG || "v9.2";
 const DIST = path.resolve("..", "dist");
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
 const PORT = new URL(BASE).port || "8765";
@@ -113,13 +114,13 @@ async function main() {
       { timeout: 120000 }
     );
     await page.waitForSelector(".char-grid-12", { timeout: 60000 });
-    const p1 = `${ART}/v9.1-select-390-full.png`;
+    const p1 = `${ART}/${TAG}-select-390-full.png`;
     await page.screenshot({ path: p1, fullPage: true });
     shots.push(p1);
 
     await pickCharacter(page);
     await waitMapReady(page);
-    const mapShot = `${ART}/v9.1-map-390.png`;
+    const mapShot = `${ART}/${TAG}-map-390.png`;
     const vp = page.locator(".island-viewport");
     await vp.screenshot({ path: mapShot });
     shots.push(mapShot);
@@ -131,7 +132,7 @@ async function main() {
     // Walk toward bridge / school
     await tapDir(page, "▲", 28);
     await tapDir(page, "▶", 8);
-    const bridgeShot = `${ART}/v9.1-map-bridge-390.png`;
+    const bridgeShot = `${ART}/${TAG}-map-bridge-390.png`;
     await vp.screenshot({ path: bridgeShot });
     shots.push(bridgeShot);
 
@@ -158,7 +159,7 @@ async function main() {
     await page.reload({ waitUntil: "networkidle" });
     await waitMapReady(page);
     await sleep(400);
-    const schoolShot = `${ART}/v9.1-map-school-390.png`;
+    const schoolShot = `${ART}/${TAG}-map-school-390.png`;
     await vp.screenshot({ path: schoolShot });
     shots.push(schoolShot);
 
@@ -168,7 +169,7 @@ async function main() {
       await sleep(800);
       await page.locator(".unit-island-card").first().click();
       await page.waitForSelector(".opt-grid button", { timeout: 30000 });
-      const quizShot = `${ART}/v9.1-quiz-390.png`;
+      const quizShot = `${ART}/${TAG}-quiz-390.png`;
       await page.screenshot({ path: quizShot, fullPage: true });
       shots.push(quizShot);
       await page.locator(".opt-grid button").first().click();
@@ -182,7 +183,6 @@ async function main() {
     }
 
     await waitMapReady(page);
-    await waitMapReady(page);
     await page.evaluate(() => {
       const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
       p.player_x = 350;
@@ -194,7 +194,7 @@ async function main() {
     if (await enter.count()) {
       await enter.click({ force: true });
       await sleep(500);
-      const chestShot = `${ART}/v9.1-treasure-390.png`;
+      const chestShot = `${ART}/${TAG}-treasure-390.png`;
       await page.screenshot({ path: chestShot, fullPage: true });
       shots.push(chestShot);
       await page.locator(".collection-panel button.primary").click({ force: true });
@@ -205,7 +205,19 @@ async function main() {
     await page.reload({ waitUntil: "networkidle" });
     await waitMapReady(page);
     const afterId = await playerPos(page);
-    const refreshShot = `${ART}/v9.1-refresh-390.png`;
+    await page.evaluate(() => {
+      const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
+      p.player_x = 360;
+      p.player_y = 1245;
+      localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
+    });
+    await page.reload({ waitUntil: "networkidle" });
+    await waitMapReady(page);
+    const landmarksShot = `${ART}/${TAG}-map-landmarks-390.png`;
+    await vp.screenshot({ path: landmarksShot });
+    shots.push(landmarksShot);
+
+    const refreshShot = `${ART}/${TAG}-refresh-390.png`;
     await vp.screenshot({ path: refreshShot });
     shots.push(refreshShot);
     if (beforeId?.id && afterId?.id && beforeId.id !== afterId.id) {
@@ -215,7 +227,7 @@ async function main() {
   await page.setViewportSize({ width: 1280, height: 800 });
     await page.reload({ waitUntil: "networkidle" });
     await waitMapReady(page);
-    const desk = `${ART}/v9.1-desktop-1280.png`;
+    const desk = `${ART}/${TAG}-desktop-1280.png`;
     await page.locator(".island-viewport").screenshot({ path: desk });
     shots.push(desk);
 
@@ -225,7 +237,7 @@ async function main() {
       screenshots: shots,
       blueCheck: br,
     };
-    writeFileSync(`${ART}/v9.1-e2e-result.json`, JSON.stringify(summary, null, 2));
+    writeFileSync(`${ART}/${TAG}-e2e-result.json`, JSON.stringify(summary, null, 2));
     console.log(JSON.stringify(summary, null, 2));
     if (errors.length) process.exitCode = 1;
   } finally {

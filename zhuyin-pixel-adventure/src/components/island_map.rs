@@ -72,7 +72,7 @@ pub fn island_map(props: &IslandMapProps) -> Html {
         layers.push((
             foot_y,
             html! {
-                <img key={format!("lm-{key}")} class="island-landmark" src={url}
+                <img key={format!("lm-{key}")} class={format!("island-landmark lm-{key}")} src={url}
                     style={format!("left:{}px;top:{}px;z-index:{};", x, y - 20, z)}
                     alt="" draggable="false" />
             },

@@ -27,7 +27,7 @@ pub fn select_screen(props: &SelectScreenProps) -> Html {
     html! {
         <section class="panel-pixel">
             <h1 class="pixel-title"><BpmfAside text={ "學習冒險島".to_string() } game={props.game.clone()} read=true /></h1>
-            <p class="pixel-sub"><BpmfAside text={ "選一位冒險夥伴".to_string() } game={props.game.clone()} read=true /></p>
+            <p class="pixel-sub select-partner-line"><BpmfAside text={ "選一位冒險夥伴".to_string() } game={props.game.clone()} read=true /></p>
             <div class="char-grid char-grid-12">
                 { for map_config::config().characters.iter().map(|ch| html! {
                     <CharCard key={ch.id.clone()} entry={ch.clone()} game={props.game.clone()}

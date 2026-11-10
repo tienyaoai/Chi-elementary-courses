@@ -24,22 +24,25 @@ pub fn detect_orientation() -> MapOrientation {
 
 pub fn portal_near(px: f32, py: f32, orient: MapOrientation) -> Option<Portal> {
     let lm = landmarks(orient);
-    let r = map_config::config().enter_radius as f32;
-    let r2 = r * r;
-    let checks = [
-        (lm.chinese, Portal::Chinese),
-        (lm.english, Portal::English),
-        (lm.math, Portal::Math),
-        (lm.treasure, Portal::Treasure),
+    let checks: [(&str, crate::map_config::Point, Portal); 4] = [
+        ("chinese", lm.chinese, Portal::Chinese),
+        ("english", lm.english, Portal::English),
+        ("math", lm.math, Portal::Math),
+        ("treasure", lm.treasure, Portal::Treasure),
     ];
-  for (pt, portal) in checks {
+    let mut best: Option<(Portal, f32)> = None;
+    for (key, pt, portal) in checks {
+        let r = map_config::enter_radius_for(key);
         let dx = px - pt.x as f32;
         let dy = py - pt.y as f32;
-        if dx * dx + dy * dy <= r2 {
-            return Some(portal);
+        let d2 = dx * dx + dy * dy;
+        if d2 <= r * r {
+            if best.map(|(_, bd2)| d2 < bd2).unwrap_or(true) {
+                best = Some((portal, d2));
+            }
         }
     }
-    None
+    best.map(|(p, _)| p)
 }
 
 pub struct GateLabel;
