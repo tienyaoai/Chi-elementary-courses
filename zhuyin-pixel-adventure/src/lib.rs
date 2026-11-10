@@ -17,6 +17,7 @@ pub mod sounds;
 pub mod sprites;
 pub mod world;
 pub mod map_config;
+pub mod map_display;
 pub mod island_walk;
 pub mod kid_text;
 

@@ -1,13 +1,40 @@
 use crate::components::BpmfAside;
 use crate::island_walk;
 use crate::map_config::{character_by_id, full_url, landmark_url, layer, MapOrientation};
+use crate::map_display::{
+    fit_metrics, player_screen_boost, screen_to_world, view_mode, world_to_screen, FitMetrics,
+    MapViewMode, LETTERBOX_SEA,
+};
 use crate::world::{self, Portal};
+use gloo::timers::callback::Timeout;
 use std::rc::Rc;
+use wasm_bindgen::closure::Closure;
+use wasm_bindgen::JsCast;
 use web_sys::MouseEvent;
 use yew::prelude::*;
 use zhuyin_island_wasm::data::GameData;
 
 const PLAYER_H: f32 = 110.0;
+const PLAYER_MIN_SCREEN_PX: f32 = 64.0;
+
+fn measure_viewport(vp: &NodeRef, orient: MapOrientation) -> FitMetrics {
+    let Some(el) = vp.cast::<web_sys::HtmlElement>() else {
+        return fit_metrics(390.0, 520.0, orient);
+    };
+    let rect = el.get_bounding_client_rect();
+    let vw = rect.width() as f32;
+    let vh = rect.height() as f32;
+    let mut m = fit_metrics(vw, vh, orient);
+    if let Some((ww, wh)) = world::window_size() {
+        m.mode = view_mode(ww, wh);
+        m.scale = if m.mode == MapViewMode::FitWholeIsland {
+            (m.vw / m.map_w).min(m.vh / m.map_h)
+        } else {
+            1.0
+        };
+    }
+    m
+}
 
 #[derive(Properties, PartialEq)]
 pub struct IslandMapProps {
@@ -26,10 +53,44 @@ pub struct IslandMapProps {
 #[function_component(IslandMap)]
 pub fn island_map(props: &IslandMapProps) -> Html {
     let viewport_ref = use_node_ref();
+    let metrics = use_state(|| fit_metrics(390.0, 520.0, props.orient));
     let lay = layer(props.orient);
     let map_w = lay.width;
     let map_h = lay.height;
     let bob = if props.frame % 2 == 0 { 0.0 } else { -4.0 };
+    let fit = metrics.mode == MapViewMode::FitWholeIsland;
+
+    {
+        let viewport_ref = viewport_ref.clone();
+        let metrics = metrics.clone();
+        let orient = props.orient;
+        use_effect_with(orient, move |_| {
+            let tick = {
+                let viewport_ref = viewport_ref.clone();
+                let metrics = metrics.clone();
+                move || {
+                    metrics.set(measure_viewport(&viewport_ref, orient));
+                }
+            };
+            tick();
+            let win = web_sys::window();
+            let closure = Closure::wrap(Box::new({
+                let tick = tick.clone();
+                move || tick()
+            }) as Box<dyn FnMut()>);
+            if let Some(w) = &win {
+                let _ = w.add_event_listener_with_callback("resize", closure.as_ref().unchecked_ref());
+            }
+            let handle = Timeout::new(250, tick);
+            move || {
+                drop(handle);
+                if let (Some(w), Some(win)) = (win, web_sys::window()) {
+                    let _ = w.remove_event_listener_with_callback("resize", closure.as_ref().unchecked_ref());
+                }
+                closure.forget();
+            }
+        });
+    }
 
     let orient = props.orient;
     let on_click = {
@@ -46,20 +107,37 @@ pub fn island_map(props: &IslandMapProps) -> Html {
             let vh = rect.height() as f32;
             let local_x = (e.client_x() as f32) - rect.left() as f32;
             let local_y = (e.client_y() as f32) - rect.top() as f32;
-            let world_x = px + local_x - vw / 2.0;
-            let world_y = py + local_y - vh / 2.0;
-            let (wx, wy) = island_walk::clamp_to_map(world_x, world_y, orient);
+            let m = measure_viewport(&viewport_ref, orient);
+            let (wx, wy) = if m.mode == MapViewMode::FitWholeIsland {
+                screen_to_world(local_x, local_y, &m)
+            } else {
+                let world_x = px + local_x - vw / 2.0;
+                let world_y = py + local_y - vh / 2.0;
+                (world_x, world_y)
+            };
+            let (wx, wy) = island_walk::clamp_to_map(wx, wy, orient);
             on_map_click.emit((wx, wy));
         })
     };
 
     let cam_x = props.px;
     let cam_y = props.py;
+    let scale = metrics.scale;
+    let player_boost = player_screen_boost(&metrics, PLAYER_H, PLAYER_MIN_SCREEN_PX);
+
+    let world_style = if fit {
+        format!(
+            "width:{map_w}px;height:{map_h}px;left:50%;top:50%;transform:translate(-50%,-50%) scale({scale});"
+        )
+    } else {
+        format!(
+            "width:{map_w}px;height:{map_h}px;left:calc(50% - {cam_x}px);top:calc(50% - {cam_y}px);"
+        )
+    };
 
     let mut layers: Vec<(f32, Html)> = Vec::new();
-
     let lm = crate::map_config::landmarks(props.orient);
-    let landmark_defs = [
+    let landmark_defs: [(&str, i32, i32, Portal); 4] = [
         ("chinese", lm.chinese.x, lm.chinese.y, Portal::Chinese),
         ("english", lm.english.x, lm.english.y, Portal::English),
         ("math", lm.math.x, lm.math.y, Portal::Math),
@@ -83,16 +161,20 @@ pub fn island_map(props: &IslandMapProps) -> Html {
         let foot = props.py;
         let flip = if props.facing_left { "scaleX(-1)" } else { "none" };
         let z = foot as i32 + 1;
+        let player_transform = if fit {
+            format!("{flip} scale({player_boost}) translateY({bob}px)")
+        } else {
+            format!("{flip} translateY({bob}px)")
+        };
         layers.push((
             foot,
             html! {
                 <img key="player" class="island-player" src={full_url(&ch)}
                     style={format!(
-                        "left:{}px;top:{}px;transform:{} translateY({}px);z-index:{};",
+                        "left:{}px;top:{}px;transform:{};z-index:{};",
                         props.px - 55.0,
                         props.py - PLAYER_H,
-                        flip,
-                        bob,
+                        player_transform,
                         z
                     )}
                     alt="" draggable="false" />
@@ -102,23 +184,46 @@ pub fn island_map(props: &IslandMapProps) -> Html {
 
     layers.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(std::cmp::Ordering::Equal));
 
+    let label_overlay = if fit {
+        html! {
+            <div class="island-fit-labels" aria-hidden="false">
+                { for landmark_defs.iter().map(|(_, x, y, portal)| {
+                    let (sx, sy) = world_to_screen(*x as f32, *y as f32 - 48.0, &metrics);
+                    html! {
+                        <div key={world::GateLabel::name(*portal)} class="island-fit-label"
+                            style={format!("left:{}px;top:{}px;", sx, sy)}>
+                            <BpmfAside text={ world::GateLabel::name(*portal).to_string() } game={props.game.clone()} read=true />
+                        </div>
+                    }
+                })}
+            </div>
+        }
+    } else {
+        html! {}
+    };
+
+    let viewport_class = if fit {
+        "island-viewport island-viewport-fit"
+    } else {
+        "island-viewport island-viewport-follow"
+    };
+
     let can_enter = matches!(
         props.portal_near,
         Some(Portal::Chinese | Portal::Treasure)
     );
-
     let enter_portal = props.portal_near;
 
     html! {
         <div class="island-map-shell">
-            <div ref={viewport_ref} class="island-viewport" onclick={on_click}>
-                <div class="island-world" style={format!(
-                    "width:{map_w}px;height:{map_h}px;left:calc(50% - {cam_x}px);top:calc(50% - {cam_y}px);"
-                )}>
+            <div ref={viewport_ref} class={viewport_class} onclick={on_click}
+                style={if fit { format!("background:{LETTERBOX_SEA};") } else { String::new() }}>
+                <div class="island-world island-world-layer" style={world_style}>
                     <img class="island-bg" src={lay.src.clone()} width={map_w.to_string()} height={map_h.to_string()}
                         alt="" draggable="false" />
                     { for layers.into_iter().map(|(_, n)| n) }
                 </div>
+                { label_overlay }
             </div>
             <div class="action-dock">
                 if let Some(portal) = props.portal_near {

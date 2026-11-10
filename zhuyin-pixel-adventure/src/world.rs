@@ -1,6 +1,6 @@
 use crate::map_config::{self, landmarks, MapOrientation, Point};
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Portal {
     Chinese,
     English,
@@ -9,17 +9,20 @@ pub enum Portal {
 }
 
 pub fn detect_orientation() -> MapOrientation {
-    web_sys::window()
-        .and_then(|w| w.inner_width().ok())
-        .and_then(|v| v.as_f64())
-        .map(|w| {
-            if w >= 900.0 {
-                MapOrientation::Landscape
-            } else {
-                MapOrientation::Portrait
-            }
-        })
-        .unwrap_or(MapOrientation::Portrait)
+    window_size().map(|(w, h)| map_orient(w, h)).unwrap_or(MapOrientation::Portrait)
+}
+
+pub fn window_size() -> Option<(f64, f64)> {
+    let w = web_sys::window()?;
+    let ww = w.inner_width().ok()?.as_f64()?;
+    let wh = w.inner_height().ok()?.as_f64()?;
+    Some((ww, wh))
+}
+
+pub fn map_orient(view_w: f64, view_h: f64) -> MapOrientation {
+    use crate::map_display::{orient_for_viewport, view_mode};
+    let mode = view_mode(view_w, view_h);
+    orient_for_viewport(view_w, view_h, mode)
 }
 
 pub fn portal_near(px: f32, py: f32, orient: MapOrientation) -> Option<Portal> {

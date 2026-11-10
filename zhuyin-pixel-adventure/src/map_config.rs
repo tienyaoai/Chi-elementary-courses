@@ -114,7 +114,7 @@ pub struct LandmarkFiles {
     pub treasure: String,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum MapOrientation {
     Portrait,
     Landscape,

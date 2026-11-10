@@ -251,25 +251,58 @@ body {
 .island-viewport {
   position: relative;
   width: 100%;
-  height: min(58vh, 520px);
-  min-height: 320px;
   overflow: hidden;
   border: 4px solid var(--ink);
   box-shadow: 6px 6px 0 #2c3e50;
-  background: #2d6b2d;
   touch-action: manipulation;
   cursor: pointer;
 }
 
-@media (min-width: 900px) {
-  .island-viewport {
-    height: min(70vh, 680px);
-  }
+.island-viewport-follow {
+  height: min(58vh, 520px);
+  min-height: 320px;
+  background: #2d6b2d;
 }
 
-.island-world {
+.island-viewport-fit {
+  height: min(85vh, 900px);
+  min-height: 420px;
+  background: #3d8ec4;
+}
+
+.island-world,
+.island-world-layer {
   position: absolute;
-  will-change: left, top;
+  will-change: transform, left, top;
+  transform-origin: center center;
+}
+
+.island-fit-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9500;
+}
+
+.island-fit-label {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  padding: 0.2rem 0.35rem;
+  background: #fffefad4;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  box-shadow: 2px 2px 0 #0003;
+  max-width: 11rem;
+  text-align: center;
+}
+
+.island-fit-label .bpmf-aside-read .han {
+  font-size: 1.15rem;
+  min-height: 20px;
+}
+
+.island-fit-label .bpmf-aside-read .bpmf-col {
+  font-size: 0.92rem;
 }
 
 .island-bg {

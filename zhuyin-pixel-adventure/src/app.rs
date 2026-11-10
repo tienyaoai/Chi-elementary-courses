@@ -71,7 +71,9 @@ pub fn app() -> Html {
             let on_resize = {
                 let orient = orient.clone();
                 Closure::wrap(Box::new(move || {
-                    orient.set(world::detect_orientation());
+                    if let Some((w, h)) = world::window_size() {
+                        orient.set(world::map_orient(w, h));
+                    }
                 }) as Box<dyn FnMut()>)
             };
             if let Some(w) = web_sys::window() {

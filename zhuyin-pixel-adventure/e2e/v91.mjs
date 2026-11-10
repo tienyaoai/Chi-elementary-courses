@@ -6,7 +6,8 @@ import { PNG } from "pngjs";
 import path from "node:path";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.2";
+const TAG = process.env.E2E_TAG || "v9.3";
+const FIT_MIN = 700;
 const DIST = path.resolve("..", "dist");
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
 const PORT = new URL(BASE).port || "8765";
@@ -77,6 +78,111 @@ async function waitMapReady(page) {
   await sleep(800);
 }
 
+async function assertViewportMode(page, mode, errors) {
+  const cls = mode === "fit" ? "island-viewport-fit" : "island-viewport-follow";
+  const has = await page.locator(`.island-viewport.${cls}`).count();
+  if (!has) {
+    const vp = page.viewportSize();
+    errors.push(`expected .${cls} at ${vp?.width}x${vp?.height}`);
+  }
+}
+
+async function assertMapViewportNotScrollable(page, errors) {
+  const ok = await page.evaluate(() => {
+    const vp = document.querySelector(".island-viewport");
+    if (!vp) return false;
+    return vp.scrollHeight <= vp.clientHeight + 1 && vp.scrollWidth <= vp.clientWidth + 1;
+  });
+  if (!ok) errors.push("island-viewport has internal scroll");
+}
+
+async function assertFourLandmarksInViewport(page, errors) {
+  const vp = page.locator(".island-viewport");
+  const vpb = await vp.boundingBox();
+  if (!vpb) {
+    errors.push("no island-viewport box");
+    return;
+  }
+  for (const cls of ["lm-chinese", "lm-english", "lm-math", "lm-treasure"]) {
+    const loc = page.locator(`.island-landmark.${cls}`);
+    if (!(await loc.count())) {
+      errors.push(`missing landmark .${cls}`);
+      continue;
+    }
+    const visible = await loc.isVisible();
+    if (!visible) errors.push(`${cls} not visible`);
+    const box = await loc.boundingBox();
+    if (!box) {
+      errors.push(`${cls} no bounding box`);
+      continue;
+    }
+    const inside =
+      box.x >= vpb.x - 2 &&
+      box.y >= vpb.y - 2 &&
+      box.x + box.width <= vpb.x + vpb.width + 2 &&
+      box.y + box.height <= vpb.y + vpb.height + 2;
+    if (!inside) errors.push(`${cls} outside viewport`);
+  }
+}
+
+async function legacyBlankBlueRatio(file) {
+  const br = await blueRatioPng(file);
+  return br.ratio;
+}
+
+async function runFitDesktopSuite(page, shots, errors) {
+  const sizes = [
+    [1280, 800],
+    [1920, 1080],
+    [1024, 768],
+  ];
+  for (const [w, h] of sizes) {
+    await page.setViewportSize({ width: w, height: h });
+    await page.reload({ waitUntil: "networkidle" });
+    await waitMapReady(page);
+    const minSide = Math.min(w, h);
+    if (minSide < FIT_MIN) {
+      errors.push(`${w}x${h} below fit threshold`);
+    }
+    await assertViewportMode(page, "fit", errors);
+    await assertFourLandmarksInViewport(page, errors);
+    const shot = `${ART}/${TAG}-map-${w}x${h}.png`;
+    await page.locator(".island-viewport").screenshot({ path: shot });
+    shots.push(shot);
+    const blank = await legacyBlankBlueRatio(shot);
+    if (blank >= 0.12) {
+      errors.push(`fit ${w}x${h} legacy blue blank ${(blank * 100).toFixed(1)}% >= 12%`);
+    }
+  }
+
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.reload({ waitUntil: "networkidle" });
+  await waitMapReady(page);
+  await page.evaluate(() => {
+    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
+    p.player_x = 812;
+    p.player_y = 824;
+    localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
+  });
+  await page.reload({ waitUntil: "networkidle" });
+  await waitMapReady(page);
+  await sleep(500);
+  const enter = page.locator('[data-testid="enter-portal"]');
+  if (await enter.count()) {
+    await enter.click({ force: true });
+    await sleep(800);
+    await page.locator(".unit-island-card").first().click();
+    await page.waitForSelector(".opt-grid button", { timeout: 30000 });
+    const quizShot = `${ART}/${TAG}-quiz-1280-fit.png`;
+    await page.screenshot({ path: quizShot, fullPage: true });
+    shots.push(quizShot);
+    await page.locator(".opt-grid button").first().click();
+    await sleep(1200);
+  } else {
+    errors.push("fit mode: enter portal not visible at school (1280)");
+  }
+}
+
 async function tapDir(page, label, times = 1) {
   const btn = page.locator(".pad-btn", { hasText: label });
   for (let i = 0; i < times; i++) {
@@ -120,7 +226,8 @@ async function main() {
 
     await pickCharacter(page);
     await waitMapReady(page);
-    const mapShot = `${ART}/${TAG}-map-390.png`;
+    await assertViewportMode(page, "follow", errors);
+    const mapShot = `${ART}/${TAG}-map-390x844.png`;
     const vp = page.locator(".island-viewport");
     await vp.screenshot({ path: mapShot });
     shots.push(mapShot);
@@ -224,18 +331,14 @@ async function main() {
       errors.push("character lost after refresh");
     }
 
-  await page.setViewportSize({ width: 1280, height: 800 });
-    await page.reload({ waitUntil: "networkidle" });
-    await waitMapReady(page);
-    const desk = `${ART}/${TAG}-desktop-1280.png`;
-    await page.locator(".island-viewport").screenshot({ path: desk });
-    shots.push(desk);
+    await runFitDesktopSuite(page, shots, errors);
 
     const summary = {
       ok: errors.length === 0,
       errors,
       screenshots: shots,
       blueCheck: br,
+      fitThresholdPx: FIT_MIN,
     };
     writeFileSync(`${ART}/${TAG}-e2e-result.json`, JSON.stringify(summary, null, 2));
     console.log(JSON.stringify(summary, null, 2));
