@@ -579,13 +579,18 @@ body {
 }
 
 .island-world-label {
-  font-size: clamp(13px, 1.05vw, 17px);
   z-index: 26000;
+}
+
+.island-phone-map-label {
+  font-size: 15px;
+  padding: 0.18rem 0.55rem;
 }
 
 .island-viewport-fit .island-fit-label {
   max-height: 36px;
   overflow: visible;
+  transform-origin: center bottom;
 }
 
 /* fit 模式：地標與角色用「地圖像素」尺寸，勿用 vh/vw 放大 */

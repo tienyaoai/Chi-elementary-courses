@@ -725,24 +725,25 @@ pub fn island_map(props: &IslandMapProps) -> Html {
                     alt="" draggable="false" />
             },
         ));
-        let (lx, ly) = label_world_above(key, x as f32, y as f32);
-        let hide_label = props.door_portal == Some(portal);
-        layers.push((
-            foot_y + 20000.0,
-            html! {
-                <div key={format!("lbl-{key}")}
-                    class={classes!("island-world-label", hide_label.then_some("island-fit-label-hidden"))}
-                    data-testid={format!("fit-label-{key}")}
-                    data-world-x={format!("{:.2}", lx)}
-                    data-world-y={format!("{:.2}", ly)}
-                    style={format!(
-                        "left:{}px;top:{}px;z-index:26000;transform:translate(-50%,-100%);",
-                        lx, ly
-                    )}>
-                    <BpmfAside text={ world::GateLabel::name(portal).to_string() } game={props.game.clone()} compact=true />
-                </div>
-            },
-        ));
+        if !fit {
+            let (lx, ly) = label_world_above(key, x as f32, y as f32);
+            layers.push((
+                foot_y + 20000.0,
+                html! {
+                    <div key={format!("lbl-{key}")}
+                        class="island-world-label island-phone-map-label"
+                        data-testid={format!("fit-label-{key}")}
+                        data-world-x={format!("{:.2}", lx)}
+                        data-world-y={format!("{:.2}", ly)}
+                        style={format!(
+                            "left:{}px;top:{}px;z-index:26000;transform:translate(-50%,-100%);",
+                            lx, ly
+                        )}>
+                        <BpmfAside text={ world::GateLabel::name(portal).to_string() } game={props.game.clone()} compact=true />
+                    </div>
+                },
+            ));
+        }
     }
 
     if !fit {
@@ -854,7 +855,6 @@ pub fn island_map(props: &IslandMapProps) -> Html {
         let pos = if fit {
             let label_screens: Vec<ScreenRect> = label_world
                 .iter()
-                .filter(|(p, _, _)| props.door_portal != Some(*p))
                 .map(|(portal, wx, wy)| label_screen_from_world(*wx, *wy, *portal, &metrics))
                 .collect();
             let (blocks, _) = fit_door_obstacles(
@@ -897,7 +897,31 @@ pub fn island_map(props: &IslandMapProps) -> Html {
         );
     }
 
-    let label_overlay = html! {};
+    let label_overlay = if fit {
+        html! {
+            <div class="island-fit-labels" aria-hidden="false">
+                { for landmark_defs.iter().map(|(key, x, y, portal)| {
+                    let (wx, wy) = label_world_above(key, *x as f32, *y as f32);
+                    let (sx, sy) = world_to_screen(wx, wy, &metrics);
+                    html! {
+                        <div key={format!("fit-lbl-{key}")}
+                            class="island-fit-label"
+                            data-testid={format!("fit-label-{key}")}
+                            data-world-x={format!("{:.2}", wx)}
+                            data-world-y={format!("{:.2}", wy)}
+                            style={format!(
+                                "left:{}px;top:{}px;transform:translate(-50%,-100%);",
+                                sx, sy
+                            )}>
+                            <BpmfAside text={ world::GateLabel::name(*portal).to_string() } game={props.game.clone()} compact=true />
+                        </div>
+                    }
+                }) }
+            </div>
+        }
+    } else {
+        html! {}
+    };
 
     let viewport_class = if fit {
         "island-viewport island-viewport-fit"
