@@ -37,10 +37,22 @@ impl WalkMask {
         self.bits.get(i / 8).map(|b| b & (1 << (i % 8)) != 0).unwrap_or(false)
     }
 
-    pub fn can_stand(&self, x: f32, y: f32, orient: MapOrientation) -> bool {
-        if walk_block_rect(x, y, orient) {
-            return false;
+    fn too_close_to_water(&self, x: f32, y: f32) -> bool {
+        const BUF: f32 = 12.0;
+        let cardinals = [(BUF, 0.0), (-BUF, 0.0), (0.0, BUF), (0.0, -BUF)];
+        let mut water_hits = 0u8;
+        for (dx, dy) in cardinals {
+            if !self.sample(x + dx, y + dy) {
+                water_hits += 1;
+            }
         }
+        if !self.sample(x, y) {
+            return true;
+        }
+        water_hits >= 3
+    }
+
+    pub fn can_stand(&self, x: f32, y: f32, orient: MapOrientation) -> bool {
         if walk_override(x, y, orient) {
             return true;
         }
@@ -53,7 +65,20 @@ impl WalkMask {
             (-8.0, 8.0),
             (8.0, 8.0),
         ];
-        points.iter().all(|(dx, dy)| self.sample(x + dx, y + dy))
+        points.iter().all(|(dx, dy)| {
+            let px = x + dx;
+            let py = y + dy;
+            if walk_block_rect(px, py, orient) {
+                return false;
+            }
+            if orient == MapOrientation::Portrait && self.too_close_to_water(px, py) {
+                return false;
+            }
+            if walk_override(px, py, orient) {
+                return true;
+            }
+            self.sample(px, py)
+        })
     }
 }
 

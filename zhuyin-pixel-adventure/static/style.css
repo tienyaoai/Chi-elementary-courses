@@ -1120,10 +1120,16 @@ body {
 
 .map-screen:not(.map-screen-fit) .island-viewport-follow {
   flex: 1 1 0;
-  min-height: 160px;
-  max-height: min(520px, calc(100dvh - 11.25rem));
+  min-height: 0;
+  max-height: none;
   height: auto;
   overflow: hidden;
+}
+
+@media (max-height: 720px) {
+  .map-screen:not(.map-screen-fit) .island-viewport-follow {
+    max-height: min(480px, calc(100dvh - 10.5rem));
+  }
 }
 
 .map-screen:not(.map-screen-fit) .action-dock-phone {
@@ -1145,16 +1151,28 @@ body {
   min-width: 0;
   margin: 0;
   font-size: 0.95rem;
-  line-height: 1.2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.22;
+  white-space: normal;
+  overflow: visible;
 }
 
 .map-screen:not(.map-screen-fit) .map-hint-phone-short .bpmf-aside-read {
   display: inline-flex;
-  flex-wrap: nowrap;
-  white-space: nowrap;
+  flex-wrap: wrap;
+  align-items: baseline;
+  row-gap: 0.12rem;
+  white-space: normal;
+}
+
+.map-screen:not(.map-screen-fit) .map-hint-phone-short .han,
+.map-screen:not(.map-screen-fit) .map-hint-phone-short .han-plain {
+  font-size: 1.05rem;
+  line-height: 1.15;
+}
+
+.map-screen:not(.map-screen-fit) .map-hint-phone-short .bpmf-col {
+  font-size: 0.82rem;
+  line-height: 1.1;
 }
 
 .map-screen:not(.map-screen-fit) .hud-change-char {
@@ -1175,14 +1193,32 @@ body {
   margin: 0;
   padding-right: 0.2rem;
   line-height: 1.25;
+  white-space: normal;
+  overflow: visible;
 }
 
-.map-screen:not(.map-screen-fit) .action-dock .map-hint .bpmf-aside-read {
-  display: flex;
+.map-screen:not(.map-screen-fit) .action-dock .map-hint .bpmf-aside-read,
+.map-screen:not(.map-screen-fit) .action-dock .map-hint-door .bpmf-aside-read {
+  display: inline-flex;
   flex-wrap: wrap;
   align-items: baseline;
-  row-gap: 0.15rem;
+  row-gap: 0.12rem;
   max-width: 100%;
+  white-space: normal;
+}
+
+.map-screen:not(.map-screen-fit) .action-dock .map-hint-door .han,
+.map-screen:not(.map-screen-fit) .action-dock .map-hint-door .han-plain,
+.map-screen:not(.map-screen-fit) .action-dock .map-hint .han,
+.map-screen:not(.map-screen-fit) .action-dock .map-hint .han-plain {
+  font-size: 1.05rem;
+  line-height: 1.15;
+}
+
+.map-screen:not(.map-screen-fit) .action-dock .map-hint-door .bpmf-col,
+.map-screen:not(.map-screen-fit) .action-dock .map-hint .bpmf-col {
+  font-size: 0.82rem;
+  line-height: 1.1;
 }
 
 .map-screen:not(.map-screen-fit) .action-dock .touch-pad {

@@ -14,8 +14,8 @@
     "step": 4
   },
   "spawn_portrait": {
-    "x": 309,
-    "y": 1502
+    "x": 322,
+    "y": 1194
   },
   "spawn_landscape": {
     "x": 852,
@@ -209,6 +209,12 @@
     "treasure": 88
   },
   "walk_overrides_portrait": [
+    {
+      "x": 300,
+      "y": 1176,
+      "w": 58,
+      "h": 42
+    },
     {
       "x": 328,
       "y": 1186,

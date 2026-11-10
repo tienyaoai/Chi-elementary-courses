@@ -75,6 +75,236 @@ fn door_bubble_slot_fit(
     "door-bubble-slot-below"
 }
 
+#[derive(Clone, Copy)]
+struct ScreenRect {
+    l: f32,
+    t: f32,
+    r: f32,
+    b: f32,
+}
+
+fn rects_overlap(a: ScreenRect, b: ScreenRect, pad: f32) -> bool {
+    !(a.r + pad <= b.l || a.l >= b.r + pad || a.b + pad <= b.t || a.t >= b.b + pad)
+}
+
+fn label_rect(sx: f32, sy: f32, portal: Portal) -> ScreenRect {
+    let (w, h) = fit_label_size(portal);
+    const PAD: f32 = 6.0;
+    ScreenRect {
+        l: sx - w * 0.5 - PAD,
+        t: sy - h * 0.5 - PAD,
+        r: sx + w * 0.5 + PAD,
+        b: sy + h * 0.5 + PAD,
+    }
+}
+
+fn landmark_fit_rect(key: &str, wx: f32, wy: f32, scale: f32, metrics: &FitMetrics) -> ScreenRect {
+    let (sx, sy) = world_to_screen(wx, wy, metrics);
+    let (lw, lh) = match key {
+        "chinese" => (280.0_f32, 300.0_f32),
+        "english" => (225.0, 248.0),
+        "math" => (205.0, 228.0),
+        "treasure" => (100.0, 104.0),
+        _ => (160.0, 160.0),
+    };
+    let w = lw * scale;
+    let h = lh * scale;
+    ScreenRect {
+        l: sx - w * 0.52,
+        t: sy - h * 0.92,
+        r: sx + w * 0.48,
+        b: sy + h * 0.08,
+    }
+}
+
+fn fit_door_obstacles(
+    metrics: &FitMetrics,
+    landmark_defs: &[(&str, i32, i32, Portal)],
+    label_pos: &[(Portal, f32, f32)],
+    door_portal: Option<Portal>,
+    anchor_x: f32,
+    anchor_y: f32,
+    player_w: f32,
+    player_h: f32,
+) -> (Vec<ScreenRect>, Vec<ScreenRect>) {
+    let mut blocks = Vec::new();
+    let mut labels = Vec::new();
+    let scale = metrics.scale;
+    let lay = layer(metrics.orient);
+    let dock_wx = lay.width as f32 * 0.5;
+    let dock_wy = lay.height as f32 * 0.94;
+    let (dsx, dsy) = world_to_screen(dock_wx, dock_wy, metrics);
+    blocks.push(ScreenRect {
+        l: dsx - 120.0 * scale,
+        t: dsy - 32.0 * scale,
+        r: dsx + 120.0 * scale,
+        b: dsy + 72.0 * scale,
+    });
+    for (key, x, y, portal) in landmark_defs {
+        if door_portal == Some(*portal) {
+            continue;
+        }
+        blocks.push(landmark_fit_rect(key, *x as f32, *y as f32, scale, metrics));
+    }
+    for (portal, sx, sy) in label_pos {
+        if door_portal == Some(*portal) {
+            continue;
+        }
+        labels.push(label_rect(*sx, *sy, *portal));
+    }
+    blocks.push(ScreenRect {
+        l: anchor_x - player_w * 0.55,
+        t: anchor_y - player_h * 1.02,
+        r: anchor_x + player_w * 0.55,
+        b: anchor_y + 6.0,
+    });
+    (blocks, labels)
+}
+
+fn rects_intersect(a: ScreenRect, b: ScreenRect, pad: f32) -> bool {
+    a.l < b.r + pad && a.r > b.l - pad && a.t < b.b + pad && a.b > b.t - pad
+}
+
+fn overlap_px(a: ScreenRect, b: ScreenRect) -> f32 {
+    let l = a.l.max(b.l);
+    let t = a.t.max(b.t);
+    let r = a.r.min(b.r);
+    let b = a.b.min(b.b);
+    if r > l && b > t {
+        (r - l) * (b - t)
+    } else {
+        0.0
+    }
+}
+
+fn clamp_door_bubble_fit(
+    anchor_x: f32,
+    anchor_y: f32,
+    player_w: f32,
+    player_h: f32,
+    vw: f32,
+    vh: f32,
+    blocks: &[ScreenRect],
+    label_blocks: &[ScreenRect],
+) -> String {
+    let est_w = DOOR_BUBBLE_W.min(vw - VIEWPORT_PAD * 2.0);
+    let est_h = DOOR_BUBBLE_H + 28.0;
+    let gap = 14.0;
+    let candidates: [(f32, f32); 5] = [
+        (
+            anchor_x - player_w * 0.5 - gap - est_w,
+            anchor_y - player_h * 0.88,
+        ),
+        (
+            anchor_x - est_w * 0.5,
+            anchor_y - player_h - gap - est_h,
+        ),
+        (
+            anchor_x - player_w * 0.5 - gap - est_w,
+            anchor_y - player_h - gap - est_h,
+        ),
+        (
+            anchor_x + player_w * 0.5 + gap,
+            anchor_y - player_h * 0.88,
+        ),
+        (
+            anchor_x - est_w * 0.5,
+            anchor_y + gap * 0.5,
+        ),
+    ];
+    let bubble_at = |bx: f32, by: f32| ScreenRect {
+        l: bx,
+        t: by,
+        r: bx + est_w,
+        b: by + est_h,
+    };
+    let all_obstacles: Vec<ScreenRect> = blocks
+        .iter()
+        .chain(label_blocks.iter())
+        .copied()
+        .collect();
+    let bubble_clear = |bubble: ScreenRect| -> bool {
+        !all_obstacles
+            .iter()
+            .any(|o| rects_intersect(bubble, *o, 4.0))
+    };
+    let bubble_label_clear = |bubble: ScreenRect| -> bool {
+        !label_blocks
+            .iter()
+            .any(|o| rects_intersect(bubble, *o, 2.0))
+    };
+    let block_overlap = |bubble: ScreenRect| -> f32 {
+        blocks
+            .iter()
+            .map(|o| overlap_px(bubble, *o))
+            .sum()
+    };
+    let mut chosen = candidates[0];
+    'sides: for &(bx, by) in &candidates {
+        let bubble = bubble_at(bx, by);
+        if bubble_clear(bubble) {
+            chosen = (bx, by);
+            break 'sides;
+        }
+    }
+    if !bubble_clear(bubble_at(chosen.0, chosen.1)) {
+        let mut picked = false;
+        let mut least = f32::MAX;
+        for &(bx, by) in &candidates {
+            let bubble = bubble_at(bx, by);
+            if !bubble_label_clear(bubble) {
+                continue;
+            }
+            let area = block_overlap(bubble);
+            if area < least {
+                least = area;
+                chosen = (bx, by);
+                picked = true;
+            }
+        }
+        if !picked {
+            let mut least = f32::MAX;
+            for &(bx, by) in &candidates {
+                let bubble = bubble_at(bx, by);
+                let area = block_overlap(bubble)
+                    + label_blocks
+                        .iter()
+                        .map(|o| overlap_px(bubble, *o) * 6.0)
+                        .sum::<f32>();
+                if area < least {
+                    least = area;
+                    chosen = (bx, by);
+                }
+            }
+        }
+    }
+    let mut bx = chosen.0;
+    let mut by = chosen.1;
+    bx = bx.clamp(VIEWPORT_PAD, (vw - est_w - VIEWPORT_PAD).max(VIEWPORT_PAD));
+    by = by.clamp(VIEWPORT_PAD, (vh - est_h - VIEWPORT_PAD).max(VIEWPORT_PAD));
+  let bubble = ScreenRect {
+        l: bx,
+        t: by,
+        r: bx + est_w,
+        b: by + est_h,
+    };
+    if all_obstacles
+        .iter()
+        .any(|o| rects_intersect(bubble, *o, 2.0))
+    {
+        bx = (anchor_x - player_w * 0.5 - gap - est_w)
+            .clamp(VIEWPORT_PAD, (vw - est_w - VIEWPORT_PAD).max(VIEWPORT_PAD));
+        by = (anchor_y - player_h * 0.92 - est_h * 0.5)
+            .clamp(VIEWPORT_PAD, (vh - est_h - VIEWPORT_PAD).max(VIEWPORT_PAD));
+    }
+    format!(
+        "left:{bx}px;top:{by}px;right:auto;bottom:auto;transform:none;max-width:{mw}px;width:max-content;",
+        bx = bx,
+        by = by,
+        mw = est_w,
+    )
+}
+
 fn clamp_door_bubble_in_viewport(
     anchor_x: f32,
     anchor_y: f32,
@@ -277,7 +507,7 @@ fn render_action_dock(
       <div class="action-dock action-dock-phone">
           if let Some(portal) = door_portal.filter(|p| world::door_enterable(*p)) {
               <p class="map-hint map-hint-door" data-testid="map-hint-door">
-                  <BpmfAside text={ "按「進入」開始答題".to_string() } game={game.clone()} read=true compact=true />
+                  <BpmfAside text={ "按進入答題".to_string() } game={game.clone()} read=true compact=true />
               </p>
           } else if let Some(portal) = portal_near {
               <p class="map-hint map-hint-large">
@@ -287,7 +517,7 @@ fn render_action_dock(
               </p>
           } else {
               <p class="map-hint map-hint-phone-short muted">
-                  <BpmfAside text={ "走到門口就能進去".to_string() } game={game.clone()} read=false compact=true />
+                  <BpmfAside text={ "走到門口".to_string() } game={game.clone()} read=true compact=true />
               </p>
           }
           <TouchPad on_pad_hold={on_pad_hold} />
@@ -592,6 +822,30 @@ pub fn island_map(props: &IslandMapProps) -> Html {
         html! {}
     };
 
+    let mut fit_label_pos: Vec<(Portal, f32, f32)> = Vec::new();
+    if fit {
+        fit_label_pos = landmark_defs
+            .iter()
+            .map(|(_, x, y, portal)| {
+                let (dx, below) = label_offset_below_portal(*portal);
+                let (sx, sy) = world_to_screen(*x as f32 + dx, *y as f32 + below, &metrics);
+                (*portal, sx, sy)
+            })
+            .collect();
+        resolve_fit_label_overlaps(&mut fit_label_pos);
+        let (psx, psy) = world_to_screen(props.px, props.py - 48.0, &metrics);
+        for (_, sx, sy) in fit_label_pos.iter_mut() {
+            let dx = *sx - psx;
+            let dy = *sy - psy;
+            let d = dx.hypot(dy);
+            if d < 92.0 && d > 0.1 {
+                let push = (92.0 - d) * 0.85;
+                *sx += dx / d * push;
+                *sy += dy / d * push * 0.35;
+            }
+        }
+    }
+
     if let Some(portal) = props.door_portal {
         let (anchor_x, anchor_y, pw, ph) = if fit {
             if let Some((sx, sy, sw, sh)) = fit_door_anchor {
@@ -608,14 +862,37 @@ pub fn island_map(props: &IslandMapProps) -> Html {
                 PLAYER_H,
             )
         };
-        let pos = clamp_door_bubble_in_viewport(
-            anchor_x,
-            anchor_y,
-            pw,
-            ph,
-            metrics.vw,
-            metrics.vh,
-        );
+        let pos = if fit {
+            let (blocks, label_blocks) = fit_door_obstacles(
+                &metrics,
+                &landmark_defs,
+                &fit_label_pos,
+                props.door_portal,
+                anchor_x,
+                anchor_y,
+                pw,
+                ph,
+            );
+            clamp_door_bubble_fit(
+                anchor_x,
+                anchor_y,
+                pw,
+                ph,
+                metrics.vw,
+                metrics.vh,
+                &blocks,
+                &label_blocks,
+            )
+        } else {
+            clamp_door_bubble_in_viewport(
+                anchor_x,
+                anchor_y,
+                pw,
+                ph,
+                metrics.vw,
+                metrics.vh,
+            )
+        };
         door_bubble_overlay = render_door_bubble_compact(
             portal,
             props.game.clone(),
@@ -626,30 +903,12 @@ pub fn island_map(props: &IslandMapProps) -> Html {
     }
 
     let label_overlay = if fit {
-        let mut label_pos: Vec<(Portal, f32, f32)> = landmark_defs
+        let pos_by: std::collections::HashMap<Portal, (f32, f32)> = fit_label_pos
             .iter()
-            .map(|(_, x, y, portal)| {
-                let (dx, below) = label_offset_below_portal(*portal);
-                let (sx, sy) = world_to_screen(*x as f32 + dx, *y as f32 + below, &metrics);
-                (*portal, sx, sy)
-            })
-            .collect();
-        resolve_fit_label_overlaps(&mut label_pos);
-        let (psx, psy) = world_to_screen(props.px, props.py - 48.0, &metrics);
-        for (_, sx, sy) in label_pos.iter_mut() {
-            let dx = *sx - psx;
-            let dy = *sy - psy;
-            let d = dx.hypot(dy);
-            if d < 92.0 && d > 0.1 {
-                let push = (92.0 - d) * 0.85;
-                *sx += dx / d * push;
-                *sy += dy / d * push * 0.35;
-            }
-        }
-        let pos_by: std::collections::HashMap<Portal, (f32, f32)> = label_pos
-            .into_iter()
+            .copied()
             .map(|(p, sx, sy)| (p, (sx, sy)))
             .collect();
+        let (psx, psy) = world_to_screen(props.px, props.py - 48.0, &metrics);
         html! {
             <div class="island-fit-labels" aria-hidden="false">
                 { for landmark_defs.iter().map(|(key, _x, _y, portal)| {

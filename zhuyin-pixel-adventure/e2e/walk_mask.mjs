@@ -6,6 +6,7 @@ const STEP = 4;
 const PORTRAIT_BLOCKED = [{ x: 400, y: 900, w: 148, h: 320 }];
 
 const PORTRAIT_OVERRIDES = [
+  { x: 300, y: 1176, w: 58, h: 42 },
   { x: 328, y: 1186, w: 52, h: 44 },
   { x: 684, y: 1268, w: 48, h: 40 },
   { x: 292, y: 1494, w: 180, h: 32 },
@@ -51,6 +52,23 @@ function isBlocked(x, y, orient) {
   );
 }
 
+function tooCloseToWater(mask, x, y) {
+  if (mask.orient !== "portrait") return false;
+  const BUF = 12;
+  const cardinals = [
+    [BUF, 0],
+    [-BUF, 0],
+    [0, BUF],
+    [0, -BUF],
+  ];
+  let hits = 0;
+  for (const [dx, dy] of cardinals) {
+    if (!sample(mask, x + dx, y + dy)) hits += 1;
+  }
+  if (!sample(mask, x, y)) return true;
+  return hits >= 3;
+}
+
 export function canStand(mask, x, y) {
   const overrides = mask.orient === "landscape" ? LANDSCAPE_OVERRIDES : PORTRAIT_OVERRIDES;
   const points = [
@@ -66,6 +84,9 @@ export function canStand(mask, x, y) {
     const px = x + dx;
     const py = y + dy;
     if (isBlocked(px, py, mask.orient)) {
+      return false;
+    }
+    if (tooCloseToWater(mask, px, py)) {
       return false;
     }
     if (inOverride(px, py, overrides)) {

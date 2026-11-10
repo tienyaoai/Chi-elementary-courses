@@ -7,7 +7,7 @@ import path from "node:path";
 import { canStand, loadWalkMask } from "./walk_mask.mjs";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.14";
+const TAG = process.env.E2E_TAG || "v9.15";
 const FIT_MIN = 700;
 const DIST = path.resolve("..", "dist");
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
@@ -422,17 +422,19 @@ async function assertBubbleNearHero(page, errors, maxGap = 24) {
   }
 }
 
-async function assertPhoneMapHeightBand(page, errors, minPx = 400, maxPx = 520) {
+async function assertPhoneMapHeightBand(page, errors, minPx = 400, maxPx = null) {
   const vp = await page.locator(".island-viewport-follow").boundingBox();
   if (!vp) {
     errors.push("follow map viewport missing");
     return;
   }
+  const screenH = page.viewportSize()?.height ?? 844;
+  const cap = maxPx ?? (screenH >= 800 ? 720 : 520);
   if (vp.height < minPx) {
     errors.push(`phone map viewport height ${vp.height.toFixed(0)}px < ${minPx}px`);
   }
-  if (vp.height > maxPx) {
-    errors.push(`phone map viewport height ${vp.height.toFixed(0)}px > ${maxPx}px`);
+  if (vp.height > cap) {
+    errors.push(`phone map viewport height ${vp.height.toFixed(0)}px > ${cap}px`);
   }
 }
 
@@ -530,7 +532,7 @@ async function teleportDoor(page, x, y) {
   await sleep(450);
 }
 
-async function assertEveryBuildingDoor(page, errors, landscape) {
+async function assertEveryBuildingDoor(page, errors, landscape, shots = []) {
   const mode = landscape ? "landscape" : "portrait";
   const doors = DOOR_COORDS[mode];
   for (const [key, [x, y]] of Object.entries(doors)) {
@@ -547,6 +549,16 @@ async function assertEveryBuildingDoor(page, errors, landscape) {
       .getAttribute("data-portal");
     if (portal !== key) {
       errors.push(`door portal mismatch ${key} got ${portal}`);
+    }
+    if (landscape && page.viewportSize()?.width === 1280) {
+      const shot = `${ART}/${TAG}-door-bubble-${key}-1280x800.png`;
+      await page.locator(".island-viewport").screenshot({ path: shot });
+      shots.push(shot);
+      if (key === "chinese") {
+        const legacy = `${ART}/${TAG}-door-bubble-1280x800.png`;
+        await page.locator(".island-viewport").screenshot({ path: legacy });
+        shots.push(legacy);
+      }
     }
   }
 }
@@ -943,6 +955,9 @@ async function main() {
 
     await pickCharacter(page);
     await waitMapReady(page);
+    const initial390 = `${ART}/${TAG}-initial-390x844.png`;
+    await page.screenshot({ path: initial390, fullPage: true });
+    shots.push(initial390);
     await assertPhoneHudCompact(page, errors);
     await assertNoPageScroll(page, errors, "390-pre-walk");
     await assertPadButtonsInViewport(page, errors, "390-pre-walk");
@@ -1096,9 +1111,9 @@ async function main() {
     await page.locator(".island-viewport").screenshot({ path: mathShot });
     shots.push(mathShot);
 
-    await assertEveryBuildingDoor(page, errors, false);
+    await assertEveryBuildingDoor(page, errors, false, shots);
     await page.setViewportSize({ width: 1280, height: 800 });
-    await assertEveryBuildingDoor(page, errors, true);
+    await assertEveryBuildingDoor(page, errors, true, shots);
 
     await recordWalkAllDirections(browser, errors, shots);
 
