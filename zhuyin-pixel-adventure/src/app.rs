@@ -569,9 +569,6 @@ pub fn app() -> Html {
                             move |_| view.set(View::Select)
                         })} />
                 }
-                if !*map_fit && matches!(portal_near, Some(Portal::English | Portal::Math)) {
-                    <p class="locked-hint"><BpmfAside text={ "這個科目即將開放".to_string() } game={game.clone()} read=true /></p>
-                }
             </div>
             }
         }

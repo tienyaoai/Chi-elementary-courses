@@ -3,8 +3,9 @@ use crate::island_walk;
 use crate::map_config::{character_by_id, door_point, landmark_url, layer, walk_url, MapOrientation};
 use crate::walk_sprite::{sprite_sheet_style, WalkFacing, FRAME_H, FRAME_W};
 use crate::map_display::{
-    fit_metrics, follow_camera_x, follow_camera_y, orient_for_viewport, player_screen_boost,
-    screen_to_world, view_mode, world_to_screen, FitMetrics, MapViewMode, LETTERBOX_SEA,
+    fit_metrics, follow_camera_x, follow_camera_y, follow_world_to_screen, orient_for_viewport,
+    player_screen_boost, screen_to_world, view_mode, world_to_screen, FitMetrics, MapViewMode,
+    LETTERBOX_SEA,
 };
 use crate::world::{self, Portal};
 use gloo::timers::callback::Timeout;
@@ -294,6 +295,7 @@ fn clamp_door_bubble_in_viewport(
     player_h: f32,
     vw: f32,
     vh: f32,
+    label_blocks: &[ScreenRect],
 ) -> String {
     let est_w = if vw < 440.0 {
         (vw - VIEWPORT_PAD * 2.0).max(120.0)
@@ -337,12 +339,80 @@ fn clamp_door_bubble_in_viewport(
         by = (anchor_y - player_h * 0.55).clamp(VIEWPORT_PAD, vh - est_h_use - VIEWPORT_PAD);
     }
     by = by.clamp(VIEWPORT_PAD, (vh - est_h_use - VIEWPORT_PAD).max(VIEWPORT_PAD));
+    let mut bubble = ScreenRect {
+        l: bx,
+        t: by,
+        r: bx + est_w,
+        b: by + est_h_use,
+    };
+    if !label_blocks.is_empty() {
+        bubble = nudge_bubble_off_labels(bubble, label_blocks, vw, vh, est_w, est_h_use);
+        bx = bubble.l;
+        by = bubble.t;
+    }
     format!(
         "left:{bx}px;top:{by}px;right:auto;bottom:auto;transform:none;max-width:{mw}px;width:max-content;",
         bx = bx,
         by = by,
         mw = est_w,
     )
+}
+
+fn nudge_bubble_off_labels(
+    mut bubble: ScreenRect,
+    labels: &[ScreenRect],
+    vw: f32,
+    vh: f32,
+    est_w: f32,
+    est_h: f32,
+) -> ScreenRect {
+    for _ in 0..8 {
+        let mut hits = false;
+        for lb in labels {
+            if rects_overlap(bubble, *lb, 6.0) {
+                hits = true;
+                if lb.b < vh * 0.55 {
+                    bubble.t = (lb.b + 10.0).min(vh - est_h - VIEWPORT_PAD);
+                } else {
+                    bubble.b = (lb.t - 10.0).max(VIEWPORT_PAD + est_h);
+                    bubble.t = bubble.b - est_h;
+                }
+                bubble.l = bubble
+                    .l
+                    .clamp(VIEWPORT_PAD, (vw - est_w - VIEWPORT_PAD).max(VIEWPORT_PAD));
+                bubble.r = bubble.l + est_w;
+            }
+        }
+        if !hits {
+            break;
+        }
+    }
+    bubble
+}
+
+fn label_screen_follow(
+    wx: f32,
+    wy: f32,
+    portal: Portal,
+    cam_x: f32,
+    cam_y: f32,
+    vw: f32,
+    vh: f32,
+) -> (f32, f32, ScreenRect) {
+    let (mut sx, mut sy) = follow_world_to_screen(wx, wy, cam_x, cam_y, vw, vh);
+    let (lw, lh) = fit_label_size(portal);
+    let margin = 10.0;
+    let half = lw * 0.5 + margin;
+    sx = sx.clamp(half, (vw - half).max(half));
+    sy = sy.clamp(lh + margin, (vh - margin).max(lh + margin));
+    let rect = label_rect(sx, sy, portal);
+    (sx, sy, rect)
+}
+
+fn landmark_on_screen(bx: f32, by: f32, cam_x: f32, cam_y: f32, vw: f32, vh: f32) -> bool {
+    let (sx, sy) = follow_world_to_screen(bx, by, cam_x, cam_y, vw, vh);
+    let m = 80.0;
+    sx >= -m && sx <= vw + m && sy >= -m && sy <= vh + m
 }
 
 fn render_door_bubble_compact(
@@ -496,11 +566,17 @@ fn render_action_dock(
                   <BpmfAside text={ "按進入答題".to_string() } game={game.clone()} read=true compact=true />
               </p>
           } else if let Some(portal) = portal_near.filter(|p| !world::door_enterable(*p)) {
-              <p class="map-hint map-hint-large">
-                  <BpmfAside text={ world::GateLabel::name(portal).to_string() } game={game.clone()} read=true compact=true />
-                  { " · " }
-                  <BpmfAside text={ world::GateLabel::hint(portal).to_string() } game={game.clone()} read=true compact=true />
-              </p>
+              if matches!(portal, Portal::English | Portal::Math) {
+                  <p class="map-hint map-hint-large" data-testid="map-hint-locked">
+                      <BpmfAside text={ "這個科目即將開放".to_string() } game={game.clone()} read=true compact=true />
+                  </p>
+              } else {
+                  <p class="map-hint map-hint-large">
+                      <BpmfAside text={ world::GateLabel::name(portal).to_string() } game={game.clone()} read=true compact=true />
+                      { " · " }
+                      <BpmfAside text={ world::GateLabel::hint(portal).to_string() } game={game.clone()} read=true compact=true />
+                  </p>
+              }
           } else {
               <p class="map-hint map-hint-phone-short muted">
                   <BpmfAside text={ "走到門口".to_string() } game={game.clone()} read=true compact=true />
@@ -713,25 +789,6 @@ pub fn island_map(props: &IslandMapProps) -> Html {
                     alt="" draggable="false" />
             },
         ));
-        if !fit {
-            let (lx, ly) = label_world_above(key, x as f32, y as f32);
-            layers.push((
-                foot_y + 20000.0,
-                html! {
-                    <div key={format!("lbl-{key}")}
-                        class="island-world-label island-phone-map-label"
-                        data-testid={format!("fit-label-{key}")}
-                        data-world-x={format!("{:.2}", lx)}
-                        data-world-y={format!("{:.2}", ly)}
-                        style={format!(
-                            "left:{}px;top:{}px;z-index:26000;transform:translate(-50%,-100%);",
-                            lx, ly
-                        )}>
-                        <BpmfAside text={ world::GateLabel::name(portal).to_string() } game={props.game.clone()} compact=true />
-                    </div>
-                },
-            ));
-        }
     }
 
     if !fit {
@@ -867,6 +924,16 @@ pub fn island_map(props: &IslandMapProps) -> Html {
                 &label_blocks,
             )
         } else {
+            let label_blocks: Vec<ScreenRect> = landmark_defs
+                .iter()
+                .filter(|(_, x, y, _)| {
+                    landmark_on_screen(*x as f32, *y as f32, cam_x, cam_y, metrics.vw, metrics.vh)
+                })
+                .map(|(key, x, y, portal)| {
+                    let (lx, ly) = label_world_above(key, *x as f32, *y as f32);
+                    label_screen_follow(lx, ly, *portal, cam_x, cam_y, metrics.vw, metrics.vh).2
+                })
+                .collect();
             clamp_door_bubble_in_viewport(
                 anchor_x,
                 anchor_y,
@@ -874,6 +941,7 @@ pub fn island_map(props: &IslandMapProps) -> Html {
                 ph,
                 metrics.vw,
                 metrics.vh,
+                &label_blocks,
             )
         };
         door_bubble_overlay = render_door_bubble_compact(
@@ -908,7 +976,31 @@ pub fn island_map(props: &IslandMapProps) -> Html {
             </div>
         }
     } else {
-        html! {}
+        html! {
+            <div class="island-fit-labels island-follow-labels" aria-hidden="false">
+                { for landmark_defs.iter().filter_map(|(key, x, y, portal)| {
+                    if !landmark_on_screen(*x as f32, *y as f32, cam_x, cam_y, metrics.vw, metrics.vh) {
+                        return None;
+                    }
+                    let (lx, ly) = label_world_above(key, *x as f32, *y as f32);
+                    let (sx, sy, _) =
+                        label_screen_follow(lx, ly, *portal, cam_x, cam_y, metrics.vw, metrics.vh);
+                    Some(html! {
+                        <div key={format!("phone-lbl-{key}")}
+                            class="island-fit-label island-phone-map-label"
+                            data-testid={format!("fit-label-{key}")}
+                            data-world-x={format!("{:.2}", lx)}
+                            data-world-y={format!("{:.2}", ly)}
+                            style={format!(
+                                "left:{}px;top:{}px;transform:translate(-50%,-100%);",
+                                sx, sy
+                            )}>
+                            <BpmfAside text={ world::GateLabel::name(*portal).to_string() } game={props.game.clone()} compact=true />
+                        </div>
+                    })
+                }) }
+            </div>
+        }
     };
 
     let viewport_class = if fit {

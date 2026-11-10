@@ -38,7 +38,7 @@ impl WalkMask {
     }
 
     fn too_close_to_water(&self, x: f32, y: f32) -> bool {
-        const BUF: f32 = 12.0;
+        const BUF: f32 = 16.0;
         let cardinals = [(BUF, 0.0), (-BUF, 0.0), (0.0, BUF), (0.0, -BUF)];
         let mut water_hits = 0u8;
         for (dx, dy) in cardinals {
