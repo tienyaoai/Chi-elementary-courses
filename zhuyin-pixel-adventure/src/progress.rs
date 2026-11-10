@@ -94,6 +94,13 @@ impl PixelProgress {
             self.player_x = sx;
             self.player_y = sy;
         }
+        if let Some((w, h)) = crate::world::window_size() {
+            let orient = crate::world::map_orient(w, h);
+            let (cx, cy) =
+                map_config::coerce_player_coords(self.player_x, self.player_y, orient);
+            self.player_x = cx;
+            self.player_y = cy;
+        }
     }
 
     pub fn unit_cleared(&self, level_id: &str) -> bool {

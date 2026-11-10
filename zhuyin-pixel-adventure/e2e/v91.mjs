@@ -299,6 +299,84 @@ async function assertPlayerHeightFit(page, errors, minPx = 64) {
   }
 }
 
+async function playerScreenPos(page) {
+  return page.evaluate(() => {
+    const el = document.querySelector('[data-testid="island-player"]');
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  });
+}
+
+async function assertFitPlayerMoves(page, errors) {
+  const p0 = await playerScreenPos(page);
+  const prog0 = await page.evaluate(() => {
+    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
+    return p.player_x;
+  });
+  if (!p0) {
+    errors.push("fit movement: player missing");
+    return;
+  }
+  await page.locator("main.shell-map-fit").focus();
+  for (let i = 0; i < 10; i++) {
+    await page.locator("main.shell-map-fit").press("ArrowRight");
+    await sleep(20);
+  }
+  await sleep(500);
+  const prog1 = await page.evaluate(() => {
+    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
+    return p.player_x;
+  });
+  const p1 = await playerScreenPos(page);
+  const moved =
+    (p1 && p1.x - p0.x >= 40) || (typeof prog1 === "number" && prog1 - prog0 > 40);
+  if (!moved) {
+    errors.push(
+      `fit movement: keyboard ArrowRight screen ${p1 ? (p1.x - p0.x).toFixed(0) : "n/a"}px world ${typeof prog1 === "number" ? (prog1 - prog0).toFixed(0) : "n/a"}`
+    );
+  }
+  const map = page.locator(".island-viewport-fit");
+  const box = await map.boundingBox();
+  const pl = await page.locator('[data-testid="island-player"]').boundingBox();
+  if (!box || !pl) {
+    errors.push("fit movement: map bbox missing for click");
+    return;
+  }
+  const relX = Math.min(
+    box.width - 8,
+    Math.max(8, pl.x - box.x - Math.min(120, box.width * 0.14))
+  );
+  const relY = pl.y - box.y + pl.height * 0.35;
+  await map.click({ position: { x: relX, y: relY } });
+  await sleep(2200);
+  const p2 = await playerScreenPos(page);
+  if (!p2 || Math.hypot(p2.x - p1.x, p2.y - p1.y) < 40) {
+    errors.push(
+      `fit movement: click-to-walk delta ${p2 ? Math.hypot(p2.x - p1.x, p2.y - p1.y).toFixed(0) : "n/a"}px`
+    );
+  }
+  const beforePad = await playerScreenPos(page);
+  for (let i = 0; i < 8; i++) {
+    await page.locator('[data-testid="fit-pad-right"]').click();
+    await sleep(50);
+  }
+  await sleep(400);
+  const afterPad = await playerScreenPos(page);
+  if (!beforePad || !afterPad || afterPad.x - beforePad.x < 40) {
+    errors.push(
+      `fit movement: on-screen right pad delta ${beforePad && afterPad ? (afterPad.x - beforePad.x).toFixed(0) : "n/a"}px`
+    );
+  }
+  const prog = await page.evaluate(() => {
+    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
+    return [p.player_x, p.player_y];
+  });
+  if (prog[1] > 1450) {
+    errors.push(`fit movement: player_y still portrait-space (${prog[1]})`);
+  }
+}
+
 async function assertMapViewportHeightStable(page, baseHeight, errors, ctx = "") {
   const map = await page.locator(".island-viewport-fit").boundingBox();
   if (!map || baseHeight == null) return;
@@ -308,7 +386,7 @@ async function assertMapViewportHeightStable(page, baseHeight, errors, ctx = "")
     );
   }
   const dock = await page.locator(".action-dock-fit-below").boundingBox();
-  if (dock && dock.height > 100) {
+  if (dock && dock.height > 112) {
     errors.push(`${ctx} hint strip too tall: ${dock.height.toFixed(0)}px`);
   }
 }
@@ -316,6 +394,7 @@ async function assertMapViewportHeightStable(page, baseHeight, errors, ctx = "")
 async function runFitDesktopSuite(page, shots, errors) {
   const sizes = [
     [1280, 800],
+    [1440, 900],
     [1920, 1080],
     [1024, 768],
   ];
@@ -344,6 +423,9 @@ async function runFitDesktopSuite(page, shots, errors) {
     await assertHintStripZhuyinInViewport(page, errors);
     await assertPlayerHeightFit(page, errors);
     await assertPlayerInsideMap(page, errors);
+    if (w === 1280 && h === 800) {
+      await assertFitPlayerMoves(page, errors);
+    }
     const mapBox = await page.locator(".island-viewport-fit").boundingBox();
     if (w === 1280 && h === 800 && mapBox) mapHeightBaseline = mapBox.height;
     const vpShot = `${ART}/${TAG}-viewport-${w}x${h}.png`;

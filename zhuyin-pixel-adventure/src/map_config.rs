@@ -203,6 +203,11 @@ pub fn position_in_bounds(x: f32, y: f32, orient: MapOrientation) -> bool {
 }
 
 /// Progress may still hold portrait-space numbers while the window uses landscape art (or the reverse).
+/// Map-space coords for the active window orientation (coercion only; no walk-mask check).
+pub fn coords_for_orient(x: f32, y: f32, orient: MapOrientation) -> (f32, f32) {
+    coerce_player_coords(x, y, orient)
+}
+
 pub fn coerce_player_coords(x: f32, y: f32, orient: MapOrientation) -> (f32, f32) {
     let pw = layer(MapOrientation::Portrait).width as f32;
     let lw = layer(MapOrientation::Landscape);
@@ -281,6 +286,13 @@ mod tests {
         assert!(root.join(c.landscape.src.trim_start_matches('/')).is_file());
         assert!(root.join("island").join(&c.portrait.walk).is_file());
         assert!(root.join("island").join(&c.landscape.walk).is_file());
+    }
+
+    #[test]
+    fn coerce_portrait_progress_on_landscape() {
+        let (x, y) = coerce_player_coords(309.0, 1502.0, MapOrientation::Landscape);
+        assert!(y <= layer(MapOrientation::Landscape).height as f32);
+        assert!(x > 400.0);
     }
 
     #[test]

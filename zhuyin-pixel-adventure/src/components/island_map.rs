@@ -1,4 +1,5 @@
-use crate::components::BpmfAside;
+use crate::components::{BpmfAside, FitDirPad};
+use crate::input::Dir;
 use crate::island_walk;
 use crate::map_config::{character_by_id, full_url, landmark_url, layer, MapOrientation};
 use crate::map_display::{
@@ -62,9 +63,14 @@ fn render_action_dock(
     can_enter: bool,
     game: Rc<GameData>,
     on_enter: Callback<Portal>,
+    on_dir: Callback<Dir>,
+    on_interact: Callback<()>,
 ) -> Html {
   if fit {
     let enter_row = can_enter && enter_portal.is_some();
+  let pad = html! {
+      <FitDirPad on_dir={on_dir} on_interact={on_interact} />
+  };
     return html! {
         <div class="action-dock action-dock-fit-below" data-testid="fit-hint-strip">
             if enter_row {
@@ -73,23 +79,32 @@ fn render_action_dock(
                         <p class="map-hint map-hint-fit fit-dock-name">
                             <BpmfAside text={ world::GateLabel::name(portal_near.unwrap_or(portal)).to_string() } game={game.clone()} read=true />
                         </p>
-                        <button type="button" class="enter-btn pixel-btn primary pulse fit-dock-enter" data-testid="enter-portal"
-                            onclick={Callback::from({
-                                let on_enter = on_enter.clone();
-                                move |_| on_enter.emit(portal)
-                            })}>
-                            <BpmfAside text={ world::GateLabel::enter_label(portal).to_string() } game={game.clone()} read=true />
-                        </button>
+                        <div class="fit-dock-actions">
+                            { pad.clone() }
+                            <button type="button" class="enter-btn pixel-btn primary pulse fit-dock-enter" data-testid="enter-portal"
+                                onclick={Callback::from({
+                                    let on_enter = on_enter.clone();
+                                    move |_| on_enter.emit(portal)
+                                })}>
+                                <BpmfAside text={ world::GateLabel::enter_label(portal).to_string() } game={game.clone()} read=true />
+                            </button>
+                        </div>
                     </div>
                 }
             } else if let Some(portal) = portal_near {
-                <p class="map-hint map-hint-fit fit-dock-name">
-                    <BpmfAside text={ world::GateLabel::name(portal).to_string() } game={game.clone()} read=true />
-                </p>
+                <div class="fit-dock-row">
+                    <p class="map-hint map-hint-fit fit-dock-name">
+                        <BpmfAside text={ world::GateLabel::name(portal).to_string() } game={game.clone()} read=true />
+                    </p>
+                    { pad.clone() }
+                </div>
             } else {
-                <p class={classes!("map-hint", "muted", "map-hint-fit")}>
-                    <BpmfAside text={ "點地圖移動，或用方向鍵走到建築前".to_string() } game={game.clone()} read=true />
-                </p>
+                <div class="fit-dock-row">
+                    <p class={classes!("map-hint", "muted", "map-hint-fit", "fit-dock-name")}>
+                        <BpmfAside text={ "點地圖移動，或用方向鍵走到建築前".to_string() } game={game.clone()} read=true />
+                    </p>
+                    { pad }
+                </div>
             }
         </div>
     };
@@ -141,7 +156,7 @@ fn fit_label_size(portal: Portal) -> (f32, f32) {
 }
 
 fn resolve_fit_label_overlaps(positions: &mut [(Portal, f32, f32)]) {
-    const PAD: f32 = 8.0;
+    const PAD: f32 = 10.0;
     for _ in 0..10 {
         for i in 0..positions.len() {
             for j in (i + 1)..positions.len() {
@@ -184,6 +199,9 @@ pub struct IslandMapProps {
     pub portal_near: Option<Portal>,
     pub on_enter: Callback<Portal>,
     pub on_map_click: Callback<(f32, f32)>,
+    pub on_dir: Callback<Dir>,
+    #[prop_or_default]
+    pub on_interact: Callback<()>,
     pub game: Rc<GameData>,
 }
 
@@ -406,6 +424,8 @@ pub fn island_map(props: &IslandMapProps) -> Html {
         can_enter,
         props.game.clone(),
         props.on_enter.clone(),
+        props.on_dir.clone(),
+        props.on_interact.clone(),
     );
 
     html! {

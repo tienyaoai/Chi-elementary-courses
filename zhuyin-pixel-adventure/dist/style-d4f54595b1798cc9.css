@@ -136,17 +136,17 @@ body {
     box-sizing: border-box;
   }
 
-  .map-screen-fit .touch-pad,
+  .map-screen-fit .map-screen .touch-pad:not(.touch-pad-fit),
   .map-screen-fit .map-actions,
   .map-screen-fit .locked-hint {
     display: none;
   }
 
   .island-map-shell-fit .action-dock-fit-below {
-    flex: 0 0 6.15rem;
-    height: 6.15rem;
-    min-height: 6.15rem;
-    max-height: 6.15rem;
+    flex: 0 0 6.6rem;
+    height: 6.6rem;
+    min-height: 6.6rem;
+    max-height: 6.6rem;
     margin: 0.15rem 0 0;
     padding: 0.34rem 0.55rem 0.5rem;
     background: #fff8e8;
@@ -195,6 +195,34 @@ body {
     line-height: 1.05;
   }
 
+  .fit-dock-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.35rem;
+    flex: 0 0 auto;
+  }
+
+  .touch-pad-fit {
+    margin: 0;
+    gap: 0.12rem;
+    flex: 0 0 auto;
+  }
+
+  .touch-pad-fit .pad-btn-fit {
+    width: 2.15rem;
+    height: 2.15rem;
+    font-size: 0.92rem;
+    padding: 0;
+    line-height: 1;
+    border-width: 2px;
+    box-shadow: 1px 1px 0 var(--ink);
+  }
+
+  .pad-row-fit {
+    gap: 0.12rem;
+  }
+
   .fit-dock-enter {
     flex: 0 0 auto;
     margin: 0;
@@ -229,9 +257,20 @@ body {
     row-gap: 0.12rem;
   }
 
+  .action-dock-fit-below .bpmf-aside-read {
+    display: inline-flex;
+    align-items: baseline;
+  }
+
   .action-dock-fit-below .bpmf-aside-read .han-unit {
     display: inline-flex;
     align-items: baseline;
+    vertical-align: baseline;
+  }
+
+  .action-dock-fit-below .bpmf-aside-read .han-plain {
+    font-size: 1.52rem;
+    line-height: 1.15;
     vertical-align: baseline;
   }
 

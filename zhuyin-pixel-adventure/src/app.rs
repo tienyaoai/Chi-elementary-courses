@@ -1,9 +1,9 @@
 use crate::components::{bind_walk_tick, BpmfAside, IslandMap, TouchPad};
 use crate::grade1::Grade1Bank;
 use crate::grade1_screens::{Grade1Hub, Grade1Unit};
-use crate::input::{bind_keyboard, Dir};
+use crate::input::Dir;
 use crate::island_walk;
-use crate::map_config;
+use crate::map_config::{self, MapOrientation};
 use crate::pixel_art_preload::preload_urls;
 use crate::progress::PixelProgress;
 use crate::screens::{CollectionScreen, SelectScreen};
@@ -11,9 +11,58 @@ use crate::sounds::{play_reward, portal_blip};
 use crate::world::{self, Portal};
 use std::rc::Rc;
 use wasm_bindgen_futures::spawn_local;
+use web_sys::KeyboardEvent;
 use yew::prelude::*;
 
 const STEP: f32 = 14.0;
+
+/// Portrait-space progress on a landscape map (fit desktop) leaves the avatar off walk masks — remap or spawn.
+fn sync_player_to_map(
+    px: f32,
+    py: f32,
+    orient: MapOrientation,
+    walk_masks: bool,
+) -> (f32, f32) {
+    let (mut cx, mut cy) = map_config::coerce_player_coords(px, py, orient);
+    if !map_config::position_in_bounds(cx, cy, orient) {
+        return map_config::spawn(orient);
+    }
+    if walk_masks && island_walk::masks_ready() {
+        if island_walk::can_stand(cx, cy, orient) {
+            return (cx, cy);
+        }
+        let other = map_config::opposite(orient);
+        let (rx, ry) = map_config::remap_position(px, py, other, orient);
+        let (rx, ry) = map_config::coerce_player_coords(rx, ry, orient);
+        if map_config::position_in_bounds(rx, ry, orient) && island_walk::can_stand(rx, ry, orient) {
+            return (rx, ry);
+        }
+        if island_walk::can_stand(cx, cy, orient) {
+            return (cx, cy);
+        }
+        return map_config::spawn(orient);
+    }
+    (cx, cy)
+}
+
+fn apply_player_pos(
+    px: &UseStateHandle<f32>,
+    py: &UseStateHandle<f32>,
+    progress: &UseStateHandle<PixelProgress>,
+    nx: f32,
+    ny: f32,
+) {
+    if (nx - **px).abs() < 0.01 && (ny - **py).abs() < 0.01 {
+        return;
+    }
+    px.set(nx);
+    py.set(ny);
+    let mut p = (**progress).clone();
+    p.player_x = nx;
+    p.player_y = ny;
+    p.save();
+    progress.set(p);
+}
 
 #[derive(Clone, PartialEq)]
 enum View {
@@ -91,20 +140,11 @@ pub fn app() -> Html {
                         let new_o = world::map_orient(w, h);
                         let old_o = *orient;
                         if old_o != new_o {
+                            let walk_ok = island_walk::masks_ready();
                             let (mut nx, mut ny) =
                                 map_config::remap_position(*px, *py, old_o, new_o);
-                            (nx, ny) = island_walk::clamp_to_map(nx, ny, new_o);
-                            if island_walk::masks_ready() && !island_walk::can_stand(nx, ny, new_o)
-                            {
-                                (nx, ny) = map_config::spawn(new_o);
-                            }
-                            px.set(nx);
-                            py.set(ny);
-                            let mut p = (*progress).clone();
-                            p.player_x = nx;
-                            p.player_y = ny;
-                            p.save();
-                            progress.set(p);
+                            (nx, ny) = sync_player_to_map(nx, ny, new_o, walk_ok);
+                            apply_player_pos(&px, &py, &progress, nx, ny);
                         }
                         orient.set(new_o);
                     }
@@ -124,37 +164,11 @@ pub fn app() -> Html {
         let progress = progress.clone();
         let orient = orient.clone();
         let masks_ready = masks_ready.clone();
-        use_effect_with((*orient, *masks_ready), move |_| {
-            if !*masks_ready || !island_walk::masks_ready() {
-                return;
-            }
-            let o = *orient;
-            let (cx, cy) = map_config::coerce_player_coords(*px, *py, o);
-            if cx != *px || cy != *py {
-                px.set(cx);
-                py.set(cy);
-                let mut p = (*progress).clone();
-                p.player_x = cx;
-                p.player_y = cy;
-                p.save();
-                progress.set(p);
-            }
-            if map_config::position_in_bounds(cx, cy, o) && island_walk::can_stand(cx, cy, o) {
-                return;
-            }
-            let other = map_config::opposite(o);
-            let (mut nx, mut ny) = map_config::remap_position(cx, cy, other, o);
-            (nx, ny) = island_walk::clamp_to_map(nx, ny, o);
-            if !island_walk::can_stand(nx, ny, o) {
-                (nx, ny) = map_config::spawn(o);
-            }
-            px.set(nx);
-            py.set(ny);
-            let mut p = (*progress).clone();
-            p.player_x = nx;
-            p.player_y = ny;
-            p.save();
-            progress.set(p);
+        let map_fit = map_fit.clone();
+        use_effect_with((*orient, *masks_ready, *map_fit), move |_| {
+            let walk_ok = *masks_ready && island_walk::masks_ready();
+            let (nx, ny) = sync_player_to_map(*px, *py, *orient, walk_ok);
+            apply_player_pos(&px, &py, &progress, nx, ny);
         });
     }
 
@@ -213,19 +227,66 @@ pub fn app() -> Html {
         })
     };
 
-    bind_keyboard(Callback::from({
+    let on_keydown = {
         let move_dir = move_dir.clone();
         let prime = prime_audio.clone();
-        move |dir| {
-            prime.emit(());
-            move_dir.emit(dir);
-        }
-    }));
+        let view = view.clone();
+        Callback::from(move |e: KeyboardEvent| {
+            if !matches!(*view, View::Map) {
+                return;
+            }
+            let dir = match e.key().as_str() {
+                "ArrowUp" | "w" | "W" => Dir::Up,
+                "ArrowDown" | "s" | "S" => Dir::Down,
+                "ArrowLeft" | "a" | "A" => Dir::Left,
+                "ArrowRight" | "d" | "D" => Dir::Right,
+                _ => match e.code().as_str() {
+                    "ArrowUp" | "KeyW" => Dir::Up,
+                    "ArrowDown" | "KeyS" => Dir::Down,
+                    "ArrowLeft" | "KeyA" => Dir::Left,
+                    "ArrowRight" | "KeyD" => Dir::Right,
+                    _ => Dir::None,
+                },
+            };
+            if dir != Dir::None {
+                e.prevent_default();
+                prime.emit(());
+                move_dir.emit(dir);
+            }
+        })
+    };
 
     let on_map_click = {
         let walk_target = walk_target.clone();
+        let try_move = try_move.clone();
+        let px = px.clone();
+        let py = py.clone();
+        let orient = orient.clone();
         Callback::from(move |pt: (f32, f32)| {
             walk_target.set(Some(pt));
+            let (x, y) = (*px, *py);
+            let (tx, ty) = pt;
+            let dx = tx - x;
+            let dy = ty - y;
+            let dist = (dx * dx + dy * dy).sqrt();
+            if dist < 0.5 {
+                return;
+            }
+            let nx = if dist <= STEP {
+                tx
+            } else {
+                x + dx / dist * STEP
+            };
+            let ny = if dist <= STEP {
+                ty
+            } else {
+                y + dy / dist * STEP
+            };
+            if island_walk::can_stand(nx, ny, *orient) {
+                try_move.emit((nx, ny));
+            } else {
+                walk_target.set(None);
+            }
         })
     };
 
@@ -345,6 +406,8 @@ pub fn app() -> Html {
                         portal_near={portal_near}
                         game={game.clone()}
                         on_map_click={on_map_click.clone()}
+                        on_dir={move_dir.clone()}
+                        on_interact={prime_audio.clone()}
                         on_enter={Callback::from({
                             let view = view.clone();
                             move |portal| {
@@ -471,7 +534,7 @@ pub fn app() -> Html {
     };
 
     html! {
-        <main class={shell_class}>
+        <main class={shell_class} tabindex="0" onkeydown={on_keydown}>
             { body }
         </main>
     }
