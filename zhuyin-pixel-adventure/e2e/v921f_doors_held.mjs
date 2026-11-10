@@ -78,8 +78,8 @@ async function exitDoorUi(page) {
 
 const HAND_OVERRIDE = {
   portrait: {
-    english: [["ArrowRight"], ["ArrowRight"], ["ArrowUp"]],
-    treasure: [["ArrowRight"], ["ArrowUp"]],
+    english: [["ArrowRight"], ["ArrowRight"], ["ArrowUp"], ["ArrowUp"], ["ArrowRight"]],
+    treasure: [["ArrowRight"], ["ArrowUp"], ["ArrowLeft"]],
   },
   landscape: {
     chinese: [["ArrowRight"]],

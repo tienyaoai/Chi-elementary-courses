@@ -81,14 +81,27 @@ async function waitMapReady(page) {
   await sleep(800);
 }
 
+async function activeMapViewport(page) {
+  return page.locator(".map-screen:not(.map-screen-keeper) .island-viewport");
+}
+
 async function ensureMapScreen(page) {
-  if (await page.locator(".island-viewport").count()) {
+  const vis = await activeMapViewport(page);
+  if ((await vis.count()) > 0 && (await vis.first().isVisible())) {
     return;
+  }
+  if (await page.locator(".panel-pixel button.pixel-btn", { hasText: "回地圖" }).count()) {
+    await page.locator(".panel-pixel button.pixel-btn", { hasText: "回地圖" }).first().click();
+    await sleep(400);
+  }
+  if (await page.locator(".collection-panel").count()) {
+    await page.locator("button.pixel-btn", { hasText: "回地圖" }).first().click().catch(() => {});
+    await sleep(400);
   }
   if (await page.locator(".unit-island-card").count()) {
     await exitToMap(page);
   }
-  if (await page.locator(".island-viewport").count()) {
+  if ((await vis.count()) > 0 && (await vis.first().isVisible())) {
     return;
   }
   await page.goto(BASE, { waitUntil: "load", timeout: 120000 });
@@ -580,9 +593,9 @@ async function exitToMap(page) {
 }
 
 async function focusMapForWalk(page) {
-  const vp = page.locator(".island-viewport");
-  if (await vp.count()) {
-    await vp.click({ position: { x: 64, y: 64 }, force: true });
+  const vp = await activeMapViewport(page);
+  if ((await vp.count()) > 0) {
+    await vp.first().click({ position: { x: 64, y: 64 }, force: true });
     await sleep(120);
   }
 }
@@ -592,10 +605,9 @@ async function assertBubbleReturns(page, errors, label, awayKeys, backKeys, pos)
     const [ax, ay, bx, by] = pos;
     await setPlayerPos(page, ax, ay);
     await focusMapForWalk(page);
-    const away = await page.evaluate(() => {
-      const bubble = document.querySelector('[data-testid="door-bubble"]');
-      return Boolean(bubble && bubble.checkVisibility?.());
-    });
+    const away = await page
+      .locator('.map-screen:not(.map-screen-keeper) [data-testid="door-bubble"]')
+      .count();
     if (away) {
       errors.push(`${label}: bubble still visible when away from door`);
       return;
@@ -1688,7 +1700,7 @@ async function assertFitPlayerMoves(page, errors, shots = []) {
     return { x: p.player_x, y: p.player_y };
   });
   await page.keyboard.down("ArrowRight");
-  await sleep(1400);
+  await sleep(2000);
   await page.keyboard.up("ArrowRight");
   await sleep(300);
   const prog1 = await page.evaluate(() => {
