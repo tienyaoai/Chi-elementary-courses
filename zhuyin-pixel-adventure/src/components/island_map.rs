@@ -538,13 +538,16 @@ fn walk_bob_px(phase: f32, vel: (f32, f32)) -> f32 {
     }
 }
 
-fn label_offset_below_portal(portal: Portal) -> (f32, f32) {
-    match portal {
-        Portal::Chinese => (-58.0, 36.0),
-        Portal::Treasure => (108.0, 28.0),
-        Portal::Math => (-108.0, 72.0),
-        Portal::English => (12.0, 52.0),
-    }
+/// Fixed map-pixel anchor above the building roof (not screen space).
+fn label_world_above(key: &str, wx: f32, wy: f32) -> (f32, f32) {
+    let (rise, dx) = match key {
+        "chinese" => (318.0, 0.0),
+        "english" => (255.0, 0.0),
+        "math" => (238.0, 0.0),
+        "treasure" => (118.0, 0.0),
+        _ => (220.0, 0.0),
+    };
+    (wx + dx, wy - rise)
 }
 
 fn fit_label_size(portal: Portal) -> (f32, f32) {
@@ -556,37 +559,9 @@ fn fit_label_size(portal: Portal) -> (f32, f32) {
     }
 }
 
-fn resolve_fit_label_overlaps(positions: &mut [(Portal, f32, f32)]) {
-    const PAD: f32 = 10.0;
-    for _ in 0..10 {
-        for i in 0..positions.len() {
-            for j in (i + 1)..positions.len() {
-                let (pa, ax, ay) = positions[i];
-                let (pb, bx, by) = positions[j];
-                let (wa, ha) = fit_label_size(pa);
-                let (wb, hb) = fit_label_size(pb);
-                let overlap_x = (wa + wb) * 0.5 - (bx - ax).abs();
-                let overlap_y = (ha + hb) - (by.max(ay) - ay.min(by + hb));
-                if overlap_x > PAD && overlap_y > PAD {
-                    if overlap_x <= overlap_y {
-                        let shift = overlap_x * 0.5 + PAD;
-                        if bx >= ax {
-                            positions[j].1 += shift;
-                        } else {
-                            positions[j].1 -= shift;
-                        }
-                    } else {
-                        let shift = overlap_y * 0.5 + PAD;
-                        if by >= ay {
-                            positions[j].2 += shift;
-                        } else {
-                            positions[j].2 -= shift;
-                        }
-                    }
-                }
-            }
-        }
-    }
+fn label_screen_from_world(wx: f32, wy: f32, portal: Portal, metrics: &FitMetrics) -> ScreenRect {
+    let (sx, sy) = world_to_screen(wx, wy, metrics);
+    label_rect(sx, sy, portal)
 }
 
 #[derive(Properties, PartialEq)]
@@ -638,7 +613,7 @@ pub fn island_map(props: &IslandMapProps) -> Html {
         let viewport_ref = viewport_ref.clone();
         let metrics = metrics.clone();
         let props_orient = props.orient;
-        use_effect_with((props_orient, props.frame), move |_| {
+        use_effect_with(props_orient, move |_| {
             let tick = {
                 let viewport_ref = viewport_ref.clone();
                 let metrics = metrics.clone();
@@ -733,7 +708,7 @@ pub fn island_map(props: &IslandMapProps) -> Html {
         ("math", lm.math.x, lm.math.y, Portal::Math),
         ("treasure", lm.treasure.x, lm.treasure.y, Portal::Treasure),
     ];
-    for (key, x, y, _) in landmark_defs {
+    for (key, x, y, portal) in landmark_defs {
         let url = landmark_url(key);
         let foot_y = y as f32;
         let z = if key == "treasure" {
@@ -748,6 +723,24 @@ pub fn island_map(props: &IslandMapProps) -> Html {
                     data-testid={format!("landmark-{key}")}
                     style={format!("left:{}px;top:{}px;z-index:{};", x, y - 20, z)}
                     alt="" draggable="false" />
+            },
+        ));
+        let (lx, ly) = label_world_above(key, x as f32, y as f32);
+        let hide_label = props.door_portal == Some(portal);
+        layers.push((
+            foot_y + 20000.0,
+            html! {
+                <div key={format!("lbl-{key}")}
+                    class={classes!("island-world-label", hide_label.then_some("island-fit-label-hidden"))}
+                    data-testid={format!("fit-label-{key}")}
+                    data-world-x={format!("{:.2}", lx)}
+                    data-world-y={format!("{:.2}", ly)}
+                    style={format!(
+                        "left:{}px;top:{}px;z-index:26000;transform:translate(-50%,-100%);",
+                        lx, ly
+                    )}>
+                    <BpmfAside text={ world::GateLabel::name(portal).to_string() } game={props.game.clone()} compact=true />
+                </div>
             },
         ));
     }
@@ -778,6 +771,8 @@ pub fn island_map(props: &IslandMapProps) -> Html {
                             data-world-y={format!("{:.3}", props.py)}
                             data-walk-col={walk_col.to_string()}
                             data-walk-row={walk_row.to_string()}
+                            data-walk-facing={walk_row.to_string()}
+                            data-walk-active={props.walk_active.to_string()}
                             style={player_style}
                             role="presentation"></div>
                     </div>
@@ -819,6 +814,8 @@ pub fn island_map(props: &IslandMapProps) -> Html {
                         data-world-y={format!("{:.3}", props.py)}
                         data-walk-col={walk_col.to_string()}
                         data-walk-row={walk_row.to_string()}
+                        data-walk-facing={walk_row.to_string()}
+                        data-walk-active={props.walk_active.to_string()}
                         style={player_style}
                         role="presentation"></div>
                 </div>
@@ -830,29 +827,13 @@ pub fn island_map(props: &IslandMapProps) -> Html {
         html! {}
     };
 
-    let mut fit_label_pos: Vec<(Portal, f32, f32)> = Vec::new();
-    if fit {
-        fit_label_pos = landmark_defs
-            .iter()
-            .map(|(_, x, y, portal)| {
-                let (dx, below) = label_offset_below_portal(*portal);
-                let (sx, sy) = world_to_screen(*x as f32 + dx, *y as f32 + below, &metrics);
-                (*portal, sx, sy)
-            })
-            .collect();
-        resolve_fit_label_overlaps(&mut fit_label_pos);
-        let (psx, psy) = world_to_screen(props.px, props.py - 48.0, &metrics);
-        for (_, sx, sy) in fit_label_pos.iter_mut() {
-            let dx = *sx - psx;
-            let dy = *sy - psy;
-            let d = dx.hypot(dy);
-            if d < 92.0 && d > 0.1 {
-                let push = (92.0 - d) * 0.85;
-                *sx += dx / d * push;
-                *sy += dy / d * push * 0.35;
-            }
-        }
-    }
+    let label_world: Vec<(Portal, f32, f32)> = landmark_defs
+        .iter()
+        .map(|(key, x, y, portal)| {
+            let (lx, ly) = label_world_above(key, *x as f32, *y as f32);
+            (*portal, lx, ly)
+        })
+        .collect();
 
     if let Some(portal) = props.door_portal {
         let (anchor_x, anchor_y, pw, ph) = if fit {
@@ -871,16 +852,22 @@ pub fn island_map(props: &IslandMapProps) -> Html {
             )
         };
         let pos = if fit {
-            let (blocks, label_blocks) = fit_door_obstacles(
+            let label_screens: Vec<ScreenRect> = label_world
+                .iter()
+                .filter(|(p, _, _)| props.door_portal != Some(*p))
+                .map(|(portal, wx, wy)| label_screen_from_world(*wx, *wy, *portal, &metrics))
+                .collect();
+            let (blocks, _) = fit_door_obstacles(
                 &metrics,
                 &landmark_defs,
-                &fit_label_pos,
+                &[],
                 props.door_portal,
                 anchor_x,
                 anchor_y,
                 pw,
                 ph,
             );
+            let label_blocks = label_screens;
             clamp_door_bubble_fit(
                 anchor_x,
                 anchor_y,
@@ -910,40 +897,7 @@ pub fn island_map(props: &IslandMapProps) -> Html {
         );
     }
 
-    let label_overlay = if fit {
-        let pos_by: std::collections::HashMap<Portal, (f32, f32)> = fit_label_pos
-            .iter()
-            .copied()
-            .map(|(p, sx, sy)| (p, (sx, sy)))
-            .collect();
-        let (psx, psy) = world_to_screen(props.px, props.py - 48.0, &metrics);
-        html! {
-            <div class="island-fit-labels" aria-hidden="false">
-                { for landmark_defs.iter().map(|(key, _x, _y, portal)| {
-                    let (sx, sy) = pos_by.get(portal).copied().unwrap_or((0.0, 0.0));
-                    let dx = sx - psx;
-                    let dy = sy - psy;
-                    let hidden = props.door_portal == Some(*portal);
-                    let fade = if hidden {
-                        " island-fit-label-hidden"
-                    } else if dx.hypot(dy) < 78.0 {
-                        " island-fit-label-faded"
-                    } else {
-                        ""
-                    };
-                    html! {
-                        <div key={world::GateLabel::name(*portal)} class={classes!("island-fit-label", fade)}
-                            data-testid={format!("fit-label-{key}")}
-                            style={format!("left:{}px;top:{}px;", sx, sy)}>
-                            <BpmfAside text={ world::GateLabel::name(*portal).to_string() } game={props.game.clone()} compact=true />
-                        </div>
-                    }
-                })}
-            </div>
-        }
-    } else {
-        html! {}
-    };
+    let label_overlay = html! {};
 
     let viewport_class = if fit {
         "island-viewport island-viewport-fit"

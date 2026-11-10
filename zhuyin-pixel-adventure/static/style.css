@@ -563,7 +563,8 @@ body {
   z-index: 8800;
 }
 
-.island-fit-label {
+.island-fit-label,
+.island-world-label {
   position: absolute;
   transform: translate(-50%, 0);
   padding: 0.12rem 0.5rem;
@@ -573,6 +574,13 @@ body {
   box-shadow: 1px 2px 0 #0002;
   white-space: nowrap;
   pointer-events: none;
+  transition: none;
+  animation: none;
+}
+
+.island-world-label {
+  font-size: clamp(13px, 1.05vw, 17px);
+  z-index: 26000;
 }
 
 .island-viewport-fit .island-fit-label {
