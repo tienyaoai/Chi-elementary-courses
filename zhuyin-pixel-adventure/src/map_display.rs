@@ -99,6 +99,18 @@ pub fn follow_camera_x(hero_x: f32, vw: f32, map_w: f32) -> f32 {
 }
 
 /// Follow-camera Y: lift around hero, then clamp to map vertical bounds.
+/// World → viewport px in follow-camera mode.
+pub fn follow_world_to_screen(
+    wx: f32,
+    wy: f32,
+    cam_x: f32,
+    cam_y: f32,
+    vw: f32,
+    vh: f32,
+) -> (f32, f32) {
+    (vw / 2.0 + wx - cam_x, vh / 2.0 + wy - cam_y)
+}
+
 pub fn follow_camera_y(hero_y: f32, vh: f32, player_h: f32, map_h: f32) -> f32 {
     const LIFT: f32 = 58.0;
     const MARGIN: f32 = 24.0;

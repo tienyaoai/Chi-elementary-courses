@@ -5,9 +5,10 @@
 import { chromium } from "playwright";
 import { writeFileSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { footOnLand, loadWalkMask } from "./walk_mask.mjs";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.21b";
+const TAG = process.env.E2E_TAG || "v9.21c";
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
 const HOLD_MS = 3000;
 const STEP_MS = 50;
@@ -273,6 +274,67 @@ async function assertMapCoversViewport(page, errors, ctx) {
   if (!ok) errors.push(`${ctx}: map layer does not cover viewport (void visible)`);
 }
 
+async function assertLabelInViewport(page, key, errors) {
+  const vp = page.locator(".island-viewport");
+  const label = page.locator(`[data-testid="fit-label-${key}"]`);
+  const vpb = await vp.boundingBox();
+  const lb = await label.boundingBox();
+  if (!vpb || !lb) {
+    errors.push(`390: label ${key} missing bbox`);
+    return;
+  }
+  const tol = 2;
+  if (lb.x < vpb.x - tol || lb.x + lb.width > vpb.x + vpb.width + tol) {
+    errors.push(`390: label ${key} clips viewport horizontally`);
+  }
+  if (lb.y < vpb.y - tol || lb.y + lb.height > vpb.y + vpb.height + tol) {
+    errors.push(`390: label ${key} clips viewport vertically`);
+  }
+}
+
+async function auditFootLandAfterHolds(browser, errors) {
+  const dist = path.resolve("..", "dist");
+  const plans = [
+    { orient: "portrait", w: 390, h: 844, touch: true, starts: [[120, 1240], [235, 1695], [304, 1200], [884, 724]] },
+    { orient: "landscape", w: 1280, h: 800, touch: false, starts: [[200, 1030], [1775, 400], [1600, 1310]] },
+  ];
+  const maskP = loadWalkMask(dist, "portrait");
+  const maskL = loadWalkMask(dist, "landscape");
+  for (const plan of plans) {
+    const ctx = await browser.newContext({
+      viewport: { width: plan.w, height: plan.h },
+      hasTouch: plan.touch,
+    });
+    const page = await ctx.newPage();
+    const mask = plan.orient === "portrait" ? maskP : maskL;
+    try {
+      await pickCharacter(page);
+      for (const [sx, sy] of plan.starts) {
+        for (const dir of DIR_PLANS) {
+          await resetPos(page, sx, sy);
+          if (plan.touch) {
+            await holdPad(page, `pad-${dir.padSuffix}`, true, 6000);
+          } else {
+            await holdKeyboard(page, dir.keys, 6000);
+          }
+          const hero = await sampleHero(page);
+          if (!hero || !Number.isFinite(hero.x)) {
+            errors.push(`foot-audit: no hero ${plan.orient} ${sx},${sy} ${dir.id}`);
+            continue;
+          }
+          if (!footOnLand(mask, hero.x, hero.y)) {
+            errors.push(
+              `foot-audit: hero on non-land ${plan.orient} after 6s ${dir.id} from ${sx},${sy} at (${hero.x.toFixed(0)},${hero.y.toFixed(0)})`
+            );
+          }
+        }
+      }
+    } finally {
+      await ctx.close();
+    }
+  }
+}
+
 async function capturePhoneShots(page, errors) {
   const doors = {
     chinese: [304, 1200],
@@ -289,7 +351,10 @@ async function capturePhoneShots(page, errors) {
     } catch {
       errors.push(`390: label ${key} not visible near door`);
     }
+    await assertLabelInViewport(page, key, errors);
     await assertMapCoversViewport(page, errors, `390-label-${key}`);
+    const extraLocked = await page.locator(".locked-hint").count();
+    if (extraLocked > 0) errors.push("390: stray .locked-hint panel breaks layout");
     if (key === "chinese") {
       await page.screenshot({ path: `${ART}/${TAG}-labels-390x844.png` });
     }
@@ -396,6 +461,8 @@ export async function runV920WalkVerify(browser, errors = []) {
       await ctx.close();
     }
   }
+
+  await auditFootLandAfterHolds(browser, errors);
 
   writeFileSync(`${ART}/${TAG}-walk-verify-report.json`, JSON.stringify(report, null, 2));
   return report;

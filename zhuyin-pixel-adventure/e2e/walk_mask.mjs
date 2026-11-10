@@ -33,6 +33,12 @@ const PORTRAIT_BLOCKED = [
     "y": 760,
     "w": 108,
     "h": 1160
+  },
+  {
+    "x": 0,
+    "y": 0,
+    "w": 1080,
+    "h": 280
   }
 ];
 
@@ -60,6 +66,12 @@ const LANDSCAPE_BLOCKED = [
     "y": 688,
     "w": 72,
     "h": 58
+  },
+  {
+    "x": 0,
+    "y": 0,
+    "w": 2560,
+    "h": 160
   }
 ];
 
@@ -231,7 +243,7 @@ function isBlocked(x, y, orient) {
 
 function tooCloseToWater(mask, x, y) {
   if (mask.orient !== "portrait") return false;
-  const BUF = 12;
+  const BUF = 16;
   const cardinals = [
     [BUF, 0],
     [-BUF, 0],
@@ -244,6 +256,11 @@ function tooCloseToWater(mask, x, y) {
   }
   if (!sample(mask, x, y)) return true;
   return hits >= 3;
+}
+
+/** Hero feet must be on walkable land (mask + water buffer), not water/cliffs. */
+export function footOnLand(mask, x, y) {
+  return canStand(mask, x, y);
 }
 
 export function canStand(mask, x, y) {
