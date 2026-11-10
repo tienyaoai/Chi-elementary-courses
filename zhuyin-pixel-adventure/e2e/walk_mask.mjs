@@ -59,10 +59,10 @@ const LANDSCAPE_BLOCKED = [
 
 const PORTRAIT_OVERRIDES = [
   {
-    "x": 418,
-    "y": 1238,
-    "w": 220,
-    "h": 72
+    "x": 380,
+    "y": 1180,
+    "w": 320,
+    "h": 140
   },
   {
     "x": 254,
@@ -134,10 +134,10 @@ const PORTRAIT_OVERRIDES = [
 
 const LANDSCAPE_OVERRIDES = [
   {
-    "x": 1160,
-    "y": 928,
-    "w": 440,
-    "h": 88
+    "x": 1120,
+    "y": 920,
+    "w": 520,
+    "h": 160
   },
   {
     "x": 672,

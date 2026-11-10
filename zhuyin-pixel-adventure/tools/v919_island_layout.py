@@ -299,9 +299,10 @@ def apply_v919_blocked(cfg: dict) -> None:
         {"x": 2058, "y": 438, "w": 92, "h": 108},
         {"x": 1148, "y": 688, "w": 72, "h": 58},
     ]
-    bridges_p = {"x": 418, "y": 1238, "w": 220, "h": 72}
+    # Bridge deck + both bank approaches (portrait creek axis is mostly E–W at y≈1267).
+    bridges_p = {"x": 380, "y": 1180, "w": 320, "h": 140}
     dock_p = {"x": 254, "y": 1422, "w": 110, "h": 190}
-    bridges_l = {"x": 1160, "y": 928, "w": 440, "h": 88}
+    bridges_l = {"x": 1120, "y": 920, "w": 520, "h": 160}
     dock_l = {"x": 798, "y": 1052, "w": 110, "h": 190}
     plazas_p = []
     plazas_l = []

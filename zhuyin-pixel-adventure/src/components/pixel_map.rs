@@ -58,17 +58,12 @@ pub fn fit_dir_pad(props: &FitDirPadProps) -> Html {
             release_pointer(&e);
             end_leave.emit((dir, false));
         });
-        let lost_hold = pad_hold.clone();
-        let lost = Callback::from(move |_e: PointerEvent| {
-            lost_hold.emit((dir, false));
-        });
         html! {
             <button type="button" class="pad-btn pad-btn-fit" data-testid={testid}
                 onpointerdown={down}
                 onpointerup={up}
                 onpointercancel={cancel}
-                onpointerleave={leave}
-                onlostpointercapture={lost}>
+                onpointerleave={leave}>
                 { match dir {
                     Dir::Up => "▲",
                     Dir::Down => "▼",
@@ -125,17 +120,12 @@ pub fn touch_pad(props: &TouchPadProps) -> Html {
             release_pointer(&e);
             end_leave.emit((dir, false));
         });
-        let lost_hold = pad_hold.clone();
-        let lost = Callback::from(move |_e: PointerEvent| {
-            lost_hold.emit((dir, false));
-        });
         html! {
             <button type="button" class="pad-btn" data-testid={testid}
                 onpointerdown={down}
                 onpointerup={up}
                 onpointercancel={cancel}
-                onpointerleave={leave}
-                onlostpointercapture={lost}>
+                onpointerleave={leave}>
                 { label }
             </button>
         }
