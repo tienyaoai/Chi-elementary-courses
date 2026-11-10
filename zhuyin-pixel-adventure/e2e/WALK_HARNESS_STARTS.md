@@ -13,7 +13,7 @@
 
 **Landscape E–W:** `right` 720,1020 · `left` 1780,1020 on southern ring override (`y≈1020`).
 
-**Door bubble latch (1280/1920 fit):** away probe at `[200,1300]` — southwest ring, outside all `enter_radius` zones; return probe at `[790,1040]` at 國語學校 door foot.
+**Door bubble latch (1280/1920 fit):** away probe at `[950,1020]` — masked southern ring (invalid coords snap to spawn and falsely show a door bubble); return at `[790,1040]` 國語學校 door foot.
 
 Stall tails after a **real wall** are avoided by choosing mask+BFS-valid corridors, not by changing stall thresholds.
 

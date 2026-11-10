@@ -657,7 +657,7 @@ async function runKeyboardDoorEnterSuite(page, shots, errors) {
       away: ["ArrowLeft"],
       back: ["ArrowRight"],
       shotLesson: true,
-      bubbleReturnPos: [200, 1300, 790, 1040],
+      bubbleReturnPos: [950, 1020, 790, 1040],
     },
     {
       id: "1920",
@@ -667,7 +667,7 @@ async function runKeyboardDoorEnterSuite(page, shots, errors) {
       keys: ["ArrowRight"],
       away: ["ArrowLeft"],
       back: ["ArrowRight"],
-      bubbleReturnPos: [200, 1300, 790, 1040],
+      bubbleReturnPos: [950, 1020, 790, 1040],
     },
   ];
 
@@ -1135,6 +1135,14 @@ async function assertAllBuildingBubblesTextFit(page, errors) {
 }
 
 async function captureV919DoorScreenshots(page, shots, errors) {
+  await ensureMapScreen(page);
+  if (!(await activeMapViewport(page).count())) {
+    await page.goto(BASE, { waitUntil: "networkidle", timeout: 120000 });
+    if (await page.locator(".char-grid-12 .char-card").count()) {
+      await pickCharacter(page);
+    }
+    await waitMapReady(page);
+  }
   const plans = [
     { w: 1280, h: 800, mode: "landscape" },
     { w: 390, h: 844, mode: "portrait" },
@@ -1688,6 +1696,7 @@ async function recordWalkAllDirections(browser, errors, shots) {
 }
 
 async function assertFitPlayerMoves(page, errors, shots = []) {
+  await ensureMapScreen(page);
   await setPlayerPos(page, 720, 1020);
   await focusMapForWalk(page);
   await page.keyboard.up("ArrowRight");
