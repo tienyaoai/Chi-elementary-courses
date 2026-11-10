@@ -241,6 +241,16 @@ function isBlocked(x, y, orient) {
   );
 }
 
+/** Match tools/regen_walk_masks.py — art water / shallow / transparent. */
+export function isWaterPixel(r, g, b, a = 255) {
+  if (a < 128) return true;
+  if (b > 95 && b > r + 18 && b > g + 8) return true;
+  if (b > 170 && g > 140 && r > 100 && b >= r) return true;
+  if (b > 60 && r < 80 && g < 120 && b > r + 30) return true;
+  if (b >= 85 && g >= 85 && b > r + 12 && g > r + 35) return true;
+  return false;
+}
+
 function tooCloseToWater(mask, x, y) {
   if (mask.orient !== "portrait") return false;
   const BUF = 16;

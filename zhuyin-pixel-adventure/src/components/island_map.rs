@@ -390,7 +390,21 @@ fn nudge_bubble_off_labels(
     bubble
 }
 
-fn label_screen_follow(
+/// Label only when the roof anchor maps to a fully on-screen pill (no viewport pinning).
+fn landmark_label_screen_rise(key: &str) -> f32 {
+    match key {
+        "chinese" => 148.0,
+        "english" => 132.0,
+        "math" => 124.0,
+        "treasure" => 88.0,
+        _ => 120.0,
+    }
+}
+
+fn label_natural_on_screen(
+    key: &str,
+    foot_x: f32,
+    foot_y: f32,
     wx: f32,
     wy: f32,
     portal: Portal,
@@ -398,21 +412,134 @@ fn label_screen_follow(
     cam_y: f32,
     vw: f32,
     vh: f32,
-) -> (f32, f32, ScreenRect) {
+) -> Option<(f32, f32, ScreenRect)> {
+    let (foot_sx, foot_sy) = follow_world_to_screen(foot_x, foot_y, cam_x, cam_y, vw, vh);
+    if foot_sx < -60.0 || foot_sx > vw + 60.0 || foot_sy < 40.0 || foot_sy > vh + 40.0 {
+        return None;
+    }
     let (mut sx, mut sy) = follow_world_to_screen(wx, wy, cam_x, cam_y, vw, vh);
     let (lw, lh) = fit_label_size(portal);
-    let margin = 10.0;
-    let half = lw * 0.5 + margin;
-    sx = sx.clamp(half, (vw - half).max(half));
-    sy = sy.clamp(lh + margin, (vh - margin).max(lh + margin));
-    let rect = label_rect(sx, sy, portal);
-    (sx, sy, rect)
+    let pad = 6.0;
+    if sy - lh < pad {
+        sy = foot_sy - landmark_label_screen_rise(key);
+        sx = foot_sx;
+    }
+    let l = sx - lw * 0.5;
+    let r = sx + lw * 0.5;
+    let t = sy - lh;
+    let b = sy;
+    if l >= pad && r <= vw - pad && t >= pad && b <= vh - pad {
+        Some((sx, sy, label_rect(sx, sy, portal)))
+    } else {
+        None
+    }
 }
 
-fn landmark_on_screen(bx: f32, by: f32, cam_x: f32, cam_y: f32, vw: f32, vh: f32) -> bool {
-    let (sx, sy) = follow_world_to_screen(bx, by, cam_x, cam_y, vw, vh);
-    let m = 80.0;
-    sx >= -m && sx <= vw + m && sy >= -m && sy <= vh + m
+fn hero_screen_rect(vw: f32, vh: f32) -> ScreenRect {
+    let hx = vw * 0.5;
+    let hy = vh * 0.5 + PLAYER_H * 0.08;
+    ScreenRect {
+        l: hx - PLAYER_H * 0.5,
+        t: hy - PLAYER_H,
+        r: hx + PLAYER_H * 0.5,
+        b: hy + 8.0,
+    }
+}
+
+struct PhoneLabel {
+    key: String,
+    sx: f32,
+    sy: f32,
+    portal: Portal,
+    rect: ScreenRect,
+    wx: f32,
+    wy: f32,
+}
+
+fn layout_phone_labels(
+    landmark_defs: &[(&str, i32, i32, Portal); 4],
+    cam_x: f32,
+    cam_y: f32,
+    vw: f32,
+    vh: f32,
+    prefer: Option<Portal>,
+) -> Vec<PhoneLabel> {
+    let hero = hero_screen_rect(vw, vh);
+    let mut placed: Vec<ScreenRect> = Vec::new();
+    let mut out = Vec::new();
+    let mut order: Vec<usize> = (0..landmark_defs.len()).collect();
+    if let Some(p) = prefer {
+        order.sort_by_key(|&i| {
+            if landmark_defs[i].3 == p {
+                0
+            } else {
+                1
+            }
+        });
+    }
+    for idx in order {
+        let (key, x, y, portal) = landmark_defs[idx];
+        let fx = x as f32;
+        let fy = y as f32;
+        let (lx, ly) = label_world_above(key, fx, fy);
+        let mut slot = label_natural_on_screen(
+            key, fx, fy, lx, ly, portal, cam_x, cam_y, vw, vh,
+        );
+        if slot.is_none() && prefer == Some(portal) {
+            let (foot_sx, foot_sy) = follow_world_to_screen(fx, fy, cam_x, cam_y, vw, vh);
+            let sy = foot_sy - landmark_label_screen_rise(key);
+            let sx = foot_sx;
+            let (lw, lh) = fit_label_size(portal);
+            let pad = 6.0;
+            if sy - lh >= pad
+                && sy <= vh - pad
+                && sx - lw * 0.5 >= pad
+                && sx + lw * 0.5 <= vw - pad
+            {
+                slot = Some((sx, sy, label_rect(sx, sy, portal)));
+            }
+        }
+        let Some((mut sx, mut sy, mut rect)) = slot else {
+            continue;
+        };
+        if rects_overlap(hero, rect, 6.0) {
+            let (lw, lh) = fit_label_size(portal);
+            let (_, foot_sy) = follow_world_to_screen(fx, fy, cam_x, cam_y, vw, vh);
+            let rise = if key == "treasure" {
+                220.0
+            } else {
+                landmark_label_screen_rise(key) + 40.0
+            };
+            sy = foot_sy - rise;
+            sx = follow_world_to_screen(fx, fy, cam_x, cam_y, vw, vh).0;
+            let pad = 6.0;
+            if sy - lh < pad || sy > vh - pad || sx - lw * 0.5 < pad || sx + lw * 0.5 > vw - pad {
+                continue;
+            }
+            rect = label_rect(sx, sy, portal);
+        }
+        let forced = prefer == Some(portal);
+        if !forced
+            && (rects_overlap(hero, rect, 4.0)
+                || placed.iter().any(|p| rects_overlap(*p, rect, 4.0)))
+        {
+            continue;
+        }
+        if forced {
+            placed.retain(|p| !rects_overlap(*p, rect, 2.0));
+        }
+        placed.push(rect);
+        out.push(PhoneLabel {
+            key: (*key).to_string(),
+            sx,
+            sy,
+            portal,
+            rect,
+            wx: lx,
+            wy: ly,
+        });
+    }
+    out
 }
 
 fn render_door_bubble_compact(
@@ -567,8 +694,8 @@ fn render_action_dock(
               </p>
           } else if let Some(portal) = portal_near.filter(|p| !world::door_enterable(*p)) {
               if matches!(portal, Portal::English | Portal::Math) {
-                  <p class="map-hint map-hint-large" data-testid="map-hint-locked">
-                      <BpmfAside text={ "這個科目即將開放".to_string() } game={game.clone()} read=true compact=true />
+                  <p class="map-hint map-hint-large map-hint-locked" data-testid="map-hint-locked">
+                      <BpmfAside text={ "這個科目即將開放".to_string() } game={game.clone()} read=true />
                   </p>
               } else {
                   <p class="map-hint map-hint-large">
@@ -881,6 +1008,19 @@ pub fn island_map(props: &IslandMapProps) -> Html {
         })
         .collect();
 
+    let phone_labels = if fit {
+        Vec::<PhoneLabel>::new()
+    } else {
+        layout_phone_labels(
+            &landmark_defs,
+            cam_x,
+            cam_y,
+            metrics.vw,
+            metrics.vh,
+            props.door_portal.or(props.portal_near),
+        )
+    };
+
     if let Some(portal) = props.door_portal {
         let (anchor_x, anchor_y, pw, ph) = if fit {
             if let Some((sx, sy, sw, sh)) = fit_door_anchor {
@@ -924,16 +1064,7 @@ pub fn island_map(props: &IslandMapProps) -> Html {
                 &label_blocks,
             )
         } else {
-            let label_blocks: Vec<ScreenRect> = landmark_defs
-                .iter()
-                .filter(|(_, x, y, _)| {
-                    landmark_on_screen(*x as f32, *y as f32, cam_x, cam_y, metrics.vw, metrics.vh)
-                })
-                .map(|(key, x, y, portal)| {
-                    let (lx, ly) = label_world_above(key, *x as f32, *y as f32);
-                    label_screen_follow(lx, ly, *portal, cam_x, cam_y, metrics.vw, metrics.vh).2
-                })
-                .collect();
+            let label_blocks: Vec<ScreenRect> = phone_labels.iter().map(|l| l.rect).collect();
             clamp_door_bubble_in_viewport(
                 anchor_x,
                 anchor_y,
@@ -978,26 +1109,20 @@ pub fn island_map(props: &IslandMapProps) -> Html {
     } else {
         html! {
             <div class="island-fit-labels island-follow-labels" aria-hidden="false">
-                { for landmark_defs.iter().filter_map(|(key, x, y, portal)| {
-                    if !landmark_on_screen(*x as f32, *y as f32, cam_x, cam_y, metrics.vw, metrics.vh) {
-                        return None;
-                    }
-                    let (lx, ly) = label_world_above(key, *x as f32, *y as f32);
-                    let (sx, sy, _) =
-                        label_screen_follow(lx, ly, *portal, cam_x, cam_y, metrics.vw, metrics.vh);
-                    Some(html! {
-                        <div key={format!("phone-lbl-{key}")}
+                { for phone_labels.iter().map(|lab| {
+                    html! {
+                        <div key={format!("phone-lbl-{}", lab.key.clone())}
                             class="island-fit-label island-phone-map-label"
-                            data-testid={format!("fit-label-{key}")}
-                            data-world-x={format!("{:.2}", lx)}
-                            data-world-y={format!("{:.2}", ly)}
+                            data-testid={format!("fit-label-{}", lab.key)}
+                            data-world-x={format!("{:.2}", lab.wx)}
+                            data-world-y={format!("{:.2}", lab.wy)}
                             style={format!(
                                 "left:{}px;top:{}px;transform:translate(-50%,-100%);",
-                                sx, sy
+                                lab.sx, lab.sy
                             )}>
-                            <BpmfAside text={ world::GateLabel::name(*portal).to_string() } game={props.game.clone()} compact=true />
+                            <BpmfAside text={ world::GateLabel::name(lab.portal).to_string() } game={props.game.clone()} compact=true />
                         </div>
-                    })
+                    }
                 }) }
             </div>
         }

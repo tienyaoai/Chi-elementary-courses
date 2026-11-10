@@ -9,7 +9,7 @@ import { assertDoorReachability, DOOR_COORDS } from "./walk_reach.mjs";
 import { runV920WalkVerify } from "./v920_walk_verify.mjs";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.21c";
+const TAG = process.env.E2E_TAG || "v9.21d";
 const FIT_MIN = 700;
 const DIST = path.resolve("..", "dist");
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
@@ -1487,7 +1487,7 @@ async function runPadHoldTouchMouseSuite(browser, errors) {
       h: 800,
       hasTouch: false,
       pad: "fit-pad-right",
-      start: [150, 800],
+      start: [310, 1000],
       axis: "x",
       sign: 1,
     },
@@ -1497,7 +1497,7 @@ async function runPadHoldTouchMouseSuite(browser, errors) {
       h: 1072,
       hasTouch: false,
       pad: "fit-pad-right",
-      start: [150, 800],
+      start: [600, 1070],
       axis: "x",
       sign: 1,
     },
@@ -1507,7 +1507,7 @@ async function runPadHoldTouchMouseSuite(browser, errors) {
       h: 1072,
       hasTouch: false,
       pad: "fit-pad-up",
-      start: [400, 1100],
+      start: [1820, 1250],
       axis: "y",
       sign: -1,
     },

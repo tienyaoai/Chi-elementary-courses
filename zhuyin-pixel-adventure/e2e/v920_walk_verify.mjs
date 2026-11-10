@@ -5,10 +5,10 @@
 import { chromium } from "playwright";
 import { writeFileSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { footOnLand, loadWalkMask } from "./walk_mask.mjs";
+import { footOnLand, isWaterPixel, loadWalkMask } from "./walk_mask.mjs";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.21c";
+const TAG = process.env.E2E_TAG || "v9.21d";
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
 const HOLD_MS = 3000;
 const STEP_MS = 50;
@@ -122,18 +122,18 @@ async function resetPos(page, x, y) {
 function startFor(view, planId) {
   if (view.w >= 700) {
     const table = {
-      right: [200, 1030],
-      left: [2300, 1030],
-      up: [1600, 1310],
-      down: [1775, 400],
+      right: [600, 1070],
+      left: [2300, 1010],
+      up: [1820, 1250],
+      down: [1790, 200],
     };
     return table[planId];
   }
   const table = {
-    right: [120, 1240],
-    left: [865, 1240],
-    up: [235, 1800],
-    down: [235, 400],
+    right: [120, 1250],
+    left: [950, 1250],
+    up: [230, 1790],
+    down: [230, 320],
   };
   return table[planId];
 }
@@ -274,6 +274,73 @@ async function assertMapCoversViewport(page, errors, ctx) {
   if (!ok) errors.push(`${ctx}: map layer does not cover viewport (void visible)`);
 }
 
+function rectsIntersect(a, b, pad = 2) {
+  return !(
+    a.x + a.width + pad < b.x ||
+    b.x + b.width + pad < a.x ||
+    a.y + a.height + pad < b.y ||
+    b.y + b.height + pad < a.y
+  );
+}
+
+async function assertNoUiOverlap(page, errors, ctx) {
+  const vp = page.locator(".island-viewport");
+  const names = ["island-player", "door-bubble", "fit-label-chinese", "fit-label-math", "fit-label-english", "fit-label-treasure"];
+  const boxes = {};
+  for (const testid of names) {
+    const el = page.locator(`[data-testid="${testid}"]`);
+    if ((await el.count()) === 0) continue;
+    const b = await el.boundingBox();
+    if (b) boxes[testid] = b;
+  }
+  const labels = Object.keys(boxes).filter((k) => k.startsWith("fit-label"));
+  for (let i = 0; i < labels.length; i++) {
+    for (let j = i + 1; j < labels.length; j++) {
+      if (rectsIntersect(boxes[labels[i]], boxes[labels[j]], 4)) {
+        errors.push(`${ctx}: labels overlap ${labels[i]} vs ${labels[j]}`);
+      }
+    }
+  }
+  for (const lab of labels) {
+    if (boxes["door-bubble"] && rectsIntersect(boxes[lab], boxes["door-bubble"], 4)) {
+      errors.push(`${ctx}: label ${lab} overlaps door bubble`);
+    }
+    if (boxes["island-player"] && rectsIntersect(boxes[lab], boxes["island-player"], 4)) {
+      errors.push(`${ctx}: label ${lab} overlaps hero`);
+    }
+  }
+  if (boxes["door-bubble"] && boxes["island-player"] && rectsIntersect(boxes["door-bubble"], boxes["island-player"], 4)) {
+    errors.push(`${ctx}: door bubble overlaps hero`);
+  }
+  const vpb = await vp.boundingBox();
+  if (vpb) {
+    for (const lab of labels) {
+      if (boxes[lab].x < vpb.x - 2 || boxes[lab].x + boxes[lab].width > vpb.x + vpb.width + 2) {
+        errors.push(`${ctx}: label ${lab} clips viewport horizontally`);
+      }
+    }
+  }
+}
+
+async function sampleFootMapPixel(page, wx, wy) {
+  return page.evaluate(
+    async ({ wx, wy }) => {
+      const img = document.querySelector(".island-bg");
+      if (!img || !img.naturalWidth) return null;
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const c = canvas.getContext("2d");
+      c.drawImage(img, 0, 0);
+      const x = Math.max(0, Math.min(canvas.width - 1, Math.round(wx)));
+      const y = Math.max(0, Math.min(canvas.height - 1, Math.round(wy)));
+      const d = c.getImageData(x, y, 1, 1).data;
+      return { x, y, r: d[0], g: d[1], b: d[2], a: d[3] };
+    },
+    { wx, wy }
+  );
+}
+
 async function assertLabelInViewport(page, key, errors) {
   const vp = page.locator(".island-viewport");
   const label = page.locator(`[data-testid="fit-label-${key}"]`);
@@ -352,9 +419,17 @@ async function capturePhoneShots(page, errors) {
       errors.push(`390: label ${key} not visible near door`);
     }
     await assertLabelInViewport(page, key, errors);
+    await assertNoUiOverlap(page, errors, `390-label-${key}`);
     await assertMapCoversViewport(page, errors, `390-label-${key}`);
     const extraLocked = await page.locator(".locked-hint").count();
     if (extraLocked > 0) errors.push("390: stray .locked-hint panel breaks layout");
+    if (key === "math" || key === "english") {
+      const hint = await page.locator('[data-testid="map-hint-locked"]').boundingBox();
+      const pad = await page.locator(".touch-pad").boundingBox();
+      if (hint && pad && rectsIntersect(hint, pad, 2)) {
+        errors.push(`390: dock hint overlaps touch pad at ${key}`);
+      }
+    }
     if (key === "chinese") {
       await page.screenshot({ path: `${ART}/${TAG}-labels-390x844.png` });
     }
@@ -375,10 +450,28 @@ async function capturePhoneShots(page, errors) {
     errors.push(`390: hero x=${afterRight.x} on portrait east padding`);
   }
   await page.screenshot({ path: `${ART}/${TAG}-clamp-right-5s-390x844.png` });
-  await resetPos(page, 235, 1695);
+  await assertNoUiOverlap(page, errors, "390-clamp-right-5s");
+  await resetPos(page, 230, 1790);
   await holdPad(page, "pad-up", true, 5000);
   await assertMapCoversViewport(page, errors, "390-hold-up-5s");
+  const heroUp = await sampleHero(page);
+  const maskP = loadWalkMask(path.resolve("..", "dist"), "portrait");
+  const foot = heroUp
+    ? {
+        x: heroUp.x,
+        y: heroUp.y,
+        mask: footOnLand(maskP, heroUp.x, heroUp.y),
+        pixel: await sampleFootMapPixel(page, heroUp.x, heroUp.y),
+      }
+    : null;
+  if (foot?.pixel && isWaterPixel(foot.pixel.r, foot.pixel.g, foot.pixel.b, foot.pixel.a)) {
+    errors.push(
+      `390 clamp-up: hero feet on water-colored pixel rgb=(${foot.pixel.r},${foot.pixel.g},${foot.pixel.b}) at (${foot.x},${foot.y})`
+    );
+  }
+  writeFileSync(`${ART}/${TAG}-clamp-up-foot.json`, JSON.stringify(foot, null, 2));
   await page.screenshot({ path: `${ART}/${TAG}-clamp-up-5s-390x844.png` });
+  await assertNoUiOverlap(page, errors, "390-clamp-up-5s");
 }
 
 async function labelStaticCheck(page, errors) {

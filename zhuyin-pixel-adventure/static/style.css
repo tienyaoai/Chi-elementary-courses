@@ -1170,13 +1170,35 @@ body {
   flex: 0 0 auto;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 0.3rem 0.35rem;
+  gap: 0.35rem 0.5rem;
   margin-top: 0.15rem;
   padding: 0.22rem 0.28rem 0.28rem;
-  max-height: 108px;
+  max-height: 124px;
   flex-shrink: 0;
+}
+
+.map-screen:not(.map-screen-fit) .action-dock .map-hint-locked {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: calc(100% - 9.25rem);
+  padding-right: 0.15rem;
+}
+
+.map-screen:not(.map-screen-fit) .action-dock .map-hint-locked .bpmf-aside-read {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  row-gap: 0.12rem;
+  max-width: 100%;
+  white-space: normal;
+}
+
+.map-screen:not(.map-screen-fit) .action-dock .map-hint-locked .han,
+.map-screen:not(.map-screen-fit) .action-dock .map-hint-locked .han-plain {
+  font-size: 1.12rem;
+  line-height: 1.2;
 }
 
 .map-screen:not(.map-screen-fit) .map-hint-phone-short {
@@ -1221,8 +1243,9 @@ body {
 .map-screen:not(.map-screen-fit) .action-dock .map-hint,
 .map-screen:not(.map-screen-fit) .action-dock .map-hint-door,
 .map-screen:not(.map-screen-fit) .action-dock .map-hint-large {
-  flex: 1 1 auto;
+  flex: 1 1 0;
   min-width: 0;
+  max-width: calc(100% - 9.25rem);
   margin: 0;
   padding-right: 0.2rem;
   line-height: 1.25;
