@@ -7,7 +7,7 @@ import { writeFileSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.21";
+const TAG = process.env.E2E_TAG || "v9.21b";
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
 const HOLD_MS = 3000;
 const STEP_MS = 50;
@@ -129,8 +129,8 @@ function startFor(view, planId) {
     return table[planId];
   }
   const table = {
-    right: [200, 1240],
-    left: [970, 1240],
+    right: [120, 1240],
+    left: [865, 1240],
     up: [235, 1800],
     down: [235, 400],
   };
@@ -255,6 +255,67 @@ async function shotFrames(page, samples, outBase) {
   return paths;
 }
 
+async function assertMapCoversViewport(page, errors, ctx) {
+  const ok = await page.evaluate(() => {
+    const vp = document.querySelector(".island-viewport");
+    const world = document.querySelector(".island-world");
+    if (!vp || !world) return false;
+    const vr = vp.getBoundingClientRect();
+    const wr = world.getBoundingClientRect();
+    const tol = 4;
+    return (
+      wr.left <= vr.left + tol &&
+      wr.right >= vr.right - tol &&
+      wr.top <= vr.top + tol &&
+      wr.bottom >= vr.bottom - tol
+    );
+  });
+  if (!ok) errors.push(`${ctx}: map layer does not cover viewport (void visible)`);
+}
+
+async function capturePhoneShots(page, errors) {
+  const doors = {
+    chinese: [304, 1200],
+    math: [732, 1284],
+    english: [884, 724],
+    treasure: [570, 988],
+  };
+  for (const [key, [x, y]] of Object.entries(doors)) {
+    await resetPos(page, x, y);
+    await sleep(700);
+    const label = page.locator(`[data-testid="fit-label-${key}"]`);
+    try {
+      await label.waitFor({ state: "visible", timeout: 8000 });
+    } catch {
+      errors.push(`390: label ${key} not visible near door`);
+    }
+    await assertMapCoversViewport(page, errors, `390-label-${key}`);
+    if (key === "chinese") {
+      await page.screenshot({ path: `${ART}/${TAG}-labels-390x844.png` });
+    }
+    await page.screenshot({ path: `${ART}/${TAG}-labels-390-${key}.png` });
+  }
+  for (const w of [320, 390, 430]) {
+    await page.setViewportSize({ width: w, height: 844 });
+    await resetPos(page, 120, 1240);
+    await sleep(400);
+    await assertMapCoversViewport(page, errors, `phone-clamp-init-${w}`);
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  await resetPos(page, 120, 1240);
+  await holdPad(page, "pad-right", true, 5000);
+  await assertMapCoversViewport(page, errors, "390-hold-right-5s");
+  const afterRight = await sampleHero(page);
+  if (afterRight && afterRight.x > 962) {
+    errors.push(`390: hero x=${afterRight.x} on portrait east padding`);
+  }
+  await page.screenshot({ path: `${ART}/${TAG}-clamp-right-5s-390x844.png` });
+  await resetPos(page, 235, 1695);
+  await holdPad(page, "pad-up", true, 5000);
+  await assertMapCoversViewport(page, errors, "390-hold-up-5s");
+  await page.screenshot({ path: `${ART}/${TAG}-clamp-up-5s-390x844.png` });
+}
+
 async function labelStaticCheck(page, errors) {
   await resetPos(page, 200, 1070);
   await sleep(400);
@@ -327,7 +388,7 @@ export async function runV920WalkVerify(browser, errors = []) {
         await labelStaticCheck(page, errors);
       }
       if (view.w === 390) {
-        await page.screenshot({ path: `${ART}/${TAG}-labels-390x844.png`, fullPage: false });
+        await capturePhoneShots(page, errors);
       }
     } catch (e) {
       errors.push(`${view.id}: ${e?.message ?? e}`);

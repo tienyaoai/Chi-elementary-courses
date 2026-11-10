@@ -89,6 +89,38 @@ pub fn world_to_screen(wx: f32, wy: f32, m: &FitMetrics) -> (f32, f32) {
 }
 
 /// 角色在 fit 模式下額外放大，使螢幕高度至少 `min_screen_px`。
+/// Follow-camera X: keep the map slice inside the viewport (no letterbox void on sides).
+pub fn follow_camera_x(hero_x: f32, vw: f32, map_w: f32) -> f32 {
+    let half = vw * 0.5;
+    if map_w <= vw {
+        return map_w * 0.5;
+    }
+    hero_x.clamp(half, map_w - half)
+}
+
+/// Follow-camera Y: lift around hero, then clamp to map vertical bounds.
+pub fn follow_camera_y(hero_y: f32, vh: f32, player_h: f32, map_h: f32) -> f32 {
+    const LIFT: f32 = 58.0;
+    const MARGIN: f32 = 24.0;
+    let half = vh * 0.5;
+    if map_h <= vh {
+        return map_h * 0.5;
+    }
+    let lo = half;
+    let hi = map_h - half;
+    let mut cam = hero_y - LIFT;
+    let foot_off = hero_y - cam;
+    let top_screen = half + foot_off - player_h;
+    if top_screen < MARGIN {
+        cam = hero_y - (half - MARGIN - player_h);
+    }
+    let foot_screen = half + (hero_y - cam);
+    if foot_screen > vh - MARGIN {
+        cam = hero_y - (half - vh + MARGIN);
+    }
+    cam.clamp(lo, hi)
+}
+
 pub fn player_screen_boost(m: &FitMetrics, player_world_h: f32, min_screen_px: f32) -> f32 {
     if m.mode != MapViewMode::FitWholeIsland {
         return 1.0;
@@ -134,6 +166,15 @@ mod tests {
     }
 
     #[test]
+    fn follow_cam_never_exposes_void() {
+        let cam = follow_camera_x(1060.0, 390.0, 1080.0);
+        assert!((cam - 885.0).abs() < 0.01);
+        let cam_c = follow_camera_x(100.0, 430.0, 1080.0);
+        assert!((cam_c - 215.0).abs() < 0.01);
+        let narrow = follow_camera_x(900.0, 500.0, 400.0);
+        assert!((narrow - 200.0).abs() < 0.01);
+    }
+
     fn roundtrip_screen_world() {
         let o = MapOrientation::Portrait;
         let m = fit_metrics(800.0, 700.0, o);

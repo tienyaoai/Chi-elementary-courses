@@ -534,7 +534,7 @@ body {
 .island-viewport-follow {
   height: min(58vh, 520px);
   min-height: 320px;
-  background: #2d6b2d;
+  background: #3d8ec4;
 }
 
 .island-viewport-fit {
@@ -583,8 +583,8 @@ body {
 }
 
 .island-phone-map-label {
-  font-size: 15px;
   padding: 0.18rem 0.55rem;
+  filter: drop-shadow(0 1px 0 #0002);
 }
 
 .island-viewport-fit .island-fit-label {
