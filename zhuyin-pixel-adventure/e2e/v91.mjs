@@ -9,7 +9,7 @@ import { assertDoorReachability, DOOR_COORDS } from "./walk_reach.mjs";
 import { runV920WalkVerify } from "./v920_walk_verify.mjs";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.20";
+const TAG = process.env.E2E_TAG || "v9.21";
 const FIT_MIN = 700;
 const DIST = path.resolve("..", "dist");
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";

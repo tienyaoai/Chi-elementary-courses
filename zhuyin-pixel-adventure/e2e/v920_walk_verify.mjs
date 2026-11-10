@@ -7,7 +7,7 @@ import { writeFileSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = "v9.20";
+const TAG = process.env.E2E_TAG || "v9.21";
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
 const HOLD_MS = 3000;
 const STEP_MS = 50;
@@ -117,21 +117,22 @@ async function resetPos(page, x, y) {
   await sleep(500);
 }
 
+/** Mask-validated open runs (≥~864px) so 3s hold stays off walls. */
 function startFor(view, planId) {
   if (view.w >= 700) {
     const table = {
-      right: [200, 1070],
-      left: [1250, 1070],
-      up: [900, 1040],
-      down: [900, 720],
+      right: [200, 1030],
+      left: [2300, 1030],
+      up: [1600, 1310],
+      down: [1775, 400],
     };
     return table[planId];
   }
   const table = {
-    right: [80, 1275],
-    left: [640, 1275],
-    up: [400, 1250],
-    down: [320, 1100],
+    right: [200, 1240],
+    left: [970, 1240],
+    up: [235, 1800],
+    down: [235, 400],
   };
   return table[planId];
 }
@@ -213,37 +214,34 @@ function analyze(samples, plan, errors, ctx) {
   const end = samples[samples.length - 1]?.[coordKey];
   const delta = Number.isFinite(start) && Number.isFinite(end) ? (end - start) * plan.sign : 0;
   if (delta < 60) errors.push(`${ctx}: moved only ${delta.toFixed(0)}px on ${plan.axis}`);
-  let lastMoveIndex = samples.length - 1;
-  for (let i = 1; i < samples.length; i++) {
-    const a = samples[i - 1][coordKey];
-    const b = samples[i][coordKey];
-    if (Number.isFinite(a) && Number.isFinite(b) && (b - a) * plan.sign > 0.02) {
-      lastMoveIndex = i;
-    }
-  }
   let maxConsecMs = 0;
   let consec = 0;
-  for (let i = 1; i <= lastMoveIndex; i++) {
+  let stallAt = null;
+  for (let i = 1; i < samples.length; i++) {
     const a = samples[i - 1][coordKey];
     const b = samples[i][coordKey];
     if (!Number.isFinite(a) || !Number.isFinite(b)) continue;
     const d = (b - a) * plan.sign;
     if (d <= 0.02) {
       consec += STEP_MS;
-      maxConsecMs = Math.max(maxConsecMs, consec);
+      if (consec > maxConsecMs) {
+        maxConsecMs = consec;
+        stallAt = { t: samples[i].t, x: samples[i].x, y: samples[i].y };
+      }
     } else {
       consec = 0;
     }
   }
-  if (delta >= 60 && maxConsecMs > 150) {
-    errors.push(`${ctx}: stall gap ${maxConsecMs}ms (>150ms) while held`);
+  if (maxConsecMs > 150) {
+    const pos = stallAt ? ` at (${stallAt.x?.toFixed?.(0)},${stallAt.y?.toFixed?.(0)}) t=${stallAt.t}ms` : "";
+    errors.push(`${ctx}: stall gap ${maxConsecMs}ms (>150ms) while held${pos}`);
   }
   if (facings.size > 1) errors.push(`${ctx}: facing unstable ${[...facings].join(",")}`);
   else if (facings.size === 1 && [...facings][0] !== plan.expectRow)
     errors.push(`${ctx}: facing ${[...facings][0]} expected row ${plan.expectRow}`);
   const walkCols = [...cols].filter((c) => c !== "0");
   if (walkCols.length < 3) errors.push(`${ctx}: only ${walkCols.length} walk cols (need ≥3): ${[...cols].join(",")}`);
-  return { delta, cols: [...cols], facings: [...facings], stallMax };
+  return { delta, cols: [...cols], facings: [...facings], stallMax: maxConsecMs, stallAt };
 }
 
 async function shotFrames(page, samples, outBase) {
@@ -260,7 +258,7 @@ async function shotFrames(page, samples, outBase) {
 async function labelStaticCheck(page, errors) {
   await resetPos(page, 200, 1070);
   await sleep(400);
-  const math = page.locator('[data-testid="fit-label-math"]:not(.island-fit-label-hidden)');
+  const math = page.locator('[data-testid="fit-label-math"]');
   await math.waitFor({ timeout: 10000 });
   const samples = [];
   for (let i = 0; i < 60; i++) {
