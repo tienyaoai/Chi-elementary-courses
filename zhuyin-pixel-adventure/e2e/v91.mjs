@@ -73,7 +73,8 @@ async function expectEnabled(locator, page) {
 }
 
 async function waitMapReady(page) {
-  await page.waitForSelector(".island-viewport", { timeout: 60000 });
+  const vis = page.locator(".map-screen:not(.map-screen-keeper) .island-viewport");
+  await vis.first().waitFor({ state: "visible", timeout: 60000 });
   await page.waitForFunction(
     () => !document.body.textContent.includes("地圖載入中"),
     { timeout: 120000 }
@@ -1708,9 +1709,16 @@ async function assertFitPlayerMoves(page, errors, shots = []) {
     const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
     return { x: p.player_x, y: p.player_y };
   });
-  await page.keyboard.down("ArrowRight");
+  const holdPad = page.locator('[data-testid="fit-pad-right"]');
+  const holdBox = await holdPad.boundingBox();
+  if (!holdBox) {
+    errors.push("fit hold: fit-pad-right missing");
+    return;
+  }
+  await page.mouse.move(holdBox.x + holdBox.width / 2, holdBox.y + holdBox.height / 2);
+  await page.mouse.down({ button: "left" });
   await sleep(2000);
-  await page.keyboard.up("ArrowRight");
+  await page.mouse.up({ button: "left" });
   await sleep(300);
   const prog1 = await page.evaluate(() => {
     const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));

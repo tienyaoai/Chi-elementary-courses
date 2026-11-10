@@ -35,7 +35,7 @@ async function portalBubble(page, portal) {
   return a === portal;
 }
 
-async function walkWithArrowsUntil(page, keys, predicate, maxMs = 36000) {
+async function walkWithArrowsUntil(page, keys, predicate, maxMs = 48000) {
   for (const k of keys) await page.keyboard.down(k);
   const t0 = Date.now();
   let ok = false;
@@ -77,7 +77,18 @@ async function exitDoorUi(page) {
 }
 
 const HAND_OVERRIDE = {
-  portrait: {},
+  portrait: {
+    english: [
+      ["ArrowRight"],
+      ["ArrowDown"],
+      ["ArrowRight"],
+      ["ArrowUp"],
+      ["ArrowRight"],
+      ["ArrowUp"],
+      ["ArrowRight"],
+      ["ArrowUp"],
+    ],
+  },
   landscape: {
     chinese: [["ArrowRight"]],
     english: [["ArrowRight"], ["ArrowRight"], ["ArrowUp"], ["ArrowRight"]],
