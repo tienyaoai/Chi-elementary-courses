@@ -1,0 +1,46 @@
+[package]
+name = "zhuyin-pixel-adventure"
+version = "0.1.0"
+edition = "2021"
+description = "學習冒險島 — 像素風注音 Rust/Wasm"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+getrandom = { version = "0.2", features = ["js"] }
+gloo = { version = "0.11", features = ["storage", "timers", "utils"] }
+gloo-timers = { version = "0.3", features = ["futures"] }
+gloo-net = "0.6"
+gloo-events = "0.2"
+js-sys = "0.3"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+web-sys = { version = "0.3", features = [
+  "AudioContext",
+  "AudioDestinationNode",
+  "AudioNode",
+  "AudioParam",
+  "AudioScheduledSourceNode",
+  "GainNode",
+  "CanvasRenderingContext2d",
+  "Document",
+  "DomRect",
+  "Element",
+  "HtmlCanvasElement",
+  "HtmlElement",
+  "HtmlImageElement",
+  "KeyboardEvent",
+  "OscillatorNode",
+  "OscillatorType",
+  "Window",
+] }
+yew = { version = "0.21", features = ["csr"] }
+zhuyin-island-wasm = { path = "../zhuyin-island-wasm", default-features = false, features = [] }
+
+[profile.release]
+lto = true
+opt-level = "s"

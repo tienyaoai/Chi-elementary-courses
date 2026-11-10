@@ -1,0 +1,2 @@
+std::option::Option<implicit_clone::unsync::string::IString>
+u32: IntoPropValue<std::option::Option<implicit_clone::unsync::string::IString>>

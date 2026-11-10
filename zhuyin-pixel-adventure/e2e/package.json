@@ -1,0 +1,12 @@
+{
+  "name": "zhuyin-pixel-e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node v91.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0",
+    "pngjs": "^7.0.0"
+  }
+}

@@ -1,0 +1,339 @@
+{
+  "portrait": {
+    "src": "/island/island-portrait-1080x1920.webp",
+    "width": 1080,
+    "height": 1920,
+    "walk": "walk-portrait.bin",
+    "step": 4
+  },
+  "landscape": {
+    "src": "/island/island-landscape-2560x1440.webp",
+    "width": 2560,
+    "height": 1440,
+    "walk": "walk-landscape.bin",
+    "step": 4
+  },
+  "spawn_portrait": {
+    "x": 322,
+    "y": 1194
+  },
+  "spawn_landscape": {
+    "x": 852,
+    "y": 1070
+  },
+  "landmarks_portrait": {
+    "chinese": {
+      "x": 342,
+      "y": 1098,
+      "x_norm": 0.317,
+      "y_norm": 0.572
+    },
+    "english": {
+      "x": 882,
+      "y": 648,
+      "x_norm": 0.817,
+      "y_norm": 0.338
+    },
+    "math": {
+      "x": 702,
+      "y": 1188,
+      "x_norm": 0.65,
+      "y_norm": 0.619
+    },
+    "treasure": {
+      "x": 570,
+      "y": 950,
+      "x_norm": 0.528,
+      "y_norm": 0.495
+    }
+  },
+  "landmarks_landscape": {
+    "chinese": {
+      "x": 812,
+      "y": 824,
+      "x_norm": 0.317,
+      "y_norm": 0.572
+    },
+    "english": {
+      "x": 2092,
+      "y": 487,
+      "x_norm": 0.817,
+      "y_norm": 0.338
+    },
+    "math": {
+      "x": 1664,
+      "y": 891,
+      "x_norm": 0.65,
+      "y_norm": 0.619
+    },
+    "treasure": {
+      "x": 1180,
+      "y": 720,
+      "x_norm": 0.461,
+      "y_norm": 0.5
+    }
+  },
+  "landmark_files": {
+    "chinese": "schoolhouse-chinese.webp",
+    "english": "lighthouse-english.webp",
+    "math": "workshop-math.webp",
+    "treasure": "treasure-chest.webp"
+  },
+  "characters": [
+    {
+      "id": "char1",
+      "slug": "strawhat",
+      "bust": "char1-strawhat-bust.webp",
+      "full": "char1-strawhat-full.webp",
+      "short": "草帽",
+      "zhuyin": "ㄋㄧˇ",
+      "gender": "男",
+      "walk": "char1-strawhat-walk.webp"
+    },
+    {
+      "id": "char2",
+      "slug": "bluescarf",
+      "bust": "char2-bluescarf-bust.webp",
+      "full": "char2-bluescarf-full.webp",
+      "short": "藍巾",
+      "zhuyin": "ㄋㄧˇ",
+      "gender": "男",
+      "walk": "char2-bluescarf-walk.webp"
+    },
+    {
+      "id": "char3",
+      "slug": "pinkpigtails",
+      "bust": "char3-pinkpigtails-bust.webp",
+      "full": "char3-pinkpigtails-full.webp",
+      "short": "粉妮",
+      "zhuyin": "ㄋㄧˇ",
+      "gender": "女",
+      "walk": "char3-pinkpigtails-walk.webp"
+    },
+    {
+      "id": "char4",
+      "slug": "yellowoveralls",
+      "bust": "char4-yellowoveralls-bust.webp",
+      "full": "char4-yellowoveralls-full.webp",
+      "short": "小黃",
+      "zhuyin": "ㄋㄧˇ",
+      "gender": "男",
+      "walk": "char4-yellowoveralls-walk.webp"
+    },
+    {
+      "id": "char5",
+      "slug": "glassescloak",
+      "bust": "char5-glassescloak-bust.webp",
+      "full": "char5-glassescloak-full.webp",
+      "short": "小博",
+      "zhuyin": "ㄋㄧˇ",
+      "gender": "男",
+      "walk": "char5-glassescloak-walk.webp"
+    },
+    {
+      "id": "char6",
+      "slug": "tealtunic",
+      "bust": "char6-tealtunic-bust.webp",
+      "full": "char6-tealtunic-full.webp",
+      "short": "小青",
+      "zhuyin": "ㄋㄧˇ",
+      "gender": "男",
+      "walk": "char6-tealtunic-walk.webp"
+    },
+    {
+      "id": "char7",
+      "slug": "orangehoodie",
+      "bust": "char7-orangehoodie-bust.webp",
+      "full": "char7-orangehoodie-full.webp",
+      "short": "小橘",
+      "zhuyin": "ㄋㄧˇ",
+      "gender": "女",
+      "walk": "char7-orangehoodie-walk.webp"
+    },
+    {
+      "id": "char8",
+      "slug": "redribbon",
+      "bust": "char8-redribbon-bust.webp",
+      "full": "char8-redribbon-full.webp",
+      "short": "小紅",
+      "zhuyin": "ㄋㄧˇ",
+      "gender": "女",
+      "walk": "char8-redribbon-walk.webp"
+    },
+    {
+      "id": "char9",
+      "slug": "sailor",
+      "bust": "char9-sailor-bust.webp",
+      "full": "char9-sailor-full.webp",
+      "short": "小葵",
+      "zhuyin": "ㄋㄧˇ",
+      "gender": "女",
+      "walk": "char9-sailor-walk.webp"
+    },
+    {
+      "id": "char10",
+      "slug": "lavenderbuns",
+      "bust": "char10-lavenderbuns-bust.webp",
+      "full": "char10-lavenderbuns-full.webp",
+      "short": "紫丸",
+      "zhuyin": "ㄋㄧˇ",
+      "gender": "女",
+      "walk": "char10-lavenderbuns-walk.webp"
+    },
+    {
+      "id": "char11",
+      "slug": "mintcardigan",
+      "bust": "char11-mintcardigan-bust.webp",
+      "full": "char11-mintcardigan-full.webp",
+      "short": "薄荷",
+      "zhuyin": "ㄋㄧˇ",
+      "gender": "女",
+      "walk": "char11-mintcardigan-walk.webp"
+    },
+    {
+      "id": "char12",
+      "slug": "redcap",
+      "bust": "char12-redcap-bust.webp",
+      "full": "char12-redcap-full.webp",
+      "short": "小帽",
+      "zhuyin": "ㄋㄧˇ",
+      "gender": "男",
+      "walk": "char12-redcap-walk.webp"
+    }
+  ],
+  "enter_radius": 140,
+  "enter_radius_by_portal": {
+    "chinese": 140,
+    "english": 120,
+    "math": 120,
+    "treasure": 88
+  },
+  "walk_overrides_portrait": [
+    {
+      "x": 300,
+      "y": 1176,
+      "w": 58,
+      "h": 42
+    },
+    {
+      "x": 328,
+      "y": 1186,
+      "w": 52,
+      "h": 44
+    },
+    {
+      "x": 684,
+      "y": 1268,
+      "w": 48,
+      "h": 40
+    },
+    {
+      "x": 292,
+      "y": 1494,
+      "w": 180,
+      "h": 32
+    },
+    {
+      "x": 262,
+      "y": 1188,
+      "w": 168,
+      "h": 44
+    },
+    {
+      "x": 838,
+      "y": 698,
+      "w": 72,
+      "h": 40
+    },
+    {
+      "x": 538,
+      "y": 968,
+      "w": 88,
+      "h": 52
+    },
+    {
+      "x": 468,
+      "y": 1272,
+      "w": 112,
+      "h": 28
+    }
+  ],
+  "walk_blocked_portrait": [
+    {
+      "x": 400,
+      "y": 900,
+      "w": 148,
+      "h": 288
+    },
+    {
+      "x": 278,
+      "y": 1048,
+      "w": 148,
+      "h": 142
+    },
+    {
+      "x": 632,
+      "y": 1128,
+      "w": 148,
+      "h": 108
+    },
+    {
+      "x": 852,
+      "y": 560,
+      "w": 98,
+      "h": 148
+    }
+  ],
+  "walk_blocked_landscape": [
+    {
+      "x": 742,
+      "y": 798,
+      "w": 198,
+      "h": 258
+    },
+    {
+      "x": 1598,
+      "y": 858,
+      "w": 152,
+      "h": 128
+    },
+    {
+      "x": 2048,
+      "y": 448,
+      "w": 98,
+      "h": 118
+    }
+  ],
+  "walk_overrides_landscape": [
+    {
+      "x": 1160,
+      "y": 928,
+      "w": 200,
+      "h": 44
+    },
+    {
+      "x": 672,
+      "y": 1056,
+      "w": 168,
+      "h": 44
+    },
+    {
+      "x": 798,
+      "y": 1052,
+      "w": 88,
+      "h": 56
+    },
+    {
+      "x": 2026,
+      "y": 558,
+      "w": 52,
+      "h": 42
+    },
+    {
+      "x": 1152,
+      "y": 698,
+      "w": 72,
+      "h": 80
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+#![allow(clippy::too_many_arguments)]
+
+use wasm_bindgen::prelude::*;
+use yew::Renderer;
+
+pub mod app;
+pub mod screens;
+pub mod grade1;
+pub mod grade1_screens;
+pub mod bpmf_aside;
+pub mod components;
+pub mod input;
+pub mod pixel_art_manifest;
+pub mod pixel_art_preload;
+pub mod progress;
+pub mod sounds;
+pub mod sprites;
+pub mod world;
+pub mod map_config;
+pub mod map_display;
+pub mod island_walk;
+pub mod walk_sprite;
+pub mod map_input;
+pub mod kid_text;
+
+pub use app::App;
+
+#[wasm_bindgen(start)]
+pub fn start() {
+    Renderer::<App>::new().render();
+}

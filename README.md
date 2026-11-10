@@ -6,7 +6,8 @@
 
 | 版本 | 目錄 | 部署目標 |
 |------|------|----------|
-| **Rust / Wasm（正式版，開發中）** | [`zhuyin-island-wasm/`](./zhuyin-island-wasm/) | Cloudflare Pages（建置輸出 `dist/`） |
+| **學習冒險島（像素版，開發中）** | [`zhuyin-pixel-adventure/`](./zhuyin-pixel-adventure/) | Cloudflare Pages 靜態 `dist/` |
+| **注注的國語島（Rust / Wasm 經典版）** | [`zhuyin-island-wasm/`](./zhuyin-island-wasm/) | 既有參考／經典介面（見 PR #2） |
 | React / Vite（參考實作） | [`zhuyin-island/`](./zhuyin-island/) | 本機開發；GitHub Pages workflow 在 main 上，**尚未成功發布**（見下方說明） |
 
 GitHub Pages 連結 <https://tienyaoai.github.io/Chi-elementary-courses/> 目前仍為 **404**（Pages 尚未在設定中啟用 GitHub Actions 來源，部署工作流曾失敗）。Cloudflare 正式網址將於透過 Pages 專案部署 `zhuyin-island-wasm/dist` 後，由連接器另行上線。
