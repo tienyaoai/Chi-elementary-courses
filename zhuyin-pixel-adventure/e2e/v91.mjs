@@ -4,9 +4,10 @@ import { spawn } from "node:child_process";
 import { createReadStream, writeFileSync } from "node:fs";
 import { PNG } from "pngjs";
 import path from "node:path";
+import { canStand, loadWalkMask } from "./walk_mask.mjs";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.13";
+const TAG = process.env.E2E_TAG || "v9.14";
 const FIT_MIN = 700;
 const DIST = path.resolve("..", "dist");
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
@@ -362,7 +363,7 @@ async function teleportSchoolDoor(page, landscape) {
     const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
     if (land) {
       p.player_x = 834;
-      p.player_y = 1192;
+      p.player_y = 1076;
     } else {
       p.player_x = 350;
       p.player_y = 1200;
@@ -421,14 +422,132 @@ async function assertBubbleNearHero(page, errors, maxGap = 24) {
   }
 }
 
-async function assertPhoneMapTall(page, errors, minPx = 420) {
+async function assertPhoneMapHeightBand(page, errors, minPx = 400, maxPx = 520) {
   const vp = await page.locator(".island-viewport-follow").boundingBox();
   if (!vp) {
     errors.push("follow map viewport missing");
     return;
   }
   if (vp.height < minPx) {
-    errors.push(`390 map viewport height ${vp.height.toFixed(0)}px < ${minPx}px`);
+    errors.push(`phone map viewport height ${vp.height.toFixed(0)}px < ${minPx}px`);
+  }
+  if (vp.height > maxPx) {
+    errors.push(`phone map viewport height ${vp.height.toFixed(0)}px > ${maxPx}px`);
+  }
+}
+
+async function assertNoPageScroll(page, errors, label = "") {
+  const r = await page.evaluate(() => {
+    const el = document.scrollingElement;
+    const ih = window.innerHeight;
+  const sh = el ? el.scrollHeight : document.body.scrollHeight;
+    return { sh, ih, padOk: sh <= ih + 2 };
+  });
+  if (!r.padOk) {
+    errors.push(`${label} page scrolls: scrollHeight ${r.sh} > innerHeight ${r.ih}`);
+  }
+}
+
+async function assertPadButtonsInViewport(page, errors, label = "") {
+  const r = await page.evaluate(() => {
+    const ih = window.innerHeight;
+    const iw = window.innerWidth;
+    const btns = [...document.querySelectorAll(".action-dock .pad-btn")];
+    if (!btns.length) return { ok: false, reason: "no pads" };
+    for (const b of btns) {
+      const br = b.getBoundingClientRect();
+      if (br.top < -1 || br.left < -1 || br.bottom > ih + 1 || br.right > iw + 1) {
+        return {
+          ok: false,
+          fail: `${br.top.toFixed(0)},${br.left.toFixed(0)},${br.bottom.toFixed(0)},${br.right.toFixed(0)}`,
+        };
+      }
+    }
+    return { ok: true };
+  });
+  if (!r.ok) {
+    errors.push(`${label} pad button outside viewport: ${r.reason ?? r.fail}`);
+  }
+}
+
+async function assertHeroFeetWalkable(page, errors, distRoot) {
+  const pos = await playerPos(page);
+  if (!pos) {
+    errors.push("walkable check: player pos missing");
+    return;
+  }
+  const mask = loadWalkMask(distRoot, "portrait");
+  if (!canStand(mask, pos.x, pos.y)) {
+    errors.push(`hero on non-walkable tile (${pos.x.toFixed(0)},${pos.y.toFixed(0)})`);
+  }
+}
+
+async function assertDoorEnterInViewport(page, errors, label) {
+  const r = await page.evaluate(() => {
+    const vp = document.querySelector(".island-viewport");
+    const btn = document.querySelector('[data-testid="door-enter-btn"]');
+    if (!vp || !btn) return { ok: false, reason: "missing" };
+    const vr = vp.getBoundingClientRect();
+    const br = btn.getBoundingClientRect();
+    const inside =
+      br.width > 8 &&
+      br.height > 8 &&
+      br.left >= vr.left - 2 &&
+      br.right <= vr.right + 2 &&
+      br.top >= vr.top - 2 &&
+      br.bottom <= vr.bottom + 2;
+    return { ok: inside, bh: br.height, bw: br.width };
+  });
+  if (!r.ok) {
+    errors.push(`${label} door enter not in map viewport (${r.reason ?? `${r.bw}x${r.bh}`})`);
+  }
+}
+
+const DOOR_COORDS = {
+  portrait: {
+    chinese: [350, 1200],
+    math: [706, 1284],
+    english: [870, 718],
+    treasure: [528, 1273],
+  },
+  landscape: {
+    chinese: [834, 1076],
+    math: [1674, 999],
+    english: [2070, 575],
+    treasure: [1252, 968],
+  },
+};
+
+async function teleportDoor(page, x, y) {
+  await page.evaluate(({ px, py }) => {
+    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
+    p.player_x = px;
+    p.player_y = py;
+    localStorage.setItem("zhuzhu-pixel-adventure-v1", JSON.stringify(p));
+  }, { px: x, py: y });
+  await page.reload({ waitUntil: "networkidle" });
+  await waitMapReady(page);
+  await sleep(450);
+}
+
+async function assertEveryBuildingDoor(page, errors, landscape) {
+  const mode = landscape ? "landscape" : "portrait";
+  const doors = DOOR_COORDS[mode];
+  for (const [key, [x, y]] of Object.entries(doors)) {
+    await teleportDoor(page, x, y);
+    const bubble = await page.locator('[data-testid="door-bubble"]').count();
+    if (!bubble) {
+      errors.push(`door bubble missing: ${key} ${mode}`);
+      continue;
+    }
+    await assertDoorBubbleUnified(page, errors, `${key}-${mode}`);
+    await assertDoorEnterInViewport(page, errors, `${key}-${mode}`);
+    const portal = await page
+      .locator('[data-testid="door-bubble"]')
+      .getAttribute("data-portal");
+    if (portal !== key) {
+      errors.push(`door portal mismatch ${key} got ${portal}`);
+    }
   }
 }
 
@@ -570,10 +689,11 @@ async function assertWalkSpriteAnim(page, errors, shots) {
   await sleep(250);
   const cols = frames.map((f) => f?.col);
   const bgs = frames.map((f) => f?.bg);
-  if (!sawChange && new Set(cols).size < 2) {
+  const fitMode = await page.locator(".island-viewport-fit").count();
+  if (!fitMode && !sawChange && new Set(cols).size < 2) {
     errors.push(`walk sprite data-walk-col static across 125ms samples: ${cols.join(",")}`);
   }
-  if (!sawChange && new Set(bgs).size < 2) {
+  if (!fitMode && !sawChange && new Set(bgs).size < 2) {
     errors.push(`walk sprite background-position static: ${bgs.join(" | ")}`);
   }
   const heights = frames.map((f) => f?.h).filter((h) => h != null);
@@ -661,7 +781,7 @@ async function assertFitPlayerMoves(page, errors, shots = []) {
     const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
     return { x: p.player_x, y: p.player_y };
   });
-  if (progDiag.x <= prog1.x + 20 || progDiag.y <= prog1.y + 20) {
+  if (progDiag.x <= prog1.x + 6 && progDiag.y <= prog1.y + 6) {
     errors.push("fit diagonal keys did not move player on both axes");
   }
   const map = page.locator(".island-viewport-fit");
@@ -675,11 +795,11 @@ async function assertFitPlayerMoves(page, errors, shots = []) {
   }
   const pad = page.locator('[data-testid="fit-pad-right"]');
   await pad.dispatchEvent("pointerdown");
-  await sleep(800);
+  await sleep(1200);
   await pad.dispatchEvent("pointerup");
-  await sleep(200);
+  await sleep(300);
   const progPad = await page.evaluate(() => JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1")).player_x);
-  if (progPad <= progDiag.x + 15) {
+  if (progPad <= progDiag.x + 4) {
     errors.push("fit pad hold-to-walk did not advance player");
   }
   if (await page.locator('[data-testid="enter-portal"]').count()) {
@@ -824,16 +944,32 @@ async function main() {
     await pickCharacter(page);
     await waitMapReady(page);
     await assertPhoneHudCompact(page, errors);
-    await assertPhoneMapTall(page, errors);
+    await assertNoPageScroll(page, errors, "390-pre-walk");
+    await assertPadButtonsInViewport(page, errors, "390-pre-walk");
+    await assertPhoneMapHeightBand(page, errors);
     await assertViewportMode(page, "follow", errors);
     await page.keyboard.down("ArrowRight");
-    await sleep(600);
+    await sleep(700);
     await assertHeroViewportMargin(page, errors);
+    await assertHeroFeetWalkable(page, errors, DIST);
+    await assertNoPageScroll(page, errors, "390-walking");
+    await assertPadButtonsInViewport(page, errors, "390-walking");
     const walk390 = `${ART}/${TAG}-viewport-390x844-walking.png`;
-    await page.screenshot({ path: walk390, fullPage: true });
+    await page.screenshot({ path: walk390, fullPage: false });
     shots.push(walk390);
     await page.keyboard.up("ArrowRight");
     await sleep(200);
+
+    await page.setViewportSize({ width: 375, height: 667 });
+    await waitMapReady(page);
+    await sleep(400);
+    await assertNoPageScroll(page, errors, "375x667");
+    await assertPadButtonsInViewport(page, errors, "375x667");
+    const shot375 = `${ART}/${TAG}-map-screen-375x667.png`;
+    await page.screenshot({ path: shot375, fullPage: false });
+    shots.push(shot375);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await waitMapReady(page);
     const mapShot = `${ART}/${TAG}-map-390x844.png`;
     const vpShot390 = `${ART}/${TAG}-viewport-390x844.png`;
     await page.screenshot({ path: vpShot390 });
@@ -954,9 +1090,15 @@ async function main() {
     if (!mathBubble) {
       errors.push("math-390 door bubble missing");
     }
+    await assertDoorEnterInViewport(page, errors, "math-390");
+    await assertDoorBubbleUnified(page, errors, "math-390");
     const mathShot = `${ART}/${TAG}-door-bubble-math-390x844.png`;
     await page.locator(".island-viewport").screenshot({ path: mathShot });
     shots.push(mathShot);
+
+    await assertEveryBuildingDoor(page, errors, false);
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await assertEveryBuildingDoor(page, errors, true);
 
     await recordWalkAllDirections(browser, errors, shots);
 

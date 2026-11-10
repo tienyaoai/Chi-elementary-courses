@@ -60,6 +60,8 @@ pub struct MapConfigFile {
     pub walk_overrides_portrait: Vec<WalkRect>,
     #[serde(default)]
     pub walk_overrides_landscape: Vec<WalkRect>,
+    #[serde(default)]
+    pub walk_blocked_portrait: Vec<WalkRect>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -103,7 +105,7 @@ pub fn door_point(portal: &str, orient: MapOrientation) -> (f32, f32) {
         _ => return (0.0, 0.0),
     };
     let (dx, dy) = match (portal, orient) {
-        ("chinese", MapOrientation::Landscape) => (22.0, 368.0),
+        ("chinese", MapOrientation::Landscape) => (22.0, 252.0),
         ("chinese", MapOrientation::Portrait) => (8.0, 102.0),
         ("english", MapOrientation::Landscape) => (-22.0, 88.0),
         ("english", MapOrientation::Portrait) => (-12.0, 70.0),
@@ -270,6 +272,14 @@ pub fn walk_overrides(orient: MapOrientation) -> &'static [WalkRect] {
     match orient {
         MapOrientation::Portrait => &c.walk_overrides_portrait,
         MapOrientation::Landscape => &c.walk_overrides_landscape,
+    }
+}
+
+pub fn walk_blocked(orient: MapOrientation) -> &'static [WalkRect] {
+    let c = config();
+    match orient {
+        MapOrientation::Portrait => &c.walk_blocked_portrait,
+        MapOrientation::Landscape => &[],
     }
 }
 

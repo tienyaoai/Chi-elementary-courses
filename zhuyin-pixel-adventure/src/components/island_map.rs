@@ -91,15 +91,25 @@ fn clamp_door_bubble_in_viewport(
     let est_h = DOOR_BUBBLE_H;
     let mut bx;
     let mut by;
+    let mut est_h_use = est_h;
     if vw < 440.0 {
         bx = VIEWPORT_PAD;
-        by = (anchor_y + 12.0).min(vh - est_h - VIEWPORT_PAD);
+        by = (anchor_y + 12.0).min(vh - est_h_use - VIEWPORT_PAD);
+        est_h_use = DOOR_BUBBLE_H + 32.0;
     } else if anchor_x < vw * 0.52 {
         bx = anchor_x + player_w * 0.5 + 16.0;
-        by = anchor_y - player_h * 0.72;
+        by = if anchor_y > vh * 0.58 {
+            anchor_y - player_h * 1.08
+        } else {
+            anchor_y - player_h * 0.92
+        };
     } else {
         bx = anchor_x - player_w * 0.5 - 16.0 - est_w;
-        by = anchor_y - player_h * 0.72;
+        by = if anchor_y > vh * 0.58 {
+            anchor_y - player_h * 1.08
+        } else {
+            anchor_y - player_h * 0.92
+        };
     }
     if bx + est_w > vw - VIEWPORT_PAD {
         bx = anchor_x - player_w * 0.5 - 12.0 - est_w;
@@ -108,7 +118,10 @@ fn clamp_door_bubble_in_viewport(
         bx = anchor_x + player_w * 0.5 + 12.0;
     }
     bx = bx.clamp(VIEWPORT_PAD, (vw - est_w - VIEWPORT_PAD).max(VIEWPORT_PAD));
-    by = by.clamp(VIEWPORT_PAD, (vh - est_h - VIEWPORT_PAD).max(VIEWPORT_PAD));
+    if vw >= 440.0 && by + est_h_use > vh - VIEWPORT_PAD {
+        by = (anchor_y - player_h * 0.55).clamp(VIEWPORT_PAD, vh - est_h_use - VIEWPORT_PAD);
+    }
+    by = by.clamp(VIEWPORT_PAD, (vh - est_h_use - VIEWPORT_PAD).max(VIEWPORT_PAD));
     format!(
         "left:{bx}px;top:{by}px;right:auto;bottom:auto;transform:none;max-width:{mw}px;width:max-content;",
         bx = bx,
@@ -124,8 +137,8 @@ fn render_door_bubble_compact(
     slot_class: &'static str,
     extra_style: Option<String>,
 ) -> Html {
-    let enterable = world::door_enterable(portal);
     let prompt = world::door_prompt_text(portal);
+    let enter_label = "進入".to_string();
     let pos_style = extra_style.unwrap_or_default();
     html! {
         <div class={classes!("door-bubble", "door-bubble-compact", slot_class)}
@@ -135,12 +148,10 @@ fn render_door_bubble_compact(
                 <span class="door-bubble-text">
                     <BpmfAside text={prompt} game={game.clone()} read=true compact=true />
                 </span>
-                if enterable {
-                    <button type="button" class="door-bubble-enter pixel-btn primary" data-testid="door-enter-btn"
-                        onclick={Callback::from(move |_| on_enter.emit(portal))}>
-                        <BpmfAside text={ "進入".to_string() } game={game} read=true compact=true />
-                    </button>
-                }
+                <button type="button" class="door-bubble-enter pixel-btn primary" data-testid="door-enter-btn"
+                    onclick={Callback::from(move |_| on_enter.emit(portal))}>
+                    <BpmfAside text={enter_label} game={game} read=true compact=true />
+                </button>
             </div>
         </div>
     }
@@ -272,8 +283,8 @@ fn render_action_dock(
                   <BpmfAside text={ world::GateLabel::hint(portal).to_string() } game={game.clone()} read=true compact=true />
               </p>
           } else {
-              <p class="map-hint muted">
-                  <BpmfAside text={ "按住方向鍵走到建築門口".to_string() } game={game.clone()} read=true />
+              <p class="map-hint map-hint-phone-short muted">
+                  <BpmfAside text={ "走到門口就能進去".to_string() } game={game.clone()} read=false compact=true />
               </p>
           }
           <TouchPad on_pad_hold={on_pad_hold} />

@@ -1,4 +1,4 @@
-use crate::map_config::{layer, walk_overrides, MapOrientation};
+use crate::map_config::{layer, walk_blocked, walk_overrides, MapOrientation};
 use gloo_net::http::Request;
 use std::cell::RefCell;
 
@@ -38,6 +38,9 @@ impl WalkMask {
     }
 
     pub fn can_stand(&self, x: f32, y: f32, orient: MapOrientation) -> bool {
+        if walk_block_rect(x, y, orient) {
+            return false;
+        }
         if walk_override(x, y, orient) {
             return true;
         }
@@ -56,6 +59,15 @@ impl WalkMask {
 
 fn walk_override(x: f32, y: f32, orient: MapOrientation) -> bool {
     walk_overrides(orient).iter().any(|r| {
+        x >= r.x as f32
+            && x <= (r.x + r.w) as f32
+            && y >= r.y as f32
+            && y <= (r.y + r.h) as f32
+    })
+}
+
+fn walk_block_rect(x: f32, y: f32, orient: MapOrientation) -> bool {
+    walk_blocked(orient).iter().any(|r| {
         x >= r.x as f32
             && x <= (r.x + r.w) as f32
             && y >= r.y as f32
