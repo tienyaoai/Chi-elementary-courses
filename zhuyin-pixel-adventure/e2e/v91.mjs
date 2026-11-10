@@ -1743,26 +1743,28 @@ async function assertFitPlayerMoves(page, errors, shots = []) {
   if (progDiag.x <= progMid.x + 6 && progDiag.y <= progMid.y + 6) {
     errors.push("fit diagonal keys did not move player on both axes");
   }
-  const map = page.locator(".island-viewport-fit");
-  const box = await map.boundingBox();
+  const map = await activeMapViewport(page);
+  const box = await map.first().boundingBox();
   const pl = await page.locator('[data-testid="island-player"]').boundingBox();
   if (box && pl) {
     const relX = Math.min(box.width - 8, Math.max(8, pl.x - box.x + 60));
     const relY = pl.y - box.y + pl.height * 0.2;
-    await map.click({ position: { x: relX, y: relY } });
-    await sleep(1500);
+    await map.first().click({ position: { x: relX, y: relY }, force: true });
+    await sleep(400);
   }
+  await focusMapForWalk(page);
+  const padBefore = (await playerPos(page)).x;
   const pad = page.locator('[data-testid="fit-pad-right"]');
   const pb = await pad.boundingBox();
   if (pb) {
     await page.mouse.move(pb.x + pb.width / 2, pb.y + pb.height / 2);
-    await page.mouse.down();
-    await sleep(1600);
-    await page.mouse.up();
+    await page.mouse.down({ button: "left" });
+    await sleep(2000);
+    await page.mouse.up({ button: "left" });
   }
   await sleep(300);
-  const progPad = await page.evaluate(() => JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1")).player_x);
-  if (progPad <= progDiag.x + 4) {
+  const padAfter = (await playerPos(page)).x;
+  if (padAfter <= padBefore + 4) {
     errors.push("fit pad hold-to-walk did not advance player");
   }
   if (await page.locator('[data-testid="enter-portal"]').count()) {
@@ -2136,7 +2138,12 @@ async function main() {
       await assertBridgeCrossingHeldFromSpawn(page, errors);
       const { runV921fDoorsHeld } = await import("./v921f_doors_held.mjs");
       await runV921fDoorsHeld(page, errors);
+      await page.goto(BASE, { waitUntil: "networkidle", timeout: 120000 });
       await ensureMapScreen(page);
+      if (await page.locator(".char-grid-12 .char-card").count()) {
+        await pickCharacter(page);
+      }
+      await waitMapReady(page);
       await page.setViewportSize({ width: 1280, height: 800 });
       await walkToTreasureEnter(page, errors, "treasure-1280");
       await page.setViewportSize({ width: 390, height: 844 });

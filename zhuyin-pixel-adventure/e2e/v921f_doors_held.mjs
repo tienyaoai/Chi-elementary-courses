@@ -97,6 +97,8 @@ const HAND_OVERRIDE = {
       ["ArrowUp"],
       ["ArrowRight"],
       ["ArrowUp"],
+      ["ArrowUp"],
+      ["ArrowRight"],
     ],
   },
   landscape: {
