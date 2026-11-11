@@ -181,7 +181,9 @@ async function exitHubToMap(page) {
 }
 
 async function startGame(page, charId) {
-  await page.goto(BASE, { waitUntil: "networkidle", timeout: 120000 });
+  if (!(await page.locator(`[data-char-id="${charId}"]`).count())) {
+    await page.goto(BASE, { waitUntil: "networkidle", timeout: 120000 });
+  }
   if (!(await page.locator(`[data-char-id="${charId}"]`).count())) {
     const hud = page.locator('[data-testid="hud-change-char"]');
     if (await hud.count()) {
@@ -202,6 +204,7 @@ export async function runCharacterPersist(page, errors = []) {
   mkdirSync(ART, { recursive: true });
   const report = { tag: TAG, from: FROM.id, to: TO.id, steps: [] };
 
+  await page.setViewportSize({ width: 1280, height: 800 });
   await startGame(page, FROM.id);
   const beforeSwap = await heroWalkBg(page);
   if (beforeSwap && !beforeSwap.includes(FROM.slug)) {
