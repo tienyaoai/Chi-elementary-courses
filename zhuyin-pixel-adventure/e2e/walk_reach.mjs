@@ -95,4 +95,43 @@ export function assertDoorReachability(distRoot) {
   return errors;
 }
 
+function compressKeyRuns(seq) {
+  const out = [];
+  for (const k of seq) {
+    if (!out.length || out[out.length - 1][0] !== k) {
+      out.push([k]);
+    }
+  }
+  return out;
+}
+
+/** Shortest masked path from (sx,sy) toward door; returns hold chains for arrow keys. */
+export function bfsPathChains(mask, sx, sy, tx, ty, arrive = 48) {
+  const dirs = [
+    ["ArrowRight", STEP, 0],
+    ["ArrowLeft", -STEP, 0],
+    ["ArrowUp", 0, -STEP],
+    ["ArrowDown", 0, STEP],
+  ];
+  const key = (x, y) => `${Math.round(x)}:${Math.round(y)}`;
+  const q = [[sx, sy, []]];
+  const seen = new Set([key(sx, sy)]);
+  let head = 0;
+  while (head < q.length) {
+    const [x, y, path] = q[head++];
+    if (Math.hypot(x - tx, y - ty) <= arrive) {
+      return compressKeyRuns(path);
+    }
+    for (const [lab, dx, dy] of dirs) {
+      const nx = x + dx;
+      const ny = y + dy;
+      const k = key(nx, ny);
+      if (seen.has(k) || !canStand(mask, nx, ny)) continue;
+      seen.add(k);
+      q.push([nx, ny, path.concat(lab)]);
+    }
+  }
+  return null;
+}
+
 export { DOOR_COORDS };

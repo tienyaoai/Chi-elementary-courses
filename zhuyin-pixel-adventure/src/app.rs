@@ -450,27 +450,6 @@ pub fn app() -> Html {
         }
     }));
 
-    let Some(game) = (*game).clone() else {
-        return html! {
-            <main class="shell-pixel shell-wide">
-                <p class="loading-pixel">{"載入中…"}</p>
-            </main>
-        };
-    };
-
-    let portal_near = world::portal_near(*px, *py, *orient);
-    let door_portal = world::portal_for_door_enter(*px, *py, *orient);
-
-    let toggle_sound = {
-        let progress = progress.clone();
-        Callback::from(move |_| {
-            let mut p = (*progress).clone();
-            p.sound = !p.sound;
-            p.save();
-            progress.set(p);
-        })
-    };
-
     {
         let view = view.clone();
         use_effect_with((*view).clone(), move |_| {
@@ -492,6 +471,27 @@ pub fn app() -> Html {
             }
         });
     }
+
+    let Some(game) = (*game).clone() else {
+        return html! {
+            <main class="shell-pixel shell-wide">
+                <p class="loading-pixel">{"載入中…"}</p>
+            </main>
+        };
+    };
+
+    let portal_near = world::portal_near(*px, *py, *orient);
+    let door_portal = world::portal_for_door_enter(*px, *py, *orient);
+
+    let toggle_sound = {
+        let progress = progress.clone();
+        Callback::from(move |_| {
+            let mut p = (*progress).clone();
+            p.sound = !p.sound;
+            p.save();
+            progress.set(p);
+        })
+    };
 
     let park_map = !progress.character_id.is_empty();
     let sound_label = if progress.sound {

@@ -5,7 +5,7 @@ import path from "node:path";
 import { footOnLand, isWaterPixel, loadWalkMask } from "./walk_mask.mjs";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.21e";
+const TAG = process.env.E2E_TAG || "v9.21f";
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
 const dist = path.resolve("..", "dist");
 

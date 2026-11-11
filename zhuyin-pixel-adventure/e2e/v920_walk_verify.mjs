@@ -8,7 +8,7 @@ import path from "node:path";
 import { footOnLand, isWaterPixel, loadWalkMask } from "./walk_mask.mjs";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.21e";
+const TAG = process.env.E2E_TAG || "v9.21f";
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
 const HOLD_MS = 3000;
 const STEP_MS = 50;
@@ -18,7 +18,10 @@ function sleep(ms) {
 }
 
 async function waitMapReady(page) {
-  await page.waitForSelector(".island-viewport", { timeout: 60000 });
+  await page
+    .locator(".map-screen:not(.map-screen-keeper) .island-viewport")
+    .first()
+    .waitFor({ state: "visible", timeout: 60000 });
   await page.waitForFunction(
     () => !document.body.textContent.includes("地圖載入中"),
     { timeout: 120000 }
@@ -122,18 +125,19 @@ async function resetPos(page, x, y) {
 function startFor(view, planId) {
   if (view.w >= 700) {
     const table = {
-      right: [1100, 1020],
-      left: [1740, 1020],
-      up: [1880, 1160],
-      down: [1880, 600],
+      right: [720, 1020],
+      left: [1780, 1020],
+      up: [1140, 1420],
+      down: [1140, 580],
     };
     return table[planId];
   }
+  /** Longest open run on portrait spine (see e2e/WALK_HARNESS_STARTS.md). */
   const table = {
-    right: [120, 1250],
-    left: [950, 1250],
-    up: [230, 1790],
-    down: [230, 320],
+    right: [120, 1260],
+    left: [960, 1260],
+    up: [860, 1420],
+    down: [860, 600],
   };
   return table[planId];
 }

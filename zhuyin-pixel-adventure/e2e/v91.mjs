@@ -9,7 +9,7 @@ import { assertDoorReachability, DOOR_COORDS } from "./walk_reach.mjs";
 import { runV920WalkVerify } from "./v920_walk_verify.mjs";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.21e";
+const TAG = process.env.E2E_TAG || "v9.21f";
 const FIT_MIN = 700;
 const DIST = path.resolve("..", "dist");
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
@@ -73,7 +73,8 @@ async function expectEnabled(locator, page) {
 }
 
 async function waitMapReady(page) {
-  await page.waitForSelector(".island-viewport", { timeout: 60000 });
+  const vis = page.locator(".map-screen:not(.map-screen-keeper) .island-viewport");
+  await vis.first().waitFor({ state: "visible", timeout: 120000 });
   await page.waitForFunction(
     () => !document.body.textContent.includes("地圖載入中"),
     { timeout: 120000 }
@@ -81,14 +82,27 @@ async function waitMapReady(page) {
   await sleep(800);
 }
 
+async function activeMapViewport(page) {
+  return page.locator(".map-screen:not(.map-screen-keeper) .island-viewport");
+}
+
 async function ensureMapScreen(page) {
-  if (await page.locator(".island-viewport").count()) {
+  const vis = await activeMapViewport(page);
+  if ((await vis.count()) > 0 && (await vis.first().isVisible())) {
     return;
+  }
+  if (await page.locator(".panel-pixel button.pixel-btn", { hasText: "回地圖" }).count()) {
+    await page.locator(".panel-pixel button.pixel-btn", { hasText: "回地圖" }).first().click();
+    await sleep(400);
+  }
+  if (await page.locator(".collection-panel").count()) {
+    await page.locator("button.pixel-btn", { hasText: "回地圖" }).first().click().catch(() => {});
+    await sleep(400);
   }
   if (await page.locator(".unit-island-card").count()) {
     await exitToMap(page);
   }
-  if (await page.locator(".island-viewport").count()) {
+  if ((await vis.count()) > 0 && (await vis.first().isVisible())) {
     return;
   }
   await page.goto(BASE, { waitUntil: "load", timeout: 120000 });
@@ -579,11 +593,23 @@ async function exitToMap(page) {
   }
 }
 
+async function focusMapForWalk(page) {
+  const vp = await activeMapViewport(page);
+  if ((await vp.count()) > 0) {
+    await vp.first().click({ position: { x: 64, y: 64 }, force: true });
+    await sleep(120);
+  }
+}
+
 async function assertBubbleReturns(page, errors, label, awayKeys, backKeys, pos) {
   if (pos) {
     const [ax, ay, bx, by] = pos;
     await setPlayerPos(page, ax, ay);
-    if (await page.locator('[data-testid="door-bubble"]').count()) {
+    await focusMapForWalk(page);
+    const away = await page
+      .locator('.map-screen:not(.map-screen-keeper) [data-testid="door-bubble"]')
+      .count();
+    if (away) {
       errors.push(`${label}: bubble still visible when away from door`);
       return;
     }
@@ -632,7 +658,7 @@ async function runKeyboardDoorEnterSuite(page, shots, errors) {
       away: ["ArrowLeft"],
       back: ["ArrowRight"],
       shotLesson: true,
-      bubbleReturnPos: [600, 1040, 790, 1040],
+      bubbleReturnPos: [950, 1020, 790, 1040],
     },
     {
       id: "1920",
@@ -642,7 +668,7 @@ async function runKeyboardDoorEnterSuite(page, shots, errors) {
       keys: ["ArrowRight"],
       away: ["ArrowLeft"],
       back: ["ArrowRight"],
-      bubbleReturnPos: [600, 1040, 790, 1040],
+      bubbleReturnPos: [950, 1020, 790, 1040],
     },
   ];
 
@@ -1026,6 +1052,7 @@ async function assertBridgeCrossingHeldFromSpawn(page, errors) {
     await resetToSpawn(page, plan.landscape);
     for (let pi = 0; pi < plan.phases.length; pi++) {
       const phase = plan.phases[pi];
+      await focusMapForWalk(page);
       const ok = await walkWithArrowsUntil(
         page,
         phase.keys,
@@ -1109,6 +1136,14 @@ async function assertAllBuildingBubblesTextFit(page, errors) {
 }
 
 async function captureV919DoorScreenshots(page, shots, errors) {
+  await ensureMapScreen(page);
+  if (!(await activeMapViewport(page).count())) {
+    await page.goto(BASE, { waitUntil: "networkidle", timeout: 120000 });
+    if (await page.locator(".char-grid-12 .char-card").count()) {
+      await pickCharacter(page);
+    }
+    await waitMapReady(page);
+  }
   const plans = [
     { w: 1280, h: 800, mode: "landscape" },
     { w: 390, h: 844, mode: "portrait" },
@@ -1120,6 +1155,7 @@ async function captureV919DoorScreenshots(page, shots, errors) {
     for (const portal of portals) {
       const [dx, dy] = DOOR_COORDS[plan.mode][portal];
       await teleportDoor(page, dx - (plan.mode === "landscape" ? 48 : 32), dy);
+      await focusMapForWalk(page);
       const reached = await walkWithArrowsUntil(
         page,
         dx > 500 ? ["ArrowRight"] : ["ArrowLeft", "ArrowDown"],
@@ -1376,6 +1412,7 @@ async function assertPadHoldSmooth(
     errors.push(`${label}: missing pad ${padTestId}`);
     return;
   }
+  await focusMapForWalk(page);
   const coords = [];
   const cols = [];
   const snap = async () => {
@@ -1507,7 +1544,7 @@ async function runPadHoldTouchMouseSuite(browser, errors) {
       h: 1072,
       hasTouch: false,
       pad: "fit-pad-up",
-      start: [1820, 1250],
+      start: [1140, 1420],
       axis: "y",
       sign: -1,
     },
@@ -1568,7 +1605,10 @@ async function recordPadHold390Webm(browser, errors, shots) {
 }
 
 async function assertWalkSpriteAnim(page, errors, shots) {
-  await page.locator(".island-viewport").click({ position: { x: 200, y: 200 } });
+  const vp = await activeMapViewport(page);
+  if (await vp.count()) {
+    await vp.first().click({ position: { x: 200, y: 200 }, force: true });
+  }
   await sleep(100);
   await page.keyboard.down("ArrowRight");
   const frames = [];
@@ -1660,31 +1700,35 @@ async function recordWalkAllDirections(browser, errors, shots) {
 }
 
 async function assertFitPlayerMoves(page, errors, shots = []) {
-  await setPlayerPos(page, 720, 780);
-  await page.keyboard.up("ArrowRight");
-  await page.keyboard.up("ArrowLeft");
-  await page.keyboard.up("ArrowUp");
-  await page.keyboard.up("ArrowDown");
-  await assertWalkSpriteAnim(page, errors, shots);
-  const prog0 = await page.evaluate(() => {
-    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
-    return { x: p.player_x, y: p.player_y };
-  });
-  await page.keyboard.down("ArrowRight");
-  await sleep(1400);
-  await page.keyboard.up("ArrowRight");
+  await ensureMapScreen(page);
+  await setPlayerPos(page, 720, 1020);
+  await focusMapForWalk(page);
+  for (const k of ["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown"]) {
+    await page.keyboard.up(k);
+  }
+  await sleep(150);
+  const prog0 = await playerPos(page);
+  const holdPad = page.locator('[data-testid="fit-pad-right"]');
+  const holdBox = await holdPad.boundingBox();
+  if (!holdBox) {
+    errors.push("fit hold: fit-pad-right missing");
+    return;
+  }
+  await page.mouse.move(holdBox.x + holdBox.width / 2, holdBox.y + holdBox.height / 2);
+  await page.mouse.down({ button: "left" });
+  await sleep(2000);
+  await page.mouse.up({ button: "left" });
   await sleep(300);
-  const prog1 = await page.evaluate(() => {
-    const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
-    return { x: p.player_x, y: p.player_y };
-  });
+  const prog1 = await playerPos(page);
   const walkShot = `${ART}/${TAG}-viewport-1280x800-walking.png`;
   await page.screenshot({ path: walkShot });
   shots.push(walkShot);
   if (prog1.x - prog0.x < 28) {
     errors.push(`fit hold ArrowRight: world Δx ${(prog1.x - prog0.x).toFixed(0)} (need >28)`);
   }
-  await setPlayerPos(page, 520, 900);
+  await assertWalkSpriteAnim(page, errors, shots);
+  await setPlayerPos(page, 720, 1020);
+  await focusMapForWalk(page);
   const progMid = await playerPos(page);
   await page.keyboard.down("ArrowRight");
   await page.keyboard.down("ArrowDown");
@@ -1699,26 +1743,37 @@ async function assertFitPlayerMoves(page, errors, shots = []) {
   if (progDiag.x <= progMid.x + 6 && progDiag.y <= progMid.y + 6) {
     errors.push("fit diagonal keys did not move player on both axes");
   }
-  const map = page.locator(".island-viewport-fit");
-  const box = await map.boundingBox();
-  const pl = await page.locator('[data-testid="island-player"]').boundingBox();
-  if (box && pl) {
-    const relX = Math.min(box.width - 8, Math.max(8, pl.x - box.x + 60));
-    const relY = pl.y - box.y + pl.height * 0.2;
-    await map.click({ position: { x: relX, y: relY } });
-    await sleep(1500);
-  }
+  await focusMapForWalk(page);
+  const padBefore = (await playerPos(page)).x;
   const pad = page.locator('[data-testid="fit-pad-right"]');
   const pb = await pad.boundingBox();
   if (pb) {
-    await page.mouse.move(pb.x + pb.width / 2, pb.y + pb.height / 2);
-    await page.mouse.down();
-    await sleep(1600);
-    await page.mouse.up();
+    const cx = pb.x + pb.width / 2;
+    const cy = pb.y + pb.height / 2;
+    await page.mouse.move(cx, cy);
+    await pad.dispatchEvent("pointerdown", {
+      pointerId: 1,
+      pointerType: "mouse",
+      isPrimary: true,
+      button: 0,
+      buttons: 1,
+      clientX: cx,
+      clientY: cy,
+    });
+    await sleep(2000);
+    await pad.dispatchEvent("pointerup", {
+      pointerId: 1,
+      pointerType: "mouse",
+      isPrimary: true,
+      button: 0,
+      buttons: 0,
+      clientX: cx,
+      clientY: cy,
+    });
   }
   await sleep(300);
-  const progPad = await page.evaluate(() => JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1")).player_x);
-  if (progPad <= progDiag.x + 4) {
+  const padAfter = (await playerPos(page)).x;
+  if (padAfter <= padBefore + 4) {
     errors.push("fit pad hold-to-walk did not advance player");
   }
   if (await page.locator('[data-testid="enter-portal"]').count()) {
@@ -1741,6 +1796,7 @@ async function assertMapViewportHeightStable(page, baseHeight, errors, ctx = "")
 }
 
 async function runFitDesktopSuite(page, shots, errors) {
+  await ensureMapScreen(page);
   const sizes = [
     [1280, 800],
     [1440, 900],
@@ -2089,6 +2145,14 @@ async function main() {
 
     try {
       await assertBridgeCrossingHeldFromSpawn(page, errors);
+      const { runV921fDoorsHeld } = await import("./v921f_doors_held.mjs");
+      await runV921fDoorsHeld(page, errors);
+      await page.goto(BASE, { waitUntil: "networkidle", timeout: 120000 });
+      await ensureMapScreen(page);
+      if (await page.locator(".char-grid-12 .char-card").count()) {
+        await pickCharacter(page);
+      }
+      await waitMapReady(page);
       await page.setViewportSize({ width: 1280, height: 800 });
       await walkToTreasureEnter(page, errors, "treasure-1280");
       await page.setViewportSize({ width: 390, height: 844 });

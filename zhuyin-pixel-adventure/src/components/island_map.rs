@@ -507,6 +507,8 @@ fn layout_phone_labels(
             let (_, foot_sy) = follow_world_to_screen(fx, fy, cam_x, cam_y, vw, vh);
             let rise = if key == "treasure" {
                 220.0
+            } else if key == "chinese" {
+                280.0
             } else {
                 landmark_label_screen_rise(key) + 40.0
             };
