@@ -1693,6 +1693,8 @@ async function assertFitPlayerMoves(page, errors, shots = []) {
   await page.keyboard.up("ArrowUp");
   await page.keyboard.up("ArrowDown");
   await assertWalkSpriteAnim(page, errors, shots);
+  await setPlayerPos(page, 720, 780);
+  await sleep(200);
   const prog0 = await page.evaluate(() => {
     const p = JSON.parse(localStorage.getItem("zhuzhu-pixel-adventure-v1"));
     return { x: p.player_x, y: p.player_y };
