@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """
+DEPRECATED — user island art is source of truth (v921h-art.zip). Do not run in CI/deliver.
+
 Erase / touch up baked door plaza pads on v9.21g island art.
 
 Offset-clones grass and path from outside the pad (lossless WebP). Touch-up mode
