@@ -108,7 +108,7 @@ pub fn door_point(portal: &str, orient: MapOrientation) -> (f32, f32) {
     };
     let (dx, dy) = match (portal, orient) {
         ("chinese", MapOrientation::Landscape) => (22.0, 252.0),
-        ("chinese", MapOrientation::Portrait) => (8.0, 102.0),
+        ("chinese", MapOrientation::Portrait) => (-28.0, 105.0),
         ("english", MapOrientation::Landscape) => (-22.0, 88.0),
         ("english", MapOrientation::Portrait) => (-12.0, 70.0),
         ("math", MapOrientation::Landscape) => (10.0, 108.0),

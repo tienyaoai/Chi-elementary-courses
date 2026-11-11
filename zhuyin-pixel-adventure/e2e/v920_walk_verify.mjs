@@ -365,7 +365,18 @@ async function assertLabelInViewport(page, key, errors) {
 async function auditFootLandAfterHolds(browser, errors) {
   const dist = path.resolve("..", "dist");
   const plans = [
-    { orient: "portrait", w: 390, h: 844, touch: true, starts: [[120, 1240], [235, 1695], [304, 1200], [884, 724]] },
+    {
+      orient: "portrait",
+      w: 390,
+      h: 844,
+      touch: true,
+      starts: [
+        [120, 1240],
+        [235, 1695],
+        [MAP_CFG.door_points_portrait.chinese[0], MAP_CFG.door_points_portrait.chinese[1]],
+        [884, 724],
+      ],
+    },
     { orient: "landscape", w: 1280, h: 800, touch: false, starts: [[200, 1030], [1775, 400], [1600, 1310]] },
   ];
   const maskP = loadWalkMask(dist, "portrait");
