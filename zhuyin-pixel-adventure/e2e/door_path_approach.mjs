@@ -3,9 +3,10 @@
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { inDoorTrigger } from "./door_trigger.mjs";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.21j";
+const TAG = process.env.E2E_TAG || "v9.21k";
 const MAP_CFG = JSON.parse(
   readFileSync(path.resolve("..", "src", "map_config.json"), "utf8")
 );
@@ -16,13 +17,10 @@ const TRIGGER_HH = 26;
 /** World waypoints along dirt path (not straight line to door center). */
 const PATHS_PORTRAIT = {
   chinese: [
-    [322, 1230],
-    [322, 1220],
-    [305, 1222],
-    [285, 1225],
-    [268, 1220],
-    [258, 1218],
-    [268, 1203],
+    [258, 1225],
+    [275, 1210],
+    [292, 1202],
+    [304, 1200],
   ],
   math: [
     [322, 1230],
@@ -96,8 +94,8 @@ async function bubbleVisible(page) {
   return (await page.locator('[data-testid="door-bubble"]').count()) > 0;
 }
 
-function inDoorRect(x, y, door) {
-  return Math.abs(x - door[0]) <= TRIGGER_HW && Math.abs(y - door[1]) <= TRIGGER_HH;
+function inDoorRect(x, y, building, orient) {
+  return inDoorTrigger(building, x, y, orient);
 }
 
 export async function runDoorPathApproach(page, errors = []) {
@@ -105,9 +103,9 @@ export async function runDoorPathApproach(page, errors = []) {
   const doorsL = MAP_CFG.door_points_landscape;
   const report = { tag: TAG, runs: [] };
 
-  for (const [vp, doors, paths, w, h] of [
-    ["390x844", doorsP, PATHS_PORTRAIT, 390, 844],
-    ["1280x800", doorsL, PATHS_LANDSCAPE, 1280, 800],
+  for (const [vp, doors, paths, w, h, orient] of [
+    ["390x844", doorsP, PATHS_PORTRAIT, 390, 844, "portrait"],
+    ["1280x800", doorsL, PATHS_LANDSCAPE, 1280, 800, "landscape"],
   ]) {
     await page.setViewportSize({ width: w, height: h });
     await page.goto(process.env.E2E_BASE || "http://127.0.0.1:8788", {
@@ -128,7 +126,7 @@ export async function runDoorPathApproach(page, errors = []) {
       for (const [x, y] of waypoints) {
         await setPos(page, x, y);
         const bubble = await bubbleVisible(page);
-        const atDoor = inDoorRect(x, y, door);
+        const atDoor = inDoorRect(x, y, key, orient);
         trail.push({ x, y, bubble, atDoor });
         if (atDoor && bubble) bubbleAtDoor = true;
       }
@@ -137,7 +135,7 @@ export async function runDoorPathApproach(page, errors = []) {
       if (!finalBubble) {
         errors.push(`${vp} ${key}: no bubble after path approach ending (${last[0]},${last[1]})`);
       }
-      if (inDoorRect(last[0], last[1], door) && !bubbleAtDoor) {
+      if (inDoorRect(last[0], last[1], key, orient) && !bubbleAtDoor) {
         errors.push(`${vp} ${key}: stood in door rect on path but bubble never on`);
       }
       report.runs.push({ viewport: vp, building: key, door, final: last, bubbleAtDoor, trail });

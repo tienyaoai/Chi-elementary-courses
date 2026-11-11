@@ -24,7 +24,7 @@ MAP_ZIP = Path(
 
 # Door offsets match map_config.rs door_point()
 DOOR_OFF = {
-    "chinese": {"landscape": (22, 252), "portrait": (-28, 105)},
+    "chinese": {"landscape": (22, 252), "portrait": (8, 102)},
     "english": {"landscape": (-22, 88), "portrait": (-12, 70)},
     "math": {"landscape": (10, 108), "portrait": (4, 96)},
     "treasure": {"landscape": (0, 42), "portrait": (0, 38)},

@@ -396,10 +396,18 @@
       "h": 64
     }
   ],
+  "door_trigger_zones_portrait": {
+    "chinese": {
+      "x": 245,
+      "y": 1174,
+      "w": 75,
+      "h": 52
+    }
+  },
   "door_points_portrait": {
     "chinese": [
-      268,
-      1203
+      304,
+      1200
     ],
     "english": [
       884,
