@@ -1743,15 +1743,6 @@ async function assertFitPlayerMoves(page, errors, shots = []) {
   if (progDiag.x <= progMid.x + 6 && progDiag.y <= progMid.y + 6) {
     errors.push("fit diagonal keys did not move player on both axes");
   }
-  const map = await activeMapViewport(page);
-  const box = await map.first().boundingBox();
-  const pl = await page.locator('[data-testid="island-player"]').boundingBox();
-  if (box && pl) {
-    const relX = Math.min(box.width - 8, Math.max(8, pl.x - box.x + 60));
-    const relY = pl.y - box.y + pl.height * 0.2;
-    await map.first().click({ position: { x: relX, y: relY }, force: true });
-    await sleep(400);
-  }
   await focusMapForWalk(page);
   const padBefore = (await playerPos(page)).x;
   const pad = page.locator('[data-testid="fit-pad-right"]');

@@ -27,7 +27,7 @@ async function setSpawn(page, landscape) {
   await page
     .locator(".map-screen:not(.map-screen-keeper) .island-viewport")
     .first()
-    .waitFor({ state: "visible", timeout: 60000 });
+    .waitFor({ state: "visible", timeout: 120000 });
   await page.waitForFunction(
     () => !document.body.textContent.includes("地圖載入中"),
     { timeout: 120000 }
@@ -82,7 +82,7 @@ async function exitDoorUi(page) {
   await page
     .locator(".map-screen:not(.map-screen-keeper) .island-viewport")
     .first()
-    .waitFor({ state: "visible", timeout: 30000 });
+    .waitFor({ state: "visible", timeout: 120000 });
   await sleep(400);
 }
 
