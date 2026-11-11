@@ -165,12 +165,15 @@ pub fn config() -> &'static MapConfigFile {
 }
 
 pub fn character_by_id(id: &str) -> Option<CharacterEntry> {
-    let cfg = config();
-    cfg.characters
+    let id = id.trim();
+    if id.is_empty() {
+        return None;
+    }
+    config()
+        .characters
         .iter()
         .find(|c| c.id == id)
         .cloned()
-        .or_else(|| cfg.characters.first().cloned())
 }
 
 pub fn character_display_name(id: &str) -> String {

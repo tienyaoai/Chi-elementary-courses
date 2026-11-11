@@ -62,7 +62,10 @@ struct CharCardProps {
 fn char_card(props: &CharCardProps) -> Html {
     let url = bust_url(&props.entry);
     html! {
-        <button type="button" class={classes!("char-card", "char-card-bust", props.selected.then_some("selected"))} onclick={props.onclick.clone()}>
+        <button type="button" class={classes!("char-card", "char-card-bust", props.selected.then_some("selected"))}
+            data-testid="char-card"
+            data-char-id={props.entry.id.clone()}
+            onclick={props.onclick.clone()}>
             <img class="char-bust-img" src={url} alt="" decoding="sync" />
             <span class="pixel-name"><BpmfAside text={props.entry.short.clone()} game={props.game.clone()} read=true /></span>
         </button>

@@ -123,9 +123,9 @@ pub fn grade1_unit(props: &Grade1UnitProps) -> Html {
                 }
                 play_correct();
                 let q_id = q.id.clone();
-                let mut p = PixelProgress::load();
-                p.questions_passed.insert(q_id);
-                p.save();
+                let _p = PixelProgress::patch_saved(|p| {
+                    p.questions_passed.insert(q_id);
+                });
                 feedback.set(String::new());
                 explain.set(Some(q.explain.clone()));
                 gloo_timers::callback::Timeout::new(900, {
@@ -138,9 +138,9 @@ pub fn grade1_unit(props: &Grade1UnitProps) -> Html {
                         let next = *q_idx + 1;
                         if next >= unit.questions.len() {
                             let lid = unit.key.level_id();
-                            let mut p = PixelProgress::load();
-                            p.mark_unit_cleared(&lid);
-                            p.save();
+                            let _p = PixelProgress::patch_saved(|p| {
+                                p.mark_unit_cleared(&lid);
+                            });
                             on_unit_complete.emit(lid);
                         } else {
                             q_idx.set(next);

@@ -41,7 +41,11 @@ fn portal_landmark_key(p: Portal) -> &'static str {
     }
 }
 
-/// Single door zone (door foot + enter_radius): drives hint, bubble, Enter, and button.
+/// Door plaza trigger: same small axis-aligned rect at every building (~one path tile).
+const DOOR_TRIGGER_HALF_W: f32 = 30.0;
+const DOOR_TRIGGER_HALF_H: f32 = 26.0;
+
+/// Foot of door on path; bubble + Enter only inside `DOOR_TRIGGER_*` rect centered here.
 pub fn portal_door_zone(px: f32, py: f32, orient: MapOrientation) -> Option<Portal> {
     let checks: [(&str, Portal); 4] = [
         ("chinese", Portal::Chinese),
@@ -52,12 +56,14 @@ pub fn portal_door_zone(px: f32, py: f32, orient: MapOrientation) -> Option<Port
     let mut best: Option<(Portal, f32)> = None;
     for (key, portal) in checks {
         let (dx, dy) = map_config::door_point(key, orient);
-        let r = map_config::enter_radius_for(key);
-        let d2 = (px - dx).powi(2) + (py - dy).powi(2);
-        if d2 <= r * r {
-            if best.map(|(_, bd)| d2 < bd).unwrap_or(true) {
-                best = Some((portal, d2));
-            }
+        let ox = (px - dx).abs();
+        let oy = (py - dy).abs();
+        if ox > DOOR_TRIGGER_HALF_W || oy > DOOR_TRIGGER_HALF_H {
+            continue;
+        }
+        let d2 = ox * ox + oy * oy;
+        if best.map(|(_, bd)| d2 < bd).unwrap_or(true) {
+            best = Some((portal, d2));
         }
     }
     best.map(|(p, _)| p)

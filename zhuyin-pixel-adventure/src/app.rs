@@ -68,12 +68,7 @@ fn apply_player_pos(
     px.set(nx);
     py.set(ny);
     let mut p = (**progress).clone();
-    if p.character_id.is_empty() {
-        let fresh = PixelProgress::load();
-        if !fresh.character_id.is_empty() {
-            p.character_id = fresh.character_id;
-        }
-    }
+    p.reinject_character_id();
     p.player_x = nx;
     p.player_y = ny;
     p.save();
@@ -215,6 +210,7 @@ pub fn app() -> Html {
         let walk_sheet_frame = walk_sheet_frame.clone();
         let walk_phase = walk_phase.clone();
         let last_progress_save = last_progress_save.clone();
+        let map_input = map_input.clone();
         Callback::from(move |(nx, ny, vx, vy): (f32, f32, f32, f32)| {
             let o = *orient;
             let (nx, ny) = island_walk::clamp_to_map(nx, ny, o);
@@ -224,7 +220,7 @@ pub fn app() -> Html {
             let (cx, cy) = *pos_live.borrow();
             let adx = nx - cx;
             let ady = ny - cy;
-            if adx.hypot(ady) > 0.01 {
+            if adx.hypot(ady) > 0.01 && !(*map_input).input_active() {
                 if let Some(face) = crate::walk_sprite::facing_from_axis(adx, ady) {
                     walk_facing.set(face as u8);
                 }
@@ -245,12 +241,7 @@ pub fn app() -> Html {
             py.set(ny);
             *pos_live.borrow_mut() = (nx, ny);
             let mut p = (*progress).clone();
-            if p.character_id.is_empty() {
-                let fresh = PixelProgress::load();
-                if !fresh.character_id.is_empty() {
-                    p.character_id = fresh.character_id;
-                }
-            }
+            p.reinject_character_id();
             p.player_x = nx;
             p.player_y = ny;
             let now = web_sys::window()
@@ -478,8 +469,7 @@ pub fn app() -> Html {
                     let progress = progress.clone();
                     move |id| {
                         let mut p = (*progress).clone();
-                        p.character_id = id;
-                        p.save();
+                        p.pick_character(&id);
                         progress.set(p);
                     }
                 })}
@@ -491,7 +481,8 @@ pub fn app() -> Html {
                     let progress = progress.clone();
                     move |_| {
                         let (sx, sy) = map_config::spawn(orient);
-                        let mut p = PixelProgress::load();
+                        let mut p = (*progress).clone();
+                        p.reinject_character_id();
                         if p.player_x < 40.0 && p.player_y < 25.0 {
                             p.player_x = sx;
                             p.player_y = sy;
@@ -519,7 +510,9 @@ pub fn app() -> Html {
             <div class={classes!("map-screen", (*map_fit).then_some("map-screen-fit"))}>
                 <div class={classes!("hud", (*map_fit).then_some("hud-fit"))}>
                     <span class="hud-title"><BpmfAside text={ "學習冒險島".to_string() } game={game.clone()} read={*map_fit} /></span>
-                    <button type="button" class={classes!("hud-btn", "hud-ghost", (!*map_fit).then_some("hud-change-char"), (*map_fit).then_some("hud-change-char-fit"))} onclick={Callback::from({
+                    <button type="button" class={classes!("hud-btn", "hud-ghost", (!*map_fit).then_some("hud-change-char"), (*map_fit).then_some("hud-change-char-fit"))}
+                        data-testid="hud-change-char"
+                        onclick={Callback::from({
                         let view = view.clone();
                         move |_| view.set(View::Select)
                     })}>
@@ -605,14 +598,16 @@ pub fn app() -> Html {
                             let bank = bank.clone();
                             let unit_id = unit_id.clone();
                             move |_| {
-                                let mut p = PixelProgress::load();
-                                if let Some(u) = bank.unit_by_id(&unit_id) {
-                                    let rid = u.key.reward_id();
-                                    if p.claim_unit(&unit_id, &rid) {
-                                        play_reward();
+                                let mut claimed = false;
+                                let p = PixelProgress::patch_saved(|p| {
+                                    if let Some(u) = bank.unit_by_id(&unit_id) {
+                                        let rid = u.key.reward_id();
+                                        claimed = p.claim_unit(&unit_id, &rid);
                                     }
+                                });
+                                if claimed {
+                                    play_reward();
                                 }
-                                p.save();
                                 progress.set(p);
                                 view.set(View::UnitClaim { unit_id: unit_id.clone() });
                             }
