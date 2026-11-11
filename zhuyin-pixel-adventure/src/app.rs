@@ -123,7 +123,6 @@ pub fn app() -> Html {
     let walk_phase = use_state(|| 0.0_f32);
     let map_input = use_state(MapInputController::new);
     let pos_live = use_memo((), |_| Rc::new(RefCell::new((0.0_f32, 0.0_f32))));
-    let door_enter_latch = use_memo((), |_| Rc::new(RefCell::new(None::<world::Portal>)));
     let orient_live = use_memo((), |_| Rc::new(Cell::new(MapOrientation::Portrait)));
     let orient = use_state(world::detect_orientation);
     let map_fit = use_state(world::is_map_fit);
@@ -258,7 +257,6 @@ pub fn app() -> Html {
 
     *pos_live.borrow_mut() = (*px, *py);
     orient_live.set(*orient);
-    *door_enter_latch.borrow_mut() = world::portal_for_door_enter(*px, *py, *orient);
     let on_map_enter = Callback::from({
         let view = view.clone();
         move |portal: Portal| {
@@ -268,6 +266,17 @@ pub fn app() -> Html {
                 Portal::English => view.set(View::Locked { subject: "英語" }),
                 Portal::Math => view.set(View::Locked { subject: "數學" }),
                 Portal::Treasure => view.set(View::Collection),
+            }
+        }
+    });
+    let enter_map_at_door = Callback::from({
+        let orient = orient.clone();
+        let pos_live = pos_live.clone();
+        let on_map_enter = on_map_enter.clone();
+        move |portal: Portal| {
+            let (x, y) = *pos_live.borrow();
+            if world::portal_for_door_enter(x, y, *orient) == Some(portal) {
+                on_map_enter.emit(portal);
             }
         }
     });
@@ -289,10 +298,9 @@ pub fn app() -> Html {
         let prime_audio = prime_audio.clone();
         let map_move_gate = map_move_gate.clone();
         let pos_live = pos_live.clone();
-        let door_enter_latch = door_enter_latch.clone();
         let orient_live = orient_live.clone();
         let map_move_gate = map_move_gate.clone();
-        let on_map_enter = on_map_enter.clone();
+        let enter_map_at_door = enter_map_at_door.clone();
         let walk_sheet_frame = walk_sheet_frame.clone();
         let walk_anim_accum = walk_anim_accum.clone();
         use_effect_with((), move |_| {
@@ -304,14 +312,12 @@ pub fn app() -> Html {
                 let pos_live = pos_live.clone();
                 let orient_live = orient_live.clone();
                 let map_move_gate = map_move_gate.clone();
-                let door_enter_latch = door_enter_latch.clone();
                 Rc::new(move || {
                     if !map_move_gate.get() {
                         return None;
                     }
                     let (lx, ly) = *pos_live.borrow();
                     world::portal_for_door_enter(lx, ly, orient_live.get())
-                        .or(*door_enter_latch.borrow())
                         .filter(|p| world::door_enterable(*p))
                 })
             };
@@ -363,7 +369,7 @@ pub fn app() -> Html {
                 }
             });
             let ctrl = (*map_input).clone();
-            let door_lane = Some((door_enter_probe, on_map_enter));
+            let door_lane = Some((door_enter_probe, enter_map_at_door));
             let teardown =
                 install_continuous_map_move(ctrl, on_clear, prime_audio.clone(), on_frame, door_lane);
             move || teardown()
@@ -556,7 +562,7 @@ pub fn app() -> Html {
                                 ctrl.pad_hold(dir, down);
                             }
                         })}
-                        on_enter={on_map_enter.clone()}
+                        on_enter={enter_map_at_door.clone()}
                         on_select_char={Callback::from({
                             let view = view.clone();
                             move |_| view.set(View::Select)

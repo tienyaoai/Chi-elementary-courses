@@ -985,8 +985,8 @@ async function assertDoorBubbleTextFits(page, errors, ctx) {
 }
 
 const SPAWN_WORLD = {
-  portrait: { x: 322, y: 1194 },
-  landscape: { x: 852, y: 1070 },
+  portrait: { x: MAP_CFG.spawn_portrait.x, y: MAP_CFG.spawn_portrait.y },
+  landscape: { x: MAP_CFG.spawn_landscape.x, y: MAP_CFG.spawn_landscape.y },
 };
 
 async function resetToSpawn(page, landscape) {
@@ -1929,7 +1929,7 @@ async function main() {
     }
     await page.setViewportSize({ width: 390, height: 844 });
     await ensureMapScreen(page);
-    await setPlayerPos(page, 322, 1194);
+    await setPlayerPos(page, MAP_CFG.spawn_portrait.x, MAP_CFG.spawn_portrait.y);
     const initial390 = `${ART}/${TAG}-initial-390x844.png`;
     await page.screenshot({ path: initial390, fullPage: true });
     shots.push(initial390);

@@ -5,6 +5,7 @@ import { writeFileSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { runAutoRepeatWalk } from "./autorepeat_walk.mjs";
 import { runCharacterPersist } from "./v921h_character_persist.mjs";
+import { runDoorBubbleApproach } from "./door_bubble_approach.mjs";
 
 const ART = "/opt/cursor/artifacts";
 const TAG = process.env.E2E_TAG || "v9.21h";
@@ -240,6 +241,9 @@ export async function runV921hVerify(page, errors = []) {
   }
 
   await runAutoRepeatWalk(page, errors);
+
+  report.doorApproach = await runDoorBubbleApproach(page, errors);
+
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.evaluate(() => localStorage.clear());
   await page.goto(BASE, { waitUntil: "networkidle", timeout: 120000 });
