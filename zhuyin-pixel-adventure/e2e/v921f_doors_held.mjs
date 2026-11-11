@@ -144,6 +144,15 @@ export async function runV921fDoorsHeld(page, errors) {
         atDoor = await walkWithArrowsUntil(page, keys, () => portalBubble(page, portal));
       }
       if (!atDoor) {
+        await focusMap(page);
+        atDoor = await walkWithArrowsUntil(
+          page,
+          ["ArrowRight", "ArrowUp"],
+          () => portalBubble(page, portal),
+          12000
+        );
+      }
+      if (!atDoor) {
         const p = await page.evaluate(() => {
           const raw = localStorage.getItem("zhuzhu-pixel-adventure-v1");
           return raw ? JSON.parse(raw) : null;

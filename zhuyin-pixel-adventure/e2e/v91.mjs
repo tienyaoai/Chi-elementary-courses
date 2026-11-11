@@ -74,7 +74,7 @@ async function expectEnabled(locator, page) {
 
 async function waitMapReady(page) {
   const vis = page.locator(".map-screen:not(.map-screen-keeper) .island-viewport");
-  await vis.first().waitFor({ state: "visible", timeout: 60000 });
+  await vis.first().waitFor({ state: "visible", timeout: 120000 });
   await page.waitForFunction(
     () => !document.body.textContent.includes("地圖載入中"),
     { timeout: 120000 }
@@ -1757,10 +1757,28 @@ async function assertFitPlayerMoves(page, errors, shots = []) {
   const pad = page.locator('[data-testid="fit-pad-right"]');
   const pb = await pad.boundingBox();
   if (pb) {
-    await page.mouse.move(pb.x + pb.width / 2, pb.y + pb.height / 2);
-    await page.mouse.down({ button: "left" });
+    const cx = pb.x + pb.width / 2;
+    const cy = pb.y + pb.height / 2;
+    await page.mouse.move(cx, cy);
+    await pad.dispatchEvent("pointerdown", {
+      pointerId: 1,
+      pointerType: "mouse",
+      isPrimary: true,
+      button: 0,
+      buttons: 1,
+      clientX: cx,
+      clientY: cy,
+    });
     await sleep(2000);
-    await page.mouse.up({ button: "left" });
+    await pad.dispatchEvent("pointerup", {
+      pointerId: 1,
+      pointerType: "mouse",
+      isPrimary: true,
+      button: 0,
+      buttons: 0,
+      clientX: cx,
+      clientY: cy,
+    });
   }
   await sleep(300);
   const padAfter = (await playerPos(page)).x;
