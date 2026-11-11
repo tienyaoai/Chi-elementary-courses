@@ -35,18 +35,18 @@ def build_walk_mask(img: Image.Image, step: int = 4) -> tuple[int, int, bytes]:
     px = img.convert("RGBA").load()
     for my in range(mh):
         for mx in range(mw):
-            walk = False
+            dry = 0
+            total = 0
             for dy in range(step):
                 for dx in range(step):
                     x, y = mx * step + dx, my * step + dy
                     if x >= w or y >= h:
                         continue
+                    total += 1
                     r, g, b, a = px[x, y]
                     if not is_water(r, g, b, a):
-                        walk = True
-                        break
-                if walk:
-                    break
+                        dry += 1
+            walk = total > 0 and dry >= max(1, total - 2)
             i = my * mw + mx
             if walk:
                 bits[i // 8] |= 1 << (i % 8)

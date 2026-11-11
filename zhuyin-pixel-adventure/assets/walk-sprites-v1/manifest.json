@@ -1,0 +1,147 @@
+{
+  "version": "walk-sprites-v1",
+  "source": "map-art-v12 characters",
+  "frame_w": 96,
+  "frame_h": 128,
+  "rows_order": [
+    "down",
+    "left",
+    "right",
+    "up"
+  ],
+  "frames_per_row": 4,
+  "frame_meaning": [
+    "contact_or_idle",
+    "passing",
+    "contact_other_foot",
+    "passing"
+  ],
+  "fps_suggestion": 8,
+  "baseline_y": 124,
+  "transparent": true,
+  "characters": [
+    {
+      "id": "char1",
+      "name_zh": "草帽旅人",
+      "slug": "strawhat",
+      "sheet": "char1-walk.png",
+      "symmetric": false,
+      "quality_note": "Good. Straw hat+leaves+backpack+green tunic match. Side stride clear. Leaves preserved (green not keyed out).",
+      "asymmetry": "leaves on hat left"
+    },
+    {
+      "id": "char2",
+      "name_zh": "藍圍巾冒險家",
+      "slug": "bluescarf",
+      "sheet": "char2-walk.png",
+      "symmetric": true,
+      "quality_note": "Good. Blue scarf+vest match. Right row mirrored from left (scarf fringe side may flip).",
+      "asymmetry": null
+    },
+    {
+      "id": "char3",
+      "name_zh": "粉紅雙馬尾",
+      "slug": "pinkpigtails",
+      "sheet": "char3-walk.png",
+      "symmetric": true,
+      "quality_note": "Strong. Pink twin-tails+dress match; L/R corrected. Walk readable in all dirs.",
+      "asymmetry": null
+    },
+    {
+      "id": "char4",
+      "name_zh": "黃吊帶褲",
+      "slug": "yellowoveralls",
+      "sheet": "char4-walk.png",
+      "symmetric": true,
+      "quality_note": "Good likeness (afro+yellow overalls). Front walk slightly subtler than side stride.",
+      "asymmetry": null
+    },
+    {
+      "id": "char5",
+      "name_zh": "眼鏡小學者",
+      "slug": "glassescloak",
+      "sheet": "char5-walk.png",
+      "symmetric": true,
+      "quality_note": "Good. Glasses+purple cloak match; back row shows cloak well. Natural L/R.",
+      "asymmetry": null
+    },
+    {
+      "id": "char6",
+      "name_zh": "青衣小朋友",
+      "slug": "tealtunic",
+      "sheet": "char6-walk.png",
+      "symmetric": false,
+      "quality_note": "Good teal tunic match. Right row mirrored — belt-tail side may be wrong on right.",
+      "asymmetry": "belt tail one side"
+    },
+    {
+      "id": "char7",
+      "name_zh": "橘連帽女孩",
+      "slug": "orangehoodie",
+      "sheet": "char7-walk.png",
+      "symmetric": true,
+      "quality_note": "Good orange hoodie+yellow backpack. Clear side walk; back shows backpack.",
+      "asymmetry": null
+    },
+    {
+      "id": "char8",
+      "name_zh": "紅緞帶女孩",
+      "slug": "redribbon",
+      "sheet": "char8-walk.png",
+      "symmetric": false,
+      "quality_note": "Good red ribbon dress. Right mirrored — bow tilt side may flip.",
+      "asymmetry": "bow tilt"
+    },
+    {
+      "id": "char9",
+      "name_zh": "水手服女孩",
+      "slug": "sailor",
+      "sheet": "char9-walk.png",
+      "symmetric": false,
+      "quality_note": "Good sailor+braid. Right mirrored — braid may appear on wrong shoulder when facing right.",
+      "asymmetry": "side braid"
+    },
+    {
+      "id": "char10",
+      "name_zh": "雙丸子女孩",
+      "slug": "lavenderbuns",
+      "sheet": "char10-walk.png",
+      "symmetric": true,
+      "quality_note": "Good lavender buns+sweater. Symmetric; mirror OK.",
+      "asymmetry": null
+    },
+    {
+      "id": "char11",
+      "name_zh": "薄荷外套女孩",
+      "slug": "mintcardigan",
+      "sheet": "char11-walk.png",
+      "symmetric": false,
+      "quality_note": "Good mint cardigan+flower. Right mirrored — flower may flip sides.",
+      "asymmetry": "flower on one side"
+    },
+    {
+      "id": "char12",
+      "name_zh": "紅帽男孩",
+      "slug": "redcap",
+      "sheet": "char12-walk.png",
+      "symmetric": false,
+      "quality_note": "Good after regen (red backward cap on all frames). Right mirrored — brim side may flip.",
+      "asymmetry": "backward cap brim side"
+    }
+  ],
+  "previews": {
+    "contact_sheet": "contact-sheet-2x.png",
+    "gifs": [
+      "preview-char1-walk.gif",
+      "preview-char3-walk.gif",
+      "preview-char12-walk.gif"
+    ]
+  },
+  "notes": [
+    "All 12 characters have full 4 directions x 4 frames transparent PNG sheets at 96x128 per frame.",
+    "Generated with free GenerateImage + map-art-v12 -full refs; no PixelLab/paid credits.",
+    "Many right-facing rows are mirrored left because the generator produced same-facing side pairs; flagged per asymmetric characters.",
+    "Frame 0 in some rows is closer to idle/contact; fps suggestion 8.",
+    "Raw keyed intermediates kept under walk-sprites-v1/raw/ (not in zip)."
+  ]
+}

@@ -41,7 +41,7 @@ fn portal_landmark_key(p: Portal) -> &'static str {
     }
 }
 
-/// Single door zone (door foot + enter_radius): drives hint, bubble, Enter, and button.
+/// Foot of door on path; bubble + Enter only inside door trigger rect.
 pub fn portal_door_zone(px: f32, py: f32, orient: MapOrientation) -> Option<Portal> {
     let checks: [(&str, Portal); 4] = [
         ("chinese", Portal::Chinese),
@@ -51,13 +51,13 @@ pub fn portal_door_zone(px: f32, py: f32, orient: MapOrientation) -> Option<Port
     ];
     let mut best: Option<(Portal, f32)> = None;
     for (key, portal) in checks {
+        if !map_config::door_trigger_contains(key, px, py, orient) {
+            continue;
+        }
         let (dx, dy) = map_config::door_point(key, orient);
-        let r = map_config::enter_radius_for(key);
         let d2 = (px - dx).powi(2) + (py - dy).powi(2);
-        if d2 <= r * r {
-            if best.map(|(_, bd)| d2 < bd).unwrap_or(true) {
-                best = Some((portal, d2));
-            }
+        if best.map(|(_, bd)| d2 < bd).unwrap_or(true) {
+            best = Some((portal, d2));
         }
     }
     best.map(|(p, _)| p)

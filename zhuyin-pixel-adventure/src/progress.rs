@@ -6,6 +6,20 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 
 pub const STORAGE_KEY: &str = "zhuzhu-pixel-adventure-v1";
+/// Written on every character pick; progress saves must never clear this key.
+pub const CHARACTER_KEY: &str = "zhuzhu-pixel-adventure-char-v1";
+
+pub fn stored_character_id() -> Option<String> {
+    LocalStorage::get(CHARACTER_KEY).ok().filter(|s: &String| !s.is_empty())
+}
+
+pub fn persist_character_id(id: &str) {
+    let id = map_config::migrate_character_id(id);
+    if id.is_empty() {
+        return;
+    }
+    let _ = LocalStorage::set(CHARACTER_KEY, &id);
+}
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct PixelProgress {
@@ -66,12 +80,47 @@ impl Default for PixelProgress {
 impl PixelProgress {
     pub fn load() -> Self {
         let mut p: Self = LocalStorage::get(STORAGE_KEY).unwrap_or_default();
+        p.reinject_character_id();
         p.migrate_legacy();
         p
     }
 
     pub fn save(&self) {
-        let _ = LocalStorage::set(STORAGE_KEY, self);
+        let mut out = self.clone();
+        if out.character_id.is_empty() {
+            out.reinject_character_id();
+        } else {
+            out.character_id = map_config::migrate_character_id(&out.character_id);
+        }
+        if !out.character_id.is_empty() {
+            persist_character_id(&out.character_id);
+        }
+        let _ = LocalStorage::set(STORAGE_KEY, &out);
+    }
+
+    /// Merge pick into RAM + both storage slots immediately (character picker).
+    pub fn pick_character(&mut self, id: impl AsRef<str>) {
+        self.character_id = map_config::migrate_character_id(id.as_ref());
+        self.save();
+    }
+
+    /// Load disk, apply `patch`, never drop a known character id.
+    pub fn patch_saved<F: FnOnce(&mut Self)>(patch: F) -> Self {
+        let mut p = Self::load();
+        patch(&mut p);
+        p.reinject_character_id();
+        p.save();
+        p
+    }
+
+    pub fn reinject_character_id(&mut self) {
+        if let Some(cid) = stored_character_id() {
+            self.character_id = map_config::migrate_character_id(&cid);
+            return;
+        }
+        if !self.character_id.is_empty() {
+            self.character_id = map_config::migrate_character_id(&self.character_id);
+        }
     }
 
     fn migrate_legacy(&mut self) {

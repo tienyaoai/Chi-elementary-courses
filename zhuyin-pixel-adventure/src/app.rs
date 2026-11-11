@@ -68,12 +68,7 @@ fn apply_player_pos(
     px.set(nx);
     py.set(ny);
     let mut p = (**progress).clone();
-    if p.character_id.is_empty() {
-        let fresh = PixelProgress::load();
-        if !fresh.character_id.is_empty() {
-            p.character_id = fresh.character_id;
-        }
-    }
+    p.reinject_character_id();
     p.player_x = nx;
     p.player_y = ny;
     p.save();
@@ -128,7 +123,6 @@ pub fn app() -> Html {
     let walk_phase = use_state(|| 0.0_f32);
     let map_input = use_state(MapInputController::new);
     let pos_live = use_memo((), |_| Rc::new(RefCell::new((0.0_f32, 0.0_f32))));
-    let door_enter_latch = use_memo((), |_| Rc::new(RefCell::new(None::<world::Portal>)));
     let orient_live = use_memo((), |_| Rc::new(Cell::new(MapOrientation::Portrait)));
     let orient = use_state(world::detect_orientation);
     let map_fit = use_state(world::is_map_fit);
@@ -215,6 +209,7 @@ pub fn app() -> Html {
         let walk_sheet_frame = walk_sheet_frame.clone();
         let walk_phase = walk_phase.clone();
         let last_progress_save = last_progress_save.clone();
+        let map_input = map_input.clone();
         Callback::from(move |(nx, ny, vx, vy): (f32, f32, f32, f32)| {
             let o = *orient;
             let (nx, ny) = island_walk::clamp_to_map(nx, ny, o);
@@ -224,7 +219,7 @@ pub fn app() -> Html {
             let (cx, cy) = *pos_live.borrow();
             let adx = nx - cx;
             let ady = ny - cy;
-            if adx.hypot(ady) > 0.01 {
+            if adx.hypot(ady) > 0.01 && !(*map_input).input_active() {
                 if let Some(face) = crate::walk_sprite::facing_from_axis(adx, ady) {
                     walk_facing.set(face as u8);
                 }
@@ -245,12 +240,7 @@ pub fn app() -> Html {
             py.set(ny);
             *pos_live.borrow_mut() = (nx, ny);
             let mut p = (*progress).clone();
-            if p.character_id.is_empty() {
-                let fresh = PixelProgress::load();
-                if !fresh.character_id.is_empty() {
-                    p.character_id = fresh.character_id;
-                }
-            }
+            p.reinject_character_id();
             p.player_x = nx;
             p.player_y = ny;
             let now = web_sys::window()
@@ -267,7 +257,6 @@ pub fn app() -> Html {
 
     *pos_live.borrow_mut() = (*px, *py);
     orient_live.set(*orient);
-    *door_enter_latch.borrow_mut() = world::portal_for_door_enter(*px, *py, *orient);
     let on_map_enter = Callback::from({
         let view = view.clone();
         move |portal: Portal| {
@@ -277,6 +266,17 @@ pub fn app() -> Html {
                 Portal::English => view.set(View::Locked { subject: "英語" }),
                 Portal::Math => view.set(View::Locked { subject: "數學" }),
                 Portal::Treasure => view.set(View::Collection),
+            }
+        }
+    });
+    let enter_map_at_door = Callback::from({
+        let orient = orient.clone();
+        let pos_live = pos_live.clone();
+        let on_map_enter = on_map_enter.clone();
+        move |portal: Portal| {
+            let (x, y) = *pos_live.borrow();
+            if world::portal_for_door_enter(x, y, *orient) == Some(portal) {
+                on_map_enter.emit(portal);
             }
         }
     });
@@ -298,10 +298,9 @@ pub fn app() -> Html {
         let prime_audio = prime_audio.clone();
         let map_move_gate = map_move_gate.clone();
         let pos_live = pos_live.clone();
-        let door_enter_latch = door_enter_latch.clone();
         let orient_live = orient_live.clone();
         let map_move_gate = map_move_gate.clone();
-        let on_map_enter = on_map_enter.clone();
+        let enter_map_at_door = enter_map_at_door.clone();
         let walk_sheet_frame = walk_sheet_frame.clone();
         let walk_anim_accum = walk_anim_accum.clone();
         use_effect_with((), move |_| {
@@ -313,14 +312,12 @@ pub fn app() -> Html {
                 let pos_live = pos_live.clone();
                 let orient_live = orient_live.clone();
                 let map_move_gate = map_move_gate.clone();
-                let door_enter_latch = door_enter_latch.clone();
                 Rc::new(move || {
                     if !map_move_gate.get() {
                         return None;
                     }
                     let (lx, ly) = *pos_live.borrow();
                     world::portal_for_door_enter(lx, ly, orient_live.get())
-                        .or(*door_enter_latch.borrow())
                         .filter(|p| world::door_enterable(*p))
                 })
             };
@@ -372,7 +369,7 @@ pub fn app() -> Html {
                 }
             });
             let ctrl = (*map_input).clone();
-            let door_lane = Some((door_enter_probe, on_map_enter));
+            let door_lane = Some((door_enter_probe, enter_map_at_door));
             let teardown =
                 install_continuous_map_move(ctrl, on_clear, prime_audio.clone(), on_frame, door_lane);
             move || teardown()
@@ -478,8 +475,7 @@ pub fn app() -> Html {
                     let progress = progress.clone();
                     move |id| {
                         let mut p = (*progress).clone();
-                        p.character_id = id;
-                        p.save();
+                        p.pick_character(&id);
                         progress.set(p);
                     }
                 })}
@@ -491,7 +487,8 @@ pub fn app() -> Html {
                     let progress = progress.clone();
                     move |_| {
                         let (sx, sy) = map_config::spawn(orient);
-                        let mut p = PixelProgress::load();
+                        let mut p = (*progress).clone();
+                        p.reinject_character_id();
                         if p.player_x < 40.0 && p.player_y < 25.0 {
                             p.player_x = sx;
                             p.player_y = sy;
@@ -519,7 +516,9 @@ pub fn app() -> Html {
             <div class={classes!("map-screen", (*map_fit).then_some("map-screen-fit"))}>
                 <div class={classes!("hud", (*map_fit).then_some("hud-fit"))}>
                     <span class="hud-title"><BpmfAside text={ "學習冒險島".to_string() } game={game.clone()} read={*map_fit} /></span>
-                    <button type="button" class={classes!("hud-btn", "hud-ghost", (!*map_fit).then_some("hud-change-char"), (*map_fit).then_some("hud-change-char-fit"))} onclick={Callback::from({
+                    <button type="button" class={classes!("hud-btn", "hud-ghost", (!*map_fit).then_some("hud-change-char"), (*map_fit).then_some("hud-change-char-fit"))}
+                        data-testid="hud-change-char"
+                        onclick={Callback::from({
                         let view = view.clone();
                         move |_| view.set(View::Select)
                     })}>
@@ -563,7 +562,7 @@ pub fn app() -> Html {
                                 ctrl.pad_hold(dir, down);
                             }
                         })}
-                        on_enter={on_map_enter.clone()}
+                        on_enter={enter_map_at_door.clone()}
                         on_select_char={Callback::from({
                             let view = view.clone();
                             move |_| view.set(View::Select)
@@ -605,14 +604,16 @@ pub fn app() -> Html {
                             let bank = bank.clone();
                             let unit_id = unit_id.clone();
                             move |_| {
-                                let mut p = PixelProgress::load();
-                                if let Some(u) = bank.unit_by_id(&unit_id) {
-                                    let rid = u.key.reward_id();
-                                    if p.claim_unit(&unit_id, &rid) {
-                                        play_reward();
+                                let mut claimed = false;
+                                let p = PixelProgress::patch_saved(|p| {
+                                    if let Some(u) = bank.unit_by_id(&unit_id) {
+                                        let rid = u.key.reward_id();
+                                        claimed = p.claim_unit(&unit_id, &rid);
                                     }
+                                });
+                                if claimed {
+                                    play_reward();
                                 }
-                                p.save();
                                 progress.set(p);
                                 view.set(View::UnitClaim { unit_id: unit_id.clone() });
                             }

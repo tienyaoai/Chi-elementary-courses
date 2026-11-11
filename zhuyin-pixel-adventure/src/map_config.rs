@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use std::collections::HashMap;
 use std::sync::OnceLock;
 
 #[derive(Clone, Debug, Deserialize)]
@@ -64,6 +65,11 @@ pub struct MapConfigFile {
     pub walk_blocked_portrait: Vec<WalkRect>,
     #[serde(default)]
     pub walk_blocked_landscape: Vec<WalkRect>,
+    /// Optional axis-aligned door triggers (default: ±30×±26 around `door_point`).
+    #[serde(default)]
+    pub door_trigger_zones_portrait: HashMap<String, WalkRect>,
+    #[serde(default)]
+    pub door_trigger_zones_landscape: HashMap<String, WalkRect>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -120,6 +126,29 @@ pub fn door_point(portal: &str, orient: MapOrientation) -> (f32, f32) {
     (x as f32 + dx, y as f32 + dy)
 }
 
+pub const DOOR_TRIGGER_HALF_W: f32 = 30.0;
+pub const DOOR_TRIGGER_HALF_H: f32 = 26.0;
+
+/// Whether hero feet are inside this building's door trigger (bubble / Enter).
+pub fn door_trigger_contains(key: &str, px: f32, py: f32, orient: MapOrientation) -> bool {
+    let c = config();
+    let custom = match orient {
+        MapOrientation::Portrait => c.door_trigger_zones_portrait.get(key),
+        MapOrientation::Landscape => c.door_trigger_zones_landscape.get(key),
+    };
+    if let Some(r) = custom {
+        let x0 = r.x as f32;
+        let y0 = r.y as f32;
+        let x1 = x0 + r.w as f32;
+        let y1 = y0 + r.h as f32;
+        return px >= x0 && px <= x1 && py >= y0 && py <= y1;
+    }
+    let (dx, dy) = door_point(key, orient);
+    let ox = (px - dx).abs();
+    let oy = (py - dy).abs();
+    ox <= DOOR_TRIGGER_HALF_W && oy <= DOOR_TRIGGER_HALF_H
+}
+
 pub fn door_radius_for(portal: &str) -> f32 {
     match portal {
         "treasure" => 56.0,
@@ -165,12 +194,15 @@ pub fn config() -> &'static MapConfigFile {
 }
 
 pub fn character_by_id(id: &str) -> Option<CharacterEntry> {
-    let cfg = config();
-    cfg.characters
+    let id = id.trim();
+    if id.is_empty() {
+        return None;
+    }
+    config()
+        .characters
         .iter()
         .find(|c| c.id == id)
         .cloned()
-        .or_else(|| cfg.characters.first().cloned())
 }
 
 pub fn character_display_name(id: &str) -> String {

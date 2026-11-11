@@ -10,6 +10,9 @@ import { footOnLand, isWaterPixel, loadWalkMask } from "./walk_mask.mjs";
 const ART = "/opt/cursor/artifacts";
 const TAG = process.env.E2E_TAG || "v9.21d";
 const BASE = process.env.E2E_BASE || "http://127.0.0.1:8765";
+const MAP_CFG = JSON.parse(
+  readFileSync(path.resolve("..", "src", "map_config.json"), "utf8")
+);
 const HOLD_MS = 3000;
 const STEP_MS = 50;
 
@@ -362,7 +365,18 @@ async function assertLabelInViewport(page, key, errors) {
 async function auditFootLandAfterHolds(browser, errors) {
   const dist = path.resolve("..", "dist");
   const plans = [
-    { orient: "portrait", w: 390, h: 844, touch: true, starts: [[120, 1240], [235, 1695], [304, 1200], [884, 724]] },
+    {
+      orient: "portrait",
+      w: 390,
+      h: 844,
+      touch: true,
+      starts: [
+        [120, 1240],
+        [235, 1695],
+        [MAP_CFG.door_points_portrait.chinese[0], MAP_CFG.door_points_portrait.chinese[1]],
+        [884, 724],
+      ],
+    },
     { orient: "landscape", w: 1280, h: 800, touch: false, starts: [[200, 1030], [1775, 400], [1600, 1310]] },
   ];
   const maskP = loadWalkMask(dist, "portrait");
@@ -403,12 +417,7 @@ async function auditFootLandAfterHolds(browser, errors) {
 }
 
 async function capturePhoneShots(page, errors) {
-  const doors = {
-    chinese: [304, 1200],
-    math: [732, 1284],
-    english: [884, 724],
-    treasure: [570, 988],
-  };
+  const doors = MAP_CFG.door_points_portrait;
   for (const [key, [x, y]] of Object.entries(doors)) {
     await resetPos(page, x, y);
     await sleep(700);

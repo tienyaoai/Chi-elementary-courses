@@ -373,12 +373,7 @@ def main() -> None:
         for k in ("chinese", "english", "math", "treasure")
     }
 
-    # Paint door plazas on trail
-    for mode, img in (("portrait", portrait), ("landscape", landscape)):
-        r = PLAZA_RADIUS[mode]
-        for key in ("chinese", "english", "math", "treasure"):
-            dx, dy = door_xy(key, mode, cfg)
-            paint_plaza(img, dx, dy - 8, r)
+    # v9.21h: do not paint elliptical ground pads (paths/overrides stay in map_config).
 
     issues_after = audit(cfg, portrait, landscape)
     after_p = annotate(portrait, cfg, "portrait", issues_after, "v9.19 AFTER — portrait")

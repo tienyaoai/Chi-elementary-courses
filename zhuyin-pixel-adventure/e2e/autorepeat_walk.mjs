@@ -23,10 +23,7 @@ async function pickCharacter(page) {
     await page.locator(".char-grid-12 .char-card").first().click();
     await page.locator("button.pixel-btn.primary.big-touch").click();
   }
-  await page
-    .locator(".map-screen:not(.map-screen-keeper) .island-viewport")
-    .first()
-    .waitFor({ state: "visible", timeout: 120000 });
+  await page.locator(".island-viewport").first().waitFor({ state: "visible", timeout: 120000 });
   await page.waitForFunction(
     () => !document.body.textContent.includes("地圖載入中"),
     { timeout: 120000 }
@@ -44,10 +41,7 @@ async function resetPos(page, x = 720, y = 1020) {
     { x, y }
   );
   await page.reload({ waitUntil: "networkidle" });
-  await page
-    .locator(".map-screen:not(.map-screen-keeper) .island-viewport")
-    .first()
-    .waitFor({ state: "visible", timeout: 120000 });
+  await page.locator(".island-viewport").first().waitFor({ state: "visible", timeout: 120000 });
   await sleep(500);
 }
 
