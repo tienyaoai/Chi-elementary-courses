@@ -16,6 +16,25 @@ use yew::Callback;
 
 pub const WALK_SPEED_PX_PER_SEC: f32 = 285.0;
 
+fn event_from_pad_btn(e: &web_sys::Event) -> bool {
+    let Some(target) = e.target() else {
+        return false;
+    };
+    let Ok(mut el) = target.dyn_into::<web_sys::Element>() else {
+        return false;
+    };
+    loop {
+        let class = el.class_name();
+        if class.split_whitespace().any(|c| c == "pad-btn") {
+            return true;
+        }
+        match el.parent_element() {
+            Some(p) => el = p,
+            None => return false,
+        }
+    }
+}
+
 #[derive(Clone, Copy, Default, Debug, PartialEq, Eq)]
 pub struct HeldKeys {
     pub up: bool,
@@ -271,8 +290,9 @@ pub fn install_continuous_map_move(
     let ctrl_vis = controller.clone();
     let ctrl_teardown = controller.clone();
     let ctrl_enter = controller.clone();
-    let ctrl_ptr_up = controller.clone();
-    let ctrl_ptr_cancel = controller.clone();
+            let ctrl_ptr_up = controller.clone();
+            let ctrl_ptr_up_mouse = controller.clone();
+            let ctrl_ptr_cancel = controller.clone();
     let win = web_sys::window().unwrap();
             let held_kd = held.clone();
             let on_clear = on_clear_path.clone();
@@ -308,6 +328,9 @@ pub fn install_continuous_map_move(
                 if arrow_like(dir) {
                     e.prevent_default();
                     e.stop_propagation();
+                    if e.repeat() {
+                        return;
+                    }
                     on_prime.emit(());
                     on_clear.emit(());
                     held_kd.borrow_mut().set_dir(dir, true);
@@ -330,6 +353,24 @@ pub fn install_continuous_map_move(
             let vis = EventListener::new(&win, "visibilitychange", move |_| {
                 ctrl_vis.clear_held();
             });
+            let skip_pad_release = |e: &web_sys::Event| -> bool {
+                if event_from_pad_btn(e) {
+                    return true;
+                }
+                if let Some(t) = e.target() {
+                    if let Ok(el) = t.dyn_into::<web_sys::Element>() {
+                        if el
+                            .closest(".map-screen-keeper")
+                            .ok()
+                            .flatten()
+                            .is_some()
+                        {
+                            return true;
+                        }
+                    }
+                }
+                false
+            };
             let pointer_up = EventListener::new(&win, "pointerup", move |e| {
                 if e
                     .dyn_ref::<web_sys::PointerEvent>()
@@ -338,7 +379,23 @@ pub fn install_continuous_map_move(
                 {
                     return;
                 }
+                if skip_pad_release(e) {
+                    return;
+                }
                 ctrl_ptr_up.pad_pointer_released();
+            });
+            let mouse_up = EventListener::new(&win, "mouseup", move |e| {
+                if e
+                    .dyn_ref::<web_sys::MouseEvent>()
+                    .map(|ev| ev.button())
+                    != Some(0)
+                {
+                    return;
+                }
+                if skip_pad_release(e) {
+                    return;
+                }
+                ctrl_ptr_up_mouse.pad_pointer_released();
             });
             let pointer_cancel = EventListener::new(&win, "pointercancel", move |_| {
                 ctrl_ptr_cancel.pad_pointer_released();
@@ -372,6 +429,7 @@ pub fn install_continuous_map_move(
         drop(blur);
         drop(vis);
         drop(pointer_up);
+        drop(mouse_up);
         drop(pointer_cancel);
         drop(tick);
         ctrl_teardown.clear_held();
