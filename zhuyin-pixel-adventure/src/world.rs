@@ -6,6 +6,7 @@ pub enum Portal {
     English,
     Math,
     Treasure,
+    Bulletin,
 }
 
 pub fn detect_orientation() -> MapOrientation {
@@ -38,16 +39,18 @@ fn portal_landmark_key(p: Portal) -> &'static str {
         Portal::English => "english",
         Portal::Math => "math",
         Portal::Treasure => "treasure",
+        Portal::Bulletin => "bulletin",
     }
 }
 
 /// Foot of door on path; bubble + Enter only inside door trigger rect.
 pub fn portal_door_zone(px: f32, py: f32, orient: MapOrientation) -> Option<Portal> {
-    let checks: [(&str, Portal); 4] = [
+    let checks: [(&str, Portal); 5] = [
         ("chinese", Portal::Chinese),
         ("english", Portal::English),
         ("math", Portal::Math),
         ("treasure", Portal::Treasure),
+        ("bulletin", Portal::Bulletin),
     ];
     let mut best: Option<(Portal, f32)> = None;
     for (key, portal) in checks {
@@ -79,7 +82,7 @@ pub fn portal_for_door_enter(px: f32, py: f32, orient: MapOrientation) -> Option
 pub fn door_enterable(portal: Portal) -> bool {
     matches!(
         portal,
-        Portal::Chinese | Portal::English | Portal::Math | Portal::Treasure
+        Portal::Chinese | Portal::English | Portal::Math | Portal::Treasure | Portal::Bulletin
     )
 }
 
@@ -89,6 +92,7 @@ pub fn door_prompt_text(portal: Portal) -> String {
         Portal::Treasure => "進入寶箱收藏？".to_string(),
         Portal::English => "進入英文燈塔？".to_string(),
         Portal::Math => "進入數學工坊？".to_string(),
+        Portal::Bulletin => "查看佈告欄？".to_string(),
     }
 }
 
@@ -101,22 +105,25 @@ impl GateLabel {
             Portal::English => "英文燈塔",
             Portal::Math => "數學工坊",
             Portal::Treasure => "寶箱收藏",
+            Portal::Bulletin => "佈告欄",
         }
     }
 
     pub fn hint(p: Portal) -> &'static str {
         match p {
             Portal::Chinese => "到國語學校屋前，按「進入」開始答題",
-            Portal::English | Portal::Math => "這個地方還在蓋，稍後再來",
+            Portal::English => "到英文燈塔前，按「進入」開始答題",
+            Portal::Math => "到數學工坊前，按「進入」開始答題",
             Portal::Treasure => "到寶箱前，按「進入」看收藏",
+            Portal::Bulletin => "到佈告欄前，按「進入」看排行榜",
         }
     }
 
     pub fn enter_label(p: Portal) -> &'static str {
         match p {
-            Portal::Chinese => "進入",
-            Portal::Treasure => "進入",
-            Portal::English | Portal::Math => "即將開放",
+            Portal::Chinese | Portal::English | Portal::Math | Portal::Treasure | Portal::Bulletin => {
+                "進入"
+            }
         }
     }
 }

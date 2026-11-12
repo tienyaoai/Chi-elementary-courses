@@ -10,6 +10,8 @@ use crate::walk_sprite::WalkFacing;
 use crate::map_config::{self, MapOrientation};
 use crate::pixel_art_preload::preload_urls;
 use crate::progress::PixelProgress;
+use crate::island_api::{self, submit_score};
+use crate::online_screens::{AccountScreen, BulletinScreen};
 use crate::screens::{CollectionScreen, SelectScreen};
 use crate::sounds::{play_reward, portal_blip};
 use crate::world::{self, Portal};
@@ -76,7 +78,7 @@ fn apply_player_pos(
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
-enum SubjectTrack {
+pub enum SubjectTrack {
     Chinese,
     Math,
     English,
@@ -98,9 +100,19 @@ enum View {
         unit_id: String,
     },
     Collection,
+    Bulletin,
+    Account,
     Locked {
         subject: &'static str,
     },
+}
+
+fn subject_api_name(track: SubjectTrack) -> &'static str {
+    match track {
+        SubjectTrack::Chinese => "chinese",
+        SubjectTrack::Math => "math",
+        SubjectTrack::English => "english",
+    }
 }
 
 fn bank_for<'a>(
@@ -315,6 +327,7 @@ pub fn app() -> Html {
                     track: SubjectTrack::Math,
                 }),
                 Portal::Treasure => view.set(View::Collection),
+                Portal::Bulletin => view.set(View::Bulletin),
             }
         }
     });
@@ -680,6 +693,11 @@ pub fn app() -> Html {
                                     play_reward();
                                 }
                                 progress.set(p);
+                                let subj = subject_api_name(track).to_string();
+                                let uid = unit_id.clone();
+                                spawn_local(async move {
+                                    submit_score(&subj, &uid, 40).await;
+                                });
                                 view.set(View::UnitClaim { track, unit_id: unit_id.clone() });
                             }
                         })} />
@@ -708,6 +726,28 @@ pub fn app() -> Html {
                 </section>
             }
         }
+        View::Bulletin => html! {
+            <BulletinScreen game={game.clone()}
+                on_back={Callback::from({
+                    let view = view.clone();
+                    move |_| view.set(View::Map)
+                })}
+                on_open_account={Callback::from({
+                    let view = view.clone();
+                    move |_| view.set(View::Account)
+                })} />
+        },
+        View::Account => html! {
+            <AccountScreen game={game.clone()}
+                on_back={Callback::from({
+                    let view = view.clone();
+                    move |_| view.set(View::Bulletin)
+                })}
+                on_logged_in={Callback::from({
+                    let view = view.clone();
+                    move |_| view.set(View::Bulletin)
+                })} />
+        },
         View::Collection => html! {
             <CollectionScreen game={game.clone()} banks={vec![(*bank_chinese).clone(), (*bank_math).clone(), (*bank_english).clone()]} progress={(*progress).clone()}
                 on_back={Callback::from({

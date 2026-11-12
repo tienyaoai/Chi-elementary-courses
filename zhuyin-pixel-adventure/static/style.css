@@ -1520,6 +1520,46 @@ body:has(.map-screen:not(.map-screen-fit)) {
 }
 
 /* v5 國語小島選關與題圖 */
+.island-bulletin-sign {
+  position: absolute;
+  width: 72px;
+  height: 56px;
+  background: linear-gradient(#f8e8c8, #d4a574);
+  border: 3px solid #5a3e28;
+  border-radius: 4px;
+  box-shadow: 2px 3px 0 #3d2916;
+}
+
+.island-bulletin-sign::after {
+  content: "";
+  display: block;
+  width: 56px;
+  height: 8px;
+  margin: 4px auto;
+  background: #fdf6e8;
+  border: 2px solid #5a3e28;
+}
+
+.bulletin-panel .leaderboard-list,
+.bulletin-panel .announcement-list {
+  text-align: left;
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+.account-panel .pixel-input {
+  width: 100%;
+  font-size: 1.1rem;
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.account-field {
+  display: block;
+  margin: 0.75rem 0;
+  font-size: 1.05rem;
+}
+
 .listen-en-btn {
   margin: 0.5rem 0 0.75rem;
   font-size: 1rem;
