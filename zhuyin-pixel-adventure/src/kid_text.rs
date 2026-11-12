@@ -38,6 +38,7 @@ pub fn kid_facing_strings() -> Vec<String> {
         Portal::English,
         Portal::Math,
         Portal::Treasure,
+        Portal::Bulletin,
     ] {
         list.push(GateLabel::name(p).to_string());
         list.push(GateLabel::hint(p).to_string());
