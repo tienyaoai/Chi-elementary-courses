@@ -7,7 +7,7 @@ import { runAutoRepeatWalk } from "./autorepeat_walk.mjs";
 import { runCharacterPersist } from "./v921h_character_persist.mjs";
 import { runDoorBubbleApproach } from "./door_bubble_approach.mjs";
 import { runDoorPathApproach } from "./door_path_approach.mjs";
-import { runV921kChineseDoor } from "./v921k_chinese_door.mjs";
+import { runV922aDoorTight } from "./v922a_door_tight.mjs";
 
 const ART = "/opt/cursor/artifacts";
 const TAG = process.env.E2E_TAG || "v9.21h";
@@ -19,8 +19,9 @@ const MAP_CFG = JSON.parse(
 );
 const doorsPortrait = MAP_CFG.door_points_portrait;
 const doorsLandscape = MAP_CFG.door_points_landscape;
-const TRIGGER_HW = 30;
-const TRIGGER_HH = 26;
+import { DOOR_TRIGGER_HALF_W, DOOR_TRIGGER_HALF_H_DOWN } from "./door_trigger.mjs";
+const TRIGGER_HW = DOOR_TRIGGER_HALF_W;
+const TRIGGER_HH = DOOR_TRIGGER_HALF_H_DOWN;
 
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
@@ -171,6 +172,7 @@ async function facingPadAfterStop(page, padTestId, dir, expectedRow, spawn = [72
 }
 
 export async function runV921hVerify(page, errors = []) {
+  process.env.E2E_BASE = BASE;
   mkdirSync(ART, { recursive: true });
   const report = { tag: TAG, bubble: {}, facing: { keyboard: {}, pad: {} }, screenshots: {} };
 
@@ -246,7 +248,7 @@ export async function runV921hVerify(page, errors = []) {
 
   report.doorApproach = await runDoorBubbleApproach(page, errors);
   report.doorPathApproach = await runDoorPathApproach(page, errors);
-  report.v921kChineseDoor = await runV921kChineseDoor(page, errors);
+  report.v922aDoorTight = await runV922aDoorTight(page, errors);
 
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.evaluate(() => localStorage.clear());

@@ -7,7 +7,7 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = process.env.E2E_TAG || "v9.21k";
+const TAG = process.env.E2E_TAG || "v9.22a";
 const ROOT = path.resolve("..");
 const DIST = path.join(ROOT, "dist");
 const PORT = process.env.E2E_PORT || "8788";

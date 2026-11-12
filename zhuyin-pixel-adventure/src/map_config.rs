@@ -126,27 +126,21 @@ pub fn door_point(portal: &str, orient: MapOrientation) -> (f32, f32) {
     (x as f32 + dx, y as f32 + dy)
 }
 
-pub const DOOR_TRIGGER_HALF_W: f32 = 30.0;
-pub const DOOR_TRIGGER_HALF_H: f32 = 26.0;
+/// Tight door-step trigger (same for all buildings): feet on the threshold / one tile in front.
+pub const DOOR_TRIGGER_HALF_W: f32 = 16.0;
+/// Map y grows downward: allow a little above the door foot and ~20px onto the step below.
+pub const DOOR_TRIGGER_HALF_H_UP: f32 = 8.0;
+pub const DOOR_TRIGGER_HALF_H_DOWN: f32 = 20.0;
 
 /// Whether hero feet are inside this building's door trigger (bubble / Enter).
 pub fn door_trigger_contains(key: &str, px: f32, py: f32, orient: MapOrientation) -> bool {
-    let c = config();
-    let custom = match orient {
-        MapOrientation::Portrait => c.door_trigger_zones_portrait.get(key),
-        MapOrientation::Landscape => c.door_trigger_zones_landscape.get(key),
-    };
-    if let Some(r) = custom {
-        let x0 = r.x as f32;
-        let y0 = r.y as f32;
-        let x1 = x0 + r.w as f32;
-        let y1 = y0 + r.h as f32;
-        return px >= x0 && px <= x1 && py >= y0 && py <= y1;
-    }
+    let _ = (key, orient);
     let (dx, dy) = door_point(key, orient);
-    let ox = (px - dx).abs();
-    let oy = (py - dy).abs();
-    ox <= DOOR_TRIGGER_HALF_W && oy <= DOOR_TRIGGER_HALF_H
+    if (px - dx).abs() > DOOR_TRIGGER_HALF_W {
+        return false;
+    }
+    let oy = py - dy;
+    oy >= -DOOR_TRIGGER_HALF_H_UP && oy <= DOOR_TRIGGER_HALF_H_DOWN
 }
 
 pub fn door_radius_for(portal: &str) -> f32 {
