@@ -172,6 +172,7 @@ async function facingPadAfterStop(page, padTestId, dir, expectedRow, spawn = [72
 }
 
 export async function runV921hVerify(page, errors = []) {
+  process.env.E2E_BASE = BASE;
   mkdirSync(ART, { recursive: true });
   const report = { tag: TAG, bubble: {}, facing: { keyboard: {}, pad: {} }, screenshots: {} };
 
