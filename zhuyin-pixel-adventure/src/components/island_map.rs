@@ -40,6 +40,7 @@ fn door_bubble_slot_fit(
         Portal::English => lm.english.y,
         Portal::Math => lm.math.y,
         Portal::Treasure => lm.treasure.y,
+        Portal::Bulletin => 1392,
     } as f32;
     if landmark_y < py - 48.0 && sy + DOOR_BUBBLE_H + 14.0 <= vh - VIEWPORT_PAD {
         return "door-bubble-slot-below";
@@ -575,6 +576,7 @@ fn portal_landmark_key(p: Portal) -> &'static str {
         Portal::English => "english",
         Portal::Math => "math",
         Portal::Treasure => "treasure",
+        Portal::Bulletin => "bulletin",
     }
 }
 
@@ -591,12 +593,14 @@ fn door_bubble_slot_follow(
         Portal::English => lm.english.y,
         Portal::Math => lm.math.y,
         Portal::Treasure => lm.treasure.y,
+        Portal::Bulletin => 1340,
     } as f32;
     let landmark_x = match portal {
         Portal::Chinese => lm.chinese.x,
         Portal::English => lm.english.x,
         Portal::Math => lm.math.x,
         Portal::Treasure => lm.treasure.x,
+        Portal::Bulletin => 418,
     } as f32;
     if landmark_y < py - 40.0 {
         if vw < 420.0 {
@@ -693,17 +697,11 @@ fn render_action_dock(
                   <BpmfAside text={ "按進入答題".to_string() } game={game.clone()} read=true compact=true />
               </p>
           } else if let Some(portal) = portal_near.filter(|p| !world::door_enterable(*p)) {
-              if matches!(portal, Portal::English | Portal::Math) {
-                  <p class="map-hint map-hint-large map-hint-locked" data-testid="map-hint-locked">
-                      <BpmfAside text={ "這個科目即將開放".to_string() } game={game.clone()} read=true />
-                  </p>
-              } else {
-                  <p class="map-hint map-hint-large">
-                      <BpmfAside text={ world::GateLabel::name(portal).to_string() } game={game.clone()} read=true compact=true />
-                      { " · " }
-                      <BpmfAside text={ world::GateLabel::hint(portal).to_string() } game={game.clone()} read=true compact=true />
-                  </p>
-              }
+              <p class="map-hint map-hint-large">
+                  <BpmfAside text={ world::GateLabel::name(portal).to_string() } game={game.clone()} read=true compact=true />
+                  { " · " }
+                  <BpmfAside text={ world::GateLabel::hint(portal).to_string() } game={game.clone()} read=true compact=true />
+              </p>
           } else {
               <p class="map-hint map-hint-phone-short muted">
                   <BpmfAside text={ "走到門口".to_string() } game={game.clone()} read=true compact=true />
@@ -741,6 +739,7 @@ fn fit_label_size(portal: Portal) -> (f32, f32) {
         Portal::English => (170.0, 40.0),
         Portal::Math => (172.0, 40.0),
         Portal::Treasure => (172.0, 40.0),
+        Portal::Bulletin => (150.0, 38.0),
     }
 }
 
@@ -899,6 +898,16 @@ pub fn island_map(props: &IslandMapProps) -> Html {
         ("math", lm.math.x, lm.math.y, Portal::Math),
         ("treasure", lm.treasure.x, lm.treasure.y, Portal::Treasure),
     ];
+    {
+        let (bx, by) = crate::map_config::door_point("bulletin", orient);
+        layers.push((
+            by,
+            html! {
+                <div key="lm-bulletin" class="island-bulletin-sign" data-testid="landmark-bulletin"
+                    style={format!("left:{}px;top:{}px;z-index:{};", bx - 36.0, by - 72.0, by as i32)} />
+            },
+        ));
+    }
     for (key, x, y, portal) in landmark_defs {
         let url = landmark_url(key);
         let foot_y = y as f32;
@@ -1000,13 +1009,17 @@ pub fn island_map(props: &IslandMapProps) -> Html {
         html! {}
     };
 
-    let label_world: Vec<(Portal, f32, f32)> = landmark_defs
+    let mut label_world: Vec<(Portal, f32, f32)> = landmark_defs
         .iter()
         .map(|(key, x, y, portal)| {
             let (lx, ly) = label_world_above(key, *x as f32, *y as f32);
             (*portal, lx, ly)
         })
         .collect();
+    {
+        let (bx, by) = crate::map_config::door_point("bulletin", orient);
+        label_world.push((Portal::Bulletin, bx, by - 88.0));
+    }
 
     let phone_labels = if fit {
         Vec::<PhoneLabel>::new()
