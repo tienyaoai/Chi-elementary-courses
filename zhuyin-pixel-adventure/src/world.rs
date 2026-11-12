@@ -77,7 +77,10 @@ pub fn portal_for_door_enter(px: f32, py: f32, orient: MapOrientation) -> Option
 }
 
 pub fn door_enterable(portal: Portal) -> bool {
-    matches!(portal, Portal::Chinese | Portal::Treasure)
+    matches!(
+        portal,
+        Portal::Chinese | Portal::English | Portal::Math | Portal::Treasure
+    )
 }
 
 pub fn door_prompt_text(portal: Portal) -> String {

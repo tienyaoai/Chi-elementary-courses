@@ -1520,6 +1520,11 @@ body:has(.map-screen:not(.map-screen-fit)) {
 }
 
 /* v5 國語小島選關與題圖 */
+.listen-en-btn {
+  margin: 0.5rem 0 0.75rem;
+  font-size: 1rem;
+}
+
 .hub-panel .pixel-title {
   margin-bottom: 0.5rem;
 }
