@@ -1,0 +1,3983 @@
+{
+  "title": "學習冒險島｜一年級英語題庫",
+  "version": "v9.23",
+  "grade": 1,
+  "subject": "英語",
+  "notes": [
+    "全部原創；主題參考一年級入門，未複製教材",
+    "可用瀏覽器聽發音（en-US）"
+  ],
+  "questions": [
+    {
+      "id": "G1-ENG-S1-U1-01",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 1,
+      "unit_title": "字母好朋友",
+      "unit_title_zhuyin": [
+        {
+          "char": "字",
+          "zhuyin": "ㄗˋ"
+        },
+        {
+          "char": "母",
+          "zhuyin": "ㄇㄨˇ"
+        },
+        {
+          "char": "好",
+          "zhuyin": "ㄏㄠˇ"
+        },
+        {
+          "char": "朋",
+          "zhuyin": "ㄆㄥˊ"
+        },
+        {
+          "char": "友",
+          "zhuyin": "ㄧㄡˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "Aa–Mm 字母與開頭音",
+      "qtype": "english_letter",
+      "difficulty": 1,
+      "prompt": "Apple 的開頭是哪個字母？",
+      "prompt_zhuyin": [
+        {
+          "char": "A",
+          "zhuyin": ""
+        },
+        {
+          "char": "p",
+          "zhuyin": ""
+        },
+        {
+          "char": "p",
+          "zhuyin": ""
+        },
+        {
+          "char": "l",
+          "zhuyin": ""
+        },
+        {
+          "char": "e",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "的",
+          "zhuyin": ""
+        },
+        {
+          "char": "開",
+          "zhuyin": ""
+        },
+        {
+          "char": "頭",
+          "zhuyin": ""
+        },
+        {
+          "char": "是",
+          "zhuyin": ""
+        },
+        {
+          "char": "哪",
+          "zhuyin": ""
+        },
+        {
+          "char": "個",
+          "zhuyin": ""
+        },
+        {
+          "char": "字",
+          "zhuyin": ""
+        },
+        {
+          "char": "母",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "A"
+        },
+        {
+          "id": "b",
+          "text": "B"
+        },
+        {
+          "id": "c",
+          "text": "C"
+        }
+      ],
+      "answer": "a",
+      "explain": "蘋果是 Apple。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "speech_en": "Apple"
+    },
+    {
+      "id": "G1-ENG-S1-U1-02",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 1,
+      "unit_title": "字母好朋友",
+      "unit_title_zhuyin": [
+        {
+          "char": "字",
+          "zhuyin": "ㄗˋ"
+        },
+        {
+          "char": "母",
+          "zhuyin": "ㄇㄨˇ"
+        },
+        {
+          "char": "好",
+          "zhuyin": "ㄏㄠˇ"
+        },
+        {
+          "char": "朋",
+          "zhuyin": "ㄆㄥˊ"
+        },
+        {
+          "char": "友",
+          "zhuyin": "ㄧㄡˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "Aa–Mm 字母與開頭音",
+      "qtype": "english_letter",
+      "difficulty": 1,
+      "prompt": "Ball 的開頭是哪個字母？",
+      "prompt_zhuyin": [
+        {
+          "char": "B",
+          "zhuyin": ""
+        },
+        {
+          "char": "a",
+          "zhuyin": ""
+        },
+        {
+          "char": "l",
+          "zhuyin": ""
+        },
+        {
+          "char": "l",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "的",
+          "zhuyin": ""
+        },
+        {
+          "char": "開",
+          "zhuyin": ""
+        },
+        {
+          "char": "頭",
+          "zhuyin": ""
+        },
+        {
+          "char": "是",
+          "zhuyin": ""
+        },
+        {
+          "char": "哪",
+          "zhuyin": ""
+        },
+        {
+          "char": "個",
+          "zhuyin": ""
+        },
+        {
+          "char": "字",
+          "zhuyin": ""
+        },
+        {
+          "char": "母",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "B"
+        },
+        {
+          "id": "b",
+          "text": "A"
+        },
+        {
+          "id": "c",
+          "text": "C"
+        }
+      ],
+      "answer": "a",
+      "explain": "球是 Ball。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "speech_en": "Ball"
+    },
+    {
+      "id": "G1-ENG-S1-U1-03",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 1,
+      "unit_title": "字母好朋友",
+      "unit_title_zhuyin": [
+        {
+          "char": "字",
+          "zhuyin": "ㄗˋ"
+        },
+        {
+          "char": "母",
+          "zhuyin": "ㄇㄨˇ"
+        },
+        {
+          "char": "好",
+          "zhuyin": "ㄏㄠˇ"
+        },
+        {
+          "char": "朋",
+          "zhuyin": "ㄆㄥˊ"
+        },
+        {
+          "char": "友",
+          "zhuyin": "ㄧㄡˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "Aa–Mm 字母與開頭音",
+      "qtype": "english_letter",
+      "difficulty": 1,
+      "prompt": "Cat 的開頭是哪個字母？",
+      "prompt_zhuyin": [
+        {
+          "char": "C",
+          "zhuyin": ""
+        },
+        {
+          "char": "a",
+          "zhuyin": ""
+        },
+        {
+          "char": "t",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "的",
+          "zhuyin": ""
+        },
+        {
+          "char": "開",
+          "zhuyin": ""
+        },
+        {
+          "char": "頭",
+          "zhuyin": ""
+        },
+        {
+          "char": "是",
+          "zhuyin": ""
+        },
+        {
+          "char": "哪",
+          "zhuyin": ""
+        },
+        {
+          "char": "個",
+          "zhuyin": ""
+        },
+        {
+          "char": "字",
+          "zhuyin": ""
+        },
+        {
+          "char": "母",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "C"
+        },
+        {
+          "id": "b",
+          "text": "A"
+        },
+        {
+          "id": "c",
+          "text": "B"
+        }
+      ],
+      "answer": "a",
+      "explain": "貓是 Cat。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "speech_en": "Cat"
+    },
+    {
+      "id": "G1-ENG-S1-U1-04",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 1,
+      "unit_title": "字母好朋友",
+      "unit_title_zhuyin": [
+        {
+          "char": "字",
+          "zhuyin": "ㄗˋ"
+        },
+        {
+          "char": "母",
+          "zhuyin": "ㄇㄨˇ"
+        },
+        {
+          "char": "好",
+          "zhuyin": "ㄏㄠˇ"
+        },
+        {
+          "char": "朋",
+          "zhuyin": "ㄆㄥˊ"
+        },
+        {
+          "char": "友",
+          "zhuyin": "ㄧㄡˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "Aa–Mm 字母與開頭音",
+      "qtype": "english_letter",
+      "difficulty": 1,
+      "prompt": "Dog 的開頭是哪個字母？",
+      "prompt_zhuyin": [
+        {
+          "char": "D",
+          "zhuyin": ""
+        },
+        {
+          "char": "o",
+          "zhuyin": ""
+        },
+        {
+          "char": "g",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "的",
+          "zhuyin": ""
+        },
+        {
+          "char": "開",
+          "zhuyin": ""
+        },
+        {
+          "char": "頭",
+          "zhuyin": ""
+        },
+        {
+          "char": "是",
+          "zhuyin": ""
+        },
+        {
+          "char": "哪",
+          "zhuyin": ""
+        },
+        {
+          "char": "個",
+          "zhuyin": ""
+        },
+        {
+          "char": "字",
+          "zhuyin": ""
+        },
+        {
+          "char": "母",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "D"
+        },
+        {
+          "id": "b",
+          "text": "A"
+        },
+        {
+          "id": "c",
+          "text": "B"
+        }
+      ],
+      "answer": "a",
+      "explain": "狗是 Dog。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "speech_en": "Dog"
+    },
+    {
+      "id": "G1-ENG-S1-U1-05",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 1,
+      "unit_title": "字母好朋友",
+      "unit_title_zhuyin": [
+        {
+          "char": "字",
+          "zhuyin": "ㄗˋ"
+        },
+        {
+          "char": "母",
+          "zhuyin": "ㄇㄨˇ"
+        },
+        {
+          "char": "好",
+          "zhuyin": "ㄏㄠˇ"
+        },
+        {
+          "char": "朋",
+          "zhuyin": "ㄆㄥˊ"
+        },
+        {
+          "char": "友",
+          "zhuyin": "ㄧㄡˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "Aa–Mm 字母與開頭音",
+      "qtype": "english_letter",
+      "difficulty": 1,
+      "prompt": "哪個是母音？",
+      "prompt_zhuyin": [
+        {
+          "char": "哪",
+          "zhuyin": ""
+        },
+        {
+          "char": "個",
+          "zhuyin": ""
+        },
+        {
+          "char": "是",
+          "zhuyin": ""
+        },
+        {
+          "char": "母",
+          "zhuyin": ""
+        },
+        {
+          "char": "音",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "E"
+        },
+        {
+          "id": "b",
+          "text": "A"
+        },
+        {
+          "id": "c",
+          "text": "B"
+        }
+      ],
+      "answer": "a",
+      "explain": "E 是母音之一。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "speech_en": "Egg"
+    },
+    {
+      "id": "G1-ENG-S1-U1-06",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 1,
+      "unit_title": "字母好朋友",
+      "unit_title_zhuyin": [
+        {
+          "char": "字",
+          "zhuyin": "ㄗˋ"
+        },
+        {
+          "char": "母",
+          "zhuyin": "ㄇㄨˇ"
+        },
+        {
+          "char": "好",
+          "zhuyin": "ㄏㄠˇ"
+        },
+        {
+          "char": "朋",
+          "zhuyin": "ㄆㄥˊ"
+        },
+        {
+          "char": "友",
+          "zhuyin": "ㄧㄡˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "Aa–Mm 字母與開頭音",
+      "qtype": "english_letter",
+      "difficulty": 1,
+      "prompt": "Fish 的開頭？",
+      "prompt_zhuyin": [
+        {
+          "char": "F",
+          "zhuyin": ""
+        },
+        {
+          "char": "i",
+          "zhuyin": ""
+        },
+        {
+          "char": "s",
+          "zhuyin": ""
+        },
+        {
+          "char": "h",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "的",
+          "zhuyin": ""
+        },
+        {
+          "char": "開",
+          "zhuyin": ""
+        },
+        {
+          "char": "頭",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "F"
+        },
+        {
+          "id": "b",
+          "text": "A"
+        },
+        {
+          "id": "c",
+          "text": "B"
+        }
+      ],
+      "answer": "a",
+      "explain": "魚是 Fish。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "speech_en": "Fish"
+    },
+    {
+      "id": "G1-ENG-S1-U1-07",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 1,
+      "unit_title": "字母好朋友",
+      "unit_title_zhuyin": [
+        {
+          "char": "字",
+          "zhuyin": "ㄗˋ"
+        },
+        {
+          "char": "母",
+          "zhuyin": "ㄇㄨˇ"
+        },
+        {
+          "char": "好",
+          "zhuyin": "ㄏㄠˇ"
+        },
+        {
+          "char": "朋",
+          "zhuyin": "ㄆㄥˊ"
+        },
+        {
+          "char": "友",
+          "zhuyin": "ㄧㄡˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "Aa–Mm 字母與開頭音",
+      "qtype": "english_letter",
+      "difficulty": 1,
+      "prompt": "哪個字母像門框？",
+      "prompt_zhuyin": [
+        {
+          "char": "哪",
+          "zhuyin": ""
+        },
+        {
+          "char": "個",
+          "zhuyin": ""
+        },
+        {
+          "char": "字",
+          "zhuyin": ""
+        },
+        {
+          "char": "母",
+          "zhuyin": ""
+        },
+        {
+          "char": "像",
+          "zhuyin": ""
+        },
+        {
+          "char": "門",
+          "zhuyin": ""
+        },
+        {
+          "char": "框",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "H"
+        },
+        {
+          "id": "b",
+          "text": "A"
+        },
+        {
+          "id": "c",
+          "text": "B"
+        }
+      ],
+      "answer": "a",
+      "explain": "H 有兩根直線。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "speech_en": "Hat"
+    },
+    {
+      "id": "G1-ENG-S1-U1-08",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 1,
+      "unit_title": "字母好朋友",
+      "unit_title_zhuyin": [
+        {
+          "char": "字",
+          "zhuyin": "ㄗˋ"
+        },
+        {
+          "char": "母",
+          "zhuyin": "ㄇㄨˇ"
+        },
+        {
+          "char": "好",
+          "zhuyin": "ㄏㄠˇ"
+        },
+        {
+          "char": "朋",
+          "zhuyin": "ㄆㄥˊ"
+        },
+        {
+          "char": "友",
+          "zhuyin": "ㄧㄡˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "Aa–Mm 字母與開頭音",
+      "qtype": "english_letter",
+      "difficulty": 1,
+      "prompt": "Ice 的開頭？",
+      "prompt_zhuyin": [
+        {
+          "char": "I",
+          "zhuyin": ""
+        },
+        {
+          "char": "c",
+          "zhuyin": ""
+        },
+        {
+          "char": "e",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "的",
+          "zhuyin": ""
+        },
+        {
+          "char": "開",
+          "zhuyin": ""
+        },
+        {
+          "char": "頭",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "I"
+        },
+        {
+          "id": "b",
+          "text": "A"
+        },
+        {
+          "id": "c",
+          "text": "B"
+        }
+      ],
+      "answer": "a",
+      "explain": "冰是 Ice。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "speech_en": "Ice"
+    },
+    {
+      "id": "G1-ENG-S1-U1-09",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 1,
+      "unit_title": "字母好朋友",
+      "unit_title_zhuyin": [
+        {
+          "char": "字",
+          "zhuyin": "ㄗˋ"
+        },
+        {
+          "char": "母",
+          "zhuyin": "ㄇㄨˇ"
+        },
+        {
+          "char": "好",
+          "zhuyin": "ㄏㄠˇ"
+        },
+        {
+          "char": "朋",
+          "zhuyin": "ㄆㄥˊ"
+        },
+        {
+          "char": "友",
+          "zhuyin": "ㄧㄡˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "Aa–Mm 字母與開頭音",
+      "qtype": "english_letter",
+      "difficulty": 1,
+      "prompt": "Jump 的開頭？",
+      "prompt_zhuyin": [
+        {
+          "char": "J",
+          "zhuyin": ""
+        },
+        {
+          "char": "u",
+          "zhuyin": ""
+        },
+        {
+          "char": "m",
+          "zhuyin": ""
+        },
+        {
+          "char": "p",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "的",
+          "zhuyin": ""
+        },
+        {
+          "char": "開",
+          "zhuyin": ""
+        },
+        {
+          "char": "頭",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "J"
+        },
+        {
+          "id": "b",
+          "text": "A"
+        },
+        {
+          "id": "c",
+          "text": "B"
+        }
+      ],
+      "answer": "a",
+      "explain": "跳是 Jump。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "speech_en": "Jump"
+    },
+    {
+      "id": "G1-ENG-S1-U2-01",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 2,
+      "unit_title": "彩色世界",
+      "unit_title_zhuyin": [
+        {
+          "char": "彩",
+          "zhuyin": "ㄘㄞˇ"
+        },
+        {
+          "char": "色",
+          "zhuyin": "ㄙㄜˋ"
+        },
+        {
+          "char": "世",
+          "zhuyin": "ㄕˋ"
+        },
+        {
+          "char": "界",
+          "zhuyin": "ㄐㄧㄝˋ"
+        }
+      ],
+      "unit_subtitle_teacher": "color words",
+      "qtype": "english_color",
+      "difficulty": 1,
+      "prompt": "這是什麼顏色？（Red）",
+      "prompt_zhuyin": [
+        {
+          "char": "這",
+          "zhuyin": ""
+        },
+        {
+          "char": "是",
+          "zhuyin": ""
+        },
+        {
+          "char": "什",
+          "zhuyin": ""
+        },
+        {
+          "char": "麼",
+          "zhuyin": ""
+        },
+        {
+          "char": "顏",
+          "zhuyin": ""
+        },
+        {
+          "char": "色",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Red"
+        },
+        {
+          "id": "b",
+          "text": "Blue"
+        },
+        {
+          "id": "c",
+          "text": "Yellow"
+        }
+      ],
+      "answer": "a",
+      "explain": "英文 Red 是紅色。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一顆紅蘋果",
+      "speech_en": "Red"
+    },
+    {
+      "id": "G1-ENG-S1-U2-02",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 2,
+      "unit_title": "彩色世界",
+      "unit_title_zhuyin": [
+        {
+          "char": "彩",
+          "zhuyin": "ㄘㄞˇ"
+        },
+        {
+          "char": "色",
+          "zhuyin": "ㄙㄜˋ"
+        },
+        {
+          "char": "世",
+          "zhuyin": "ㄕˋ"
+        },
+        {
+          "char": "界",
+          "zhuyin": "ㄐㄧㄝˋ"
+        }
+      ],
+      "unit_subtitle_teacher": "color words",
+      "qtype": "english_color",
+      "difficulty": 1,
+      "prompt": "這是什麼顏色？（Blue）",
+      "prompt_zhuyin": [
+        {
+          "char": "這",
+          "zhuyin": ""
+        },
+        {
+          "char": "是",
+          "zhuyin": ""
+        },
+        {
+          "char": "什",
+          "zhuyin": ""
+        },
+        {
+          "char": "麼",
+          "zhuyin": ""
+        },
+        {
+          "char": "顏",
+          "zhuyin": ""
+        },
+        {
+          "char": "色",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Red"
+        },
+        {
+          "id": "b",
+          "text": "Blue"
+        },
+        {
+          "id": "c",
+          "text": "Yellow"
+        }
+      ],
+      "answer": "b",
+      "explain": "英文 Blue 是藍色。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一輛藍色汽車",
+      "speech_en": "Blue"
+    },
+    {
+      "id": "G1-ENG-S1-U2-03",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 2,
+      "unit_title": "彩色世界",
+      "unit_title_zhuyin": [
+        {
+          "char": "彩",
+          "zhuyin": "ㄘㄞˇ"
+        },
+        {
+          "char": "色",
+          "zhuyin": "ㄙㄜˋ"
+        },
+        {
+          "char": "世",
+          "zhuyin": "ㄕˋ"
+        },
+        {
+          "char": "界",
+          "zhuyin": "ㄐㄧㄝˋ"
+        }
+      ],
+      "unit_subtitle_teacher": "color words",
+      "qtype": "english_color",
+      "difficulty": 1,
+      "prompt": "這是什麼顏色？（Yellow）",
+      "prompt_zhuyin": [
+        {
+          "char": "這",
+          "zhuyin": ""
+        },
+        {
+          "char": "是",
+          "zhuyin": ""
+        },
+        {
+          "char": "什",
+          "zhuyin": ""
+        },
+        {
+          "char": "麼",
+          "zhuyin": ""
+        },
+        {
+          "char": "顏",
+          "zhuyin": ""
+        },
+        {
+          "char": "色",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Red"
+        },
+        {
+          "id": "b",
+          "text": "Blue"
+        },
+        {
+          "id": "c",
+          "text": "Yellow"
+        }
+      ],
+      "answer": "c",
+      "explain": "英文 Yellow 是黃色。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一隻黃色小雞",
+      "speech_en": "Yellow"
+    },
+    {
+      "id": "G1-ENG-S1-U2-04",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 2,
+      "unit_title": "彩色世界",
+      "unit_title_zhuyin": [
+        {
+          "char": "彩",
+          "zhuyin": "ㄘㄞˇ"
+        },
+        {
+          "char": "色",
+          "zhuyin": "ㄙㄜˋ"
+        },
+        {
+          "char": "世",
+          "zhuyin": "ㄕˋ"
+        },
+        {
+          "char": "界",
+          "zhuyin": "ㄐㄧㄝˋ"
+        }
+      ],
+      "unit_subtitle_teacher": "color words",
+      "qtype": "english_color",
+      "difficulty": 1,
+      "prompt": "這是什麼顏色？（Green）",
+      "prompt_zhuyin": [
+        {
+          "char": "這",
+          "zhuyin": ""
+        },
+        {
+          "char": "是",
+          "zhuyin": ""
+        },
+        {
+          "char": "什",
+          "zhuyin": ""
+        },
+        {
+          "char": "麼",
+          "zhuyin": ""
+        },
+        {
+          "char": "顏",
+          "zhuyin": ""
+        },
+        {
+          "char": "色",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Red"
+        },
+        {
+          "id": "b",
+          "text": "Blue"
+        },
+        {
+          "id": "c",
+          "text": "Yellow"
+        }
+      ],
+      "answer": "b",
+      "explain": "英文 Green 是綠色。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一片綠色小草",
+      "speech_en": "Green"
+    },
+    {
+      "id": "G1-ENG-S1-U2-05",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 2,
+      "unit_title": "彩色世界",
+      "unit_title_zhuyin": [
+        {
+          "char": "彩",
+          "zhuyin": "ㄘㄞˇ"
+        },
+        {
+          "char": "色",
+          "zhuyin": "ㄙㄜˋ"
+        },
+        {
+          "char": "世",
+          "zhuyin": "ㄕˋ"
+        },
+        {
+          "char": "界",
+          "zhuyin": "ㄐㄧㄝˋ"
+        }
+      ],
+      "unit_subtitle_teacher": "color words",
+      "qtype": "english_color",
+      "difficulty": 1,
+      "prompt": "這是什麼顏色？（Red）",
+      "prompt_zhuyin": [
+        {
+          "char": "這",
+          "zhuyin": ""
+        },
+        {
+          "char": "是",
+          "zhuyin": ""
+        },
+        {
+          "char": "什",
+          "zhuyin": ""
+        },
+        {
+          "char": "麼",
+          "zhuyin": ""
+        },
+        {
+          "char": "顏",
+          "zhuyin": ""
+        },
+        {
+          "char": "色",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Red"
+        },
+        {
+          "id": "b",
+          "text": "Blue"
+        },
+        {
+          "id": "c",
+          "text": "Yellow"
+        }
+      ],
+      "answer": "a",
+      "explain": "英文 Red 是紅色。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一顆紅色皮球",
+      "speech_en": "Red"
+    },
+    {
+      "id": "G1-ENG-S1-U2-06",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 2,
+      "unit_title": "彩色世界",
+      "unit_title_zhuyin": [
+        {
+          "char": "彩",
+          "zhuyin": "ㄘㄞˇ"
+        },
+        {
+          "char": "色",
+          "zhuyin": "ㄙㄜˋ"
+        },
+        {
+          "char": "世",
+          "zhuyin": "ㄕˋ"
+        },
+        {
+          "char": "界",
+          "zhuyin": "ㄐㄧㄝˋ"
+        }
+      ],
+      "unit_subtitle_teacher": "color words",
+      "qtype": "english_color",
+      "difficulty": 1,
+      "prompt": "這是什麼顏色？（Blue）",
+      "prompt_zhuyin": [
+        {
+          "char": "這",
+          "zhuyin": ""
+        },
+        {
+          "char": "是",
+          "zhuyin": ""
+        },
+        {
+          "char": "什",
+          "zhuyin": ""
+        },
+        {
+          "char": "麼",
+          "zhuyin": ""
+        },
+        {
+          "char": "顏",
+          "zhuyin": ""
+        },
+        {
+          "char": "色",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Red"
+        },
+        {
+          "id": "b",
+          "text": "Blue"
+        },
+        {
+          "id": "c",
+          "text": "Yellow"
+        }
+      ],
+      "answer": "b",
+      "explain": "英文 Blue 是藍色。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一件藍色上衣",
+      "speech_en": "Blue"
+    },
+    {
+      "id": "G1-ENG-S1-U2-07",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 2,
+      "unit_title": "彩色世界",
+      "unit_title_zhuyin": [
+        {
+          "char": "彩",
+          "zhuyin": "ㄘㄞˇ"
+        },
+        {
+          "char": "色",
+          "zhuyin": "ㄙㄜˋ"
+        },
+        {
+          "char": "世",
+          "zhuyin": "ㄕˋ"
+        },
+        {
+          "char": "界",
+          "zhuyin": "ㄐㄧㄝˋ"
+        }
+      ],
+      "unit_subtitle_teacher": "color words",
+      "qtype": "english_color",
+      "difficulty": 1,
+      "prompt": "這是什麼顏色？（Yellow）",
+      "prompt_zhuyin": [
+        {
+          "char": "這",
+          "zhuyin": ""
+        },
+        {
+          "char": "是",
+          "zhuyin": ""
+        },
+        {
+          "char": "什",
+          "zhuyin": ""
+        },
+        {
+          "char": "麼",
+          "zhuyin": ""
+        },
+        {
+          "char": "顏",
+          "zhuyin": ""
+        },
+        {
+          "char": "色",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Red"
+        },
+        {
+          "id": "b",
+          "text": "Blue"
+        },
+        {
+          "id": "c",
+          "text": "Yellow"
+        }
+      ],
+      "answer": "c",
+      "explain": "英文 Yellow 是黃色。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一顆黃色星星",
+      "speech_en": "Yellow"
+    },
+    {
+      "id": "G1-ENG-S1-U2-08",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 2,
+      "unit_title": "彩色世界",
+      "unit_title_zhuyin": [
+        {
+          "char": "彩",
+          "zhuyin": "ㄘㄞˇ"
+        },
+        {
+          "char": "色",
+          "zhuyin": "ㄙㄜˋ"
+        },
+        {
+          "char": "世",
+          "zhuyin": "ㄕˋ"
+        },
+        {
+          "char": "界",
+          "zhuyin": "ㄐㄧㄝˋ"
+        }
+      ],
+      "unit_subtitle_teacher": "color words",
+      "qtype": "english_color",
+      "difficulty": 1,
+      "prompt": "這是什麼顏色？（White）",
+      "prompt_zhuyin": [
+        {
+          "char": "這",
+          "zhuyin": ""
+        },
+        {
+          "char": "是",
+          "zhuyin": ""
+        },
+        {
+          "char": "什",
+          "zhuyin": ""
+        },
+        {
+          "char": "麼",
+          "zhuyin": ""
+        },
+        {
+          "char": "顏",
+          "zhuyin": ""
+        },
+        {
+          "char": "色",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Red"
+        },
+        {
+          "id": "b",
+          "text": "Blue"
+        },
+        {
+          "id": "c",
+          "text": "Yellow"
+        }
+      ],
+      "answer": "c",
+      "explain": "英文 White 是白色。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一隻白色兔子",
+      "speech_en": "White"
+    },
+    {
+      "id": "G1-ENG-S1-U2-09",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 2,
+      "unit_title": "彩色世界",
+      "unit_title_zhuyin": [
+        {
+          "char": "彩",
+          "zhuyin": "ㄘㄞˇ"
+        },
+        {
+          "char": "色",
+          "zhuyin": "ㄙㄜˋ"
+        },
+        {
+          "char": "世",
+          "zhuyin": "ㄕˋ"
+        },
+        {
+          "char": "界",
+          "zhuyin": "ㄐㄧㄝˋ"
+        }
+      ],
+      "unit_subtitle_teacher": "color words",
+      "qtype": "english_color",
+      "difficulty": 1,
+      "prompt": "這是什麼顏色？（Black）",
+      "prompt_zhuyin": [
+        {
+          "char": "這",
+          "zhuyin": ""
+        },
+        {
+          "char": "是",
+          "zhuyin": ""
+        },
+        {
+          "char": "什",
+          "zhuyin": ""
+        },
+        {
+          "char": "麼",
+          "zhuyin": ""
+        },
+        {
+          "char": "顏",
+          "zhuyin": ""
+        },
+        {
+          "char": "色",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Red"
+        },
+        {
+          "id": "b",
+          "text": "Blue"
+        },
+        {
+          "id": "c",
+          "text": "Yellow"
+        }
+      ],
+      "answer": "a",
+      "explain": "英文 Black 是黑色。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一頭黑白乳牛",
+      "speech_en": "Black"
+    },
+    {
+      "id": "G1-ENG-S1-U3-01",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 3,
+      "unit_title": "數字 1 到 10",
+      "unit_title_zhuyin": [
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˋ"
+        },
+        {
+          "char": "字",
+          "zhuyin": "ㄗˋ"
+        },
+        {
+          "char": "1",
+          "zhuyin": ""
+        },
+        {
+          "char": "到",
+          "zhuyin": "ㄉㄠˋ"
+        },
+        {
+          "char": "10",
+          "zhuyin": ""
+        }
+      ],
+      "unit_subtitle_teacher": "Numbers 1–10",
+      "qtype": "english_number",
+      "difficulty": 1,
+      "prompt": "數一數，選英文數字",
+      "prompt_zhuyin": [
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "一",
+          "zhuyin": ""
+        },
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "，",
+          "zhuyin": ""
+        },
+        {
+          "char": "選",
+          "zhuyin": ""
+        },
+        {
+          "char": "英",
+          "zhuyin": ""
+        },
+        {
+          "char": "文",
+          "zhuyin": ""
+        },
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "字",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Two"
+        },
+        {
+          "id": "b",
+          "text": "One"
+        },
+        {
+          "id": "c",
+          "text": "Four"
+        }
+      ],
+      "answer": "b",
+      "explain": "One 是 1。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一顆紅蘋果",
+      "speech_en": "One"
+    },
+    {
+      "id": "G1-ENG-S1-U3-02",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 3,
+      "unit_title": "數字 1 到 10",
+      "unit_title_zhuyin": [
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˋ"
+        },
+        {
+          "char": "字",
+          "zhuyin": "ㄗˋ"
+        },
+        {
+          "char": "1",
+          "zhuyin": ""
+        },
+        {
+          "char": "到",
+          "zhuyin": "ㄉㄠˋ"
+        },
+        {
+          "char": "10",
+          "zhuyin": ""
+        }
+      ],
+      "unit_subtitle_teacher": "Numbers 1–10",
+      "qtype": "english_number",
+      "difficulty": 1,
+      "prompt": "數一數，選英文數字",
+      "prompt_zhuyin": [
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "一",
+          "zhuyin": ""
+        },
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "，",
+          "zhuyin": ""
+        },
+        {
+          "char": "選",
+          "zhuyin": ""
+        },
+        {
+          "char": "英",
+          "zhuyin": ""
+        },
+        {
+          "char": "文",
+          "zhuyin": ""
+        },
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "字",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "One"
+        },
+        {
+          "id": "b",
+          "text": "Two"
+        },
+        {
+          "id": "c",
+          "text": "Four"
+        }
+      ],
+      "answer": "b",
+      "explain": "Two 是 2。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一顆紅色皮球",
+      "speech_en": "Two"
+    },
+    {
+      "id": "G1-ENG-S1-U3-03",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 3,
+      "unit_title": "數字 1 到 10",
+      "unit_title_zhuyin": [
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˋ"
+        },
+        {
+          "char": "字",
+          "zhuyin": "ㄗˋ"
+        },
+        {
+          "char": "1",
+          "zhuyin": ""
+        },
+        {
+          "char": "到",
+          "zhuyin": "ㄉㄠˋ"
+        },
+        {
+          "char": "10",
+          "zhuyin": ""
+        }
+      ],
+      "unit_subtitle_teacher": "Numbers 1–10",
+      "qtype": "english_number",
+      "difficulty": 1,
+      "prompt": "數一數，選英文數字",
+      "prompt_zhuyin": [
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "一",
+          "zhuyin": ""
+        },
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "，",
+          "zhuyin": ""
+        },
+        {
+          "char": "選",
+          "zhuyin": ""
+        },
+        {
+          "char": "英",
+          "zhuyin": ""
+        },
+        {
+          "char": "文",
+          "zhuyin": ""
+        },
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "字",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "One"
+        },
+        {
+          "id": "b",
+          "text": "Three"
+        },
+        {
+          "id": "c",
+          "text": "Two"
+        }
+      ],
+      "answer": "b",
+      "explain": "Three 是 3。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一隻黃色小雞",
+      "speech_en": "Three"
+    },
+    {
+      "id": "G1-ENG-S1-U3-04",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 3,
+      "unit_title": "數字 1 到 10",
+      "unit_title_zhuyin": [
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˋ"
+        },
+        {
+          "char": "字",
+          "zhuyin": "ㄗˋ"
+        },
+        {
+          "char": "1",
+          "zhuyin": ""
+        },
+        {
+          "char": "到",
+          "zhuyin": "ㄉㄠˋ"
+        },
+        {
+          "char": "10",
+          "zhuyin": ""
+        }
+      ],
+      "unit_subtitle_teacher": "Numbers 1–10",
+      "qtype": "english_number",
+      "difficulty": 1,
+      "prompt": "數一數，選英文數字",
+      "prompt_zhuyin": [
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "一",
+          "zhuyin": ""
+        },
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "，",
+          "zhuyin": ""
+        },
+        {
+          "char": "選",
+          "zhuyin": ""
+        },
+        {
+          "char": "英",
+          "zhuyin": ""
+        },
+        {
+          "char": "文",
+          "zhuyin": ""
+        },
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "字",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Two"
+        },
+        {
+          "id": "b",
+          "text": "One"
+        },
+        {
+          "id": "c",
+          "text": "Four"
+        }
+      ],
+      "answer": "b",
+      "explain": "One 是 1。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一輛紅色小汽車",
+      "speech_en": "One"
+    },
+    {
+      "id": "G1-ENG-S1-U3-05",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 3,
+      "unit_title": "數字 1 到 10",
+      "unit_title_zhuyin": [
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˋ"
+        },
+        {
+          "char": "字",
+          "zhuyin": "ㄗˋ"
+        },
+        {
+          "char": "1",
+          "zhuyin": ""
+        },
+        {
+          "char": "到",
+          "zhuyin": "ㄉㄠˋ"
+        },
+        {
+          "char": "10",
+          "zhuyin": ""
+        }
+      ],
+      "unit_subtitle_teacher": "Numbers 1–10",
+      "qtype": "english_number",
+      "difficulty": 1,
+      "prompt": "數一數，選英文數字",
+      "prompt_zhuyin": [
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "一",
+          "zhuyin": ""
+        },
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "，",
+          "zhuyin": ""
+        },
+        {
+          "char": "選",
+          "zhuyin": ""
+        },
+        {
+          "char": "英",
+          "zhuyin": ""
+        },
+        {
+          "char": "文",
+          "zhuyin": ""
+        },
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "字",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "One"
+        },
+        {
+          "id": "b",
+          "text": "Four"
+        },
+        {
+          "id": "c",
+          "text": "Two"
+        }
+      ],
+      "answer": "b",
+      "explain": "Four 是 4。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一顆紅蘋果",
+      "speech_en": "Four"
+    },
+    {
+      "id": "G1-ENG-S1-U3-06",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 3,
+      "unit_title": "數字 1 到 10",
+      "unit_title_zhuyin": [
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˋ"
+        },
+        {
+          "char": "字",
+          "zhuyin": "ㄗˋ"
+        },
+        {
+          "char": "1",
+          "zhuyin": ""
+        },
+        {
+          "char": "到",
+          "zhuyin": "ㄉㄠˋ"
+        },
+        {
+          "char": "10",
+          "zhuyin": ""
+        }
+      ],
+      "unit_subtitle_teacher": "Numbers 1–10",
+      "qtype": "english_number",
+      "difficulty": 1,
+      "prompt": "數一數，選英文數字",
+      "prompt_zhuyin": [
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "一",
+          "zhuyin": ""
+        },
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "，",
+          "zhuyin": ""
+        },
+        {
+          "char": "選",
+          "zhuyin": ""
+        },
+        {
+          "char": "英",
+          "zhuyin": ""
+        },
+        {
+          "char": "文",
+          "zhuyin": ""
+        },
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "字",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "One"
+        },
+        {
+          "id": "b",
+          "text": "Five"
+        },
+        {
+          "id": "c",
+          "text": "Two"
+        }
+      ],
+      "answer": "b",
+      "explain": "Five 是 5。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一顆黃色星星",
+      "speech_en": "Five"
+    },
+    {
+      "id": "G1-ENG-S1-U3-07",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 3,
+      "unit_title": "數字 1 到 10",
+      "unit_title_zhuyin": [
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˋ"
+        },
+        {
+          "char": "字",
+          "zhuyin": "ㄗˋ"
+        },
+        {
+          "char": "1",
+          "zhuyin": ""
+        },
+        {
+          "char": "到",
+          "zhuyin": "ㄉㄠˋ"
+        },
+        {
+          "char": "10",
+          "zhuyin": ""
+        }
+      ],
+      "unit_subtitle_teacher": "Numbers 1–10",
+      "qtype": "english_number",
+      "difficulty": 1,
+      "prompt": "數一數，選英文數字",
+      "prompt_zhuyin": [
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "一",
+          "zhuyin": ""
+        },
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "，",
+          "zhuyin": ""
+        },
+        {
+          "char": "選",
+          "zhuyin": ""
+        },
+        {
+          "char": "英",
+          "zhuyin": ""
+        },
+        {
+          "char": "文",
+          "zhuyin": ""
+        },
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "字",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "One"
+        },
+        {
+          "id": "b",
+          "text": "Six"
+        },
+        {
+          "id": "c",
+          "text": "Two"
+        }
+      ],
+      "answer": "b",
+      "explain": "Six 是 6。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一隻灰色小貓",
+      "speech_en": "Six"
+    },
+    {
+      "id": "G1-ENG-S1-U3-08",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 3,
+      "unit_title": "數字 1 到 10",
+      "unit_title_zhuyin": [
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˋ"
+        },
+        {
+          "char": "字",
+          "zhuyin": "ㄗˋ"
+        },
+        {
+          "char": "1",
+          "zhuyin": ""
+        },
+        {
+          "char": "到",
+          "zhuyin": "ㄉㄠˋ"
+        },
+        {
+          "char": "10",
+          "zhuyin": ""
+        }
+      ],
+      "unit_subtitle_teacher": "Numbers 1–10",
+      "qtype": "english_number",
+      "difficulty": 1,
+      "prompt": "數一數，選英文數字",
+      "prompt_zhuyin": [
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "一",
+          "zhuyin": ""
+        },
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "，",
+          "zhuyin": ""
+        },
+        {
+          "char": "選",
+          "zhuyin": ""
+        },
+        {
+          "char": "英",
+          "zhuyin": ""
+        },
+        {
+          "char": "文",
+          "zhuyin": ""
+        },
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "字",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "One"
+        },
+        {
+          "id": "b",
+          "text": "Seven"
+        },
+        {
+          "id": "c",
+          "text": "Two"
+        }
+      ],
+      "answer": "b",
+      "explain": "Seven 是 7。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一顆紅色皮球",
+      "speech_en": "Seven"
+    },
+    {
+      "id": "G1-ENG-S1-U3-09",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 3,
+      "unit_title": "數字 1 到 10",
+      "unit_title_zhuyin": [
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˋ"
+        },
+        {
+          "char": "字",
+          "zhuyin": "ㄗˋ"
+        },
+        {
+          "char": "1",
+          "zhuyin": ""
+        },
+        {
+          "char": "到",
+          "zhuyin": "ㄉㄠˋ"
+        },
+        {
+          "char": "10",
+          "zhuyin": ""
+        }
+      ],
+      "unit_subtitle_teacher": "Numbers 1–10",
+      "qtype": "english_number",
+      "difficulty": 1,
+      "prompt": "數一數，選英文數字",
+      "prompt_zhuyin": [
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "一",
+          "zhuyin": ""
+        },
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "，",
+          "zhuyin": ""
+        },
+        {
+          "char": "選",
+          "zhuyin": ""
+        },
+        {
+          "char": "英",
+          "zhuyin": ""
+        },
+        {
+          "char": "文",
+          "zhuyin": ""
+        },
+        {
+          "char": "數",
+          "zhuyin": ""
+        },
+        {
+          "char": "字",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "One"
+        },
+        {
+          "id": "b",
+          "text": "Eight"
+        },
+        {
+          "id": "c",
+          "text": "Two"
+        }
+      ],
+      "answer": "b",
+      "explain": "Eight 是 8。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一顆紅蘋果",
+      "speech_en": "Eight"
+    },
+    {
+      "id": "G1-ENG-S1-U4-01",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 4,
+      "unit_title": "動物與水果",
+      "unit_title_zhuyin": [
+        {
+          "char": "動",
+          "zhuyin": "ㄉㄨㄥˋ"
+        },
+        {
+          "char": "物",
+          "zhuyin": "ㄨˋ"
+        },
+        {
+          "char": "與",
+          "zhuyin": "ㄩˇ"
+        },
+        {
+          "char": "水",
+          "zhuyin": "ㄕㄨㄟˇ"
+        },
+        {
+          "char": "果",
+          "zhuyin": "ㄍㄨㄛˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "animals, fruits, family words",
+      "qtype": "english_vocab",
+      "difficulty": 1,
+      "prompt": "看圖選英文單字",
+      "prompt_zhuyin": [
+        {
+          "char": "看",
+          "zhuyin": ""
+        },
+        {
+          "char": "圖",
+          "zhuyin": ""
+        },
+        {
+          "char": "選",
+          "zhuyin": ""
+        },
+        {
+          "char": "英",
+          "zhuyin": ""
+        },
+        {
+          "char": "文",
+          "zhuyin": ""
+        },
+        {
+          "char": "單",
+          "zhuyin": ""
+        },
+        {
+          "char": "字",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Cat"
+        },
+        {
+          "id": "b",
+          "text": "Bird"
+        },
+        {
+          "id": "c",
+          "text": "Fish"
+        }
+      ],
+      "answer": "a",
+      "explain": "Cat 是貓。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一隻灰色小貓",
+      "speech_en": "Cat"
+    },
+    {
+      "id": "G1-ENG-S1-U4-02",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 4,
+      "unit_title": "動物與水果",
+      "unit_title_zhuyin": [
+        {
+          "char": "動",
+          "zhuyin": "ㄉㄨㄥˋ"
+        },
+        {
+          "char": "物",
+          "zhuyin": "ㄨˋ"
+        },
+        {
+          "char": "與",
+          "zhuyin": "ㄩˇ"
+        },
+        {
+          "char": "水",
+          "zhuyin": "ㄕㄨㄟˇ"
+        },
+        {
+          "char": "果",
+          "zhuyin": "ㄍㄨㄛˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "animals, fruits, family words",
+      "qtype": "english_vocab",
+      "difficulty": 1,
+      "prompt": "看圖選英文單字",
+      "prompt_zhuyin": [
+        {
+          "char": "看",
+          "zhuyin": ""
+        },
+        {
+          "char": "圖",
+          "zhuyin": ""
+        },
+        {
+          "char": "選",
+          "zhuyin": ""
+        },
+        {
+          "char": "英",
+          "zhuyin": ""
+        },
+        {
+          "char": "文",
+          "zhuyin": ""
+        },
+        {
+          "char": "單",
+          "zhuyin": ""
+        },
+        {
+          "char": "字",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Fish"
+        },
+        {
+          "id": "b",
+          "text": "Bird"
+        },
+        {
+          "id": "c",
+          "text": "Bear"
+        }
+      ],
+      "answer": "c",
+      "explain": "Bear 是熊。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一隻棕色小熊",
+      "speech_en": "Bear"
+    },
+    {
+      "id": "G1-ENG-S1-U4-03",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 4,
+      "unit_title": "動物與水果",
+      "unit_title_zhuyin": [
+        {
+          "char": "動",
+          "zhuyin": "ㄉㄨㄥˋ"
+        },
+        {
+          "char": "物",
+          "zhuyin": "ㄨˋ"
+        },
+        {
+          "char": "與",
+          "zhuyin": "ㄩˇ"
+        },
+        {
+          "char": "水",
+          "zhuyin": "ㄕㄨㄟˇ"
+        },
+        {
+          "char": "果",
+          "zhuyin": "ㄍㄨㄛˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "animals, fruits, family words",
+      "qtype": "english_vocab",
+      "difficulty": 1,
+      "prompt": "看圖選英文單字",
+      "prompt_zhuyin": [
+        {
+          "char": "看",
+          "zhuyin": ""
+        },
+        {
+          "char": "圖",
+          "zhuyin": ""
+        },
+        {
+          "char": "選",
+          "zhuyin": ""
+        },
+        {
+          "char": "英",
+          "zhuyin": ""
+        },
+        {
+          "char": "文",
+          "zhuyin": ""
+        },
+        {
+          "char": "單",
+          "zhuyin": ""
+        },
+        {
+          "char": "字",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Elephant"
+        },
+        {
+          "id": "b",
+          "text": "Bird"
+        },
+        {
+          "id": "c",
+          "text": "Fish"
+        }
+      ],
+      "answer": "a",
+      "explain": "Elephant 是大象。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一頭灰色大象",
+      "speech_en": "Elephant"
+    },
+    {
+      "id": "G1-ENG-S1-U4-04",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 4,
+      "unit_title": "動物與水果",
+      "unit_title_zhuyin": [
+        {
+          "char": "動",
+          "zhuyin": "ㄉㄨㄥˋ"
+        },
+        {
+          "char": "物",
+          "zhuyin": "ㄨˋ"
+        },
+        {
+          "char": "與",
+          "zhuyin": "ㄩˇ"
+        },
+        {
+          "char": "水",
+          "zhuyin": "ㄕㄨㄟˇ"
+        },
+        {
+          "char": "果",
+          "zhuyin": "ㄍㄨㄛˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "animals, fruits, family words",
+      "qtype": "english_vocab",
+      "difficulty": 1,
+      "prompt": "看圖選英文單字",
+      "prompt_zhuyin": [
+        {
+          "char": "看",
+          "zhuyin": ""
+        },
+        {
+          "char": "圖",
+          "zhuyin": ""
+        },
+        {
+          "char": "選",
+          "zhuyin": ""
+        },
+        {
+          "char": "英",
+          "zhuyin": ""
+        },
+        {
+          "char": "文",
+          "zhuyin": ""
+        },
+        {
+          "char": "單",
+          "zhuyin": ""
+        },
+        {
+          "char": "字",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Bird"
+        },
+        {
+          "id": "b",
+          "text": "Apple"
+        },
+        {
+          "id": "c",
+          "text": "Fish"
+        }
+      ],
+      "answer": "b",
+      "explain": "Apple 是蘋果。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一顆紅蘋果",
+      "speech_en": "Apple"
+    },
+    {
+      "id": "G1-ENG-S1-U4-05",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 4,
+      "unit_title": "動物與水果",
+      "unit_title_zhuyin": [
+        {
+          "char": "動",
+          "zhuyin": "ㄉㄨㄥˋ"
+        },
+        {
+          "char": "物",
+          "zhuyin": "ㄨˋ"
+        },
+        {
+          "char": "與",
+          "zhuyin": "ㄩˇ"
+        },
+        {
+          "char": "水",
+          "zhuyin": "ㄕㄨㄟˇ"
+        },
+        {
+          "char": "果",
+          "zhuyin": "ㄍㄨㄛˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "animals, fruits, family words",
+      "qtype": "english_vocab",
+      "difficulty": 1,
+      "prompt": "看圖選英文單字",
+      "prompt_zhuyin": [
+        {
+          "char": "看",
+          "zhuyin": ""
+        },
+        {
+          "char": "圖",
+          "zhuyin": ""
+        },
+        {
+          "char": "選",
+          "zhuyin": ""
+        },
+        {
+          "char": "英",
+          "zhuyin": ""
+        },
+        {
+          "char": "文",
+          "zhuyin": ""
+        },
+        {
+          "char": "單",
+          "zhuyin": ""
+        },
+        {
+          "char": "字",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Mom"
+        },
+        {
+          "id": "b",
+          "text": "Bird"
+        },
+        {
+          "id": "c",
+          "text": "Fish"
+        }
+      ],
+      "answer": "a",
+      "explain": "Mom 是媽媽。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一位微笑的媽媽",
+      "speech_en": "Mom"
+    },
+    {
+      "id": "G1-ENG-S1-U4-06",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 4,
+      "unit_title": "動物與水果",
+      "unit_title_zhuyin": [
+        {
+          "char": "動",
+          "zhuyin": "ㄉㄨㄥˋ"
+        },
+        {
+          "char": "物",
+          "zhuyin": "ㄨˋ"
+        },
+        {
+          "char": "與",
+          "zhuyin": "ㄩˇ"
+        },
+        {
+          "char": "水",
+          "zhuyin": "ㄕㄨㄟˇ"
+        },
+        {
+          "char": "果",
+          "zhuyin": "ㄍㄨㄛˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "animals, fruits, family words",
+      "qtype": "english_vocab",
+      "difficulty": 1,
+      "prompt": "看圖選英文單字",
+      "prompt_zhuyin": [
+        {
+          "char": "看",
+          "zhuyin": ""
+        },
+        {
+          "char": "圖",
+          "zhuyin": ""
+        },
+        {
+          "char": "選",
+          "zhuyin": ""
+        },
+        {
+          "char": "英",
+          "zhuyin": ""
+        },
+        {
+          "char": "文",
+          "zhuyin": ""
+        },
+        {
+          "char": "單",
+          "zhuyin": ""
+        },
+        {
+          "char": "字",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Dog"
+        },
+        {
+          "id": "b",
+          "text": "Bird"
+        },
+        {
+          "id": "c",
+          "text": "Fish"
+        }
+      ],
+      "answer": "a",
+      "explain": "Dog 是狗。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一隻黃色小狗",
+      "speech_en": "Dog"
+    },
+    {
+      "id": "G1-ENG-S1-U4-07",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 4,
+      "unit_title": "動物與水果",
+      "unit_title_zhuyin": [
+        {
+          "char": "動",
+          "zhuyin": "ㄉㄨㄥˋ"
+        },
+        {
+          "char": "物",
+          "zhuyin": "ㄨˋ"
+        },
+        {
+          "char": "與",
+          "zhuyin": "ㄩˇ"
+        },
+        {
+          "char": "水",
+          "zhuyin": "ㄕㄨㄟˇ"
+        },
+        {
+          "char": "果",
+          "zhuyin": "ㄍㄨㄛˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "animals, fruits, family words",
+      "qtype": "english_vocab",
+      "difficulty": 1,
+      "prompt": "看圖選英文單字",
+      "prompt_zhuyin": [
+        {
+          "char": "看",
+          "zhuyin": ""
+        },
+        {
+          "char": "圖",
+          "zhuyin": ""
+        },
+        {
+          "char": "選",
+          "zhuyin": ""
+        },
+        {
+          "char": "英",
+          "zhuyin": ""
+        },
+        {
+          "char": "文",
+          "zhuyin": ""
+        },
+        {
+          "char": "單",
+          "zhuyin": ""
+        },
+        {
+          "char": "字",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Rabbit"
+        },
+        {
+          "id": "b",
+          "text": "Bird"
+        },
+        {
+          "id": "c",
+          "text": "Fish"
+        }
+      ],
+      "answer": "a",
+      "explain": "Rabbit 是兔子。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一隻白色兔子",
+      "speech_en": "Rabbit"
+    },
+    {
+      "id": "G1-ENG-S1-U4-08",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 4,
+      "unit_title": "動物與水果",
+      "unit_title_zhuyin": [
+        {
+          "char": "動",
+          "zhuyin": "ㄉㄨㄥˋ"
+        },
+        {
+          "char": "物",
+          "zhuyin": "ㄨˋ"
+        },
+        {
+          "char": "與",
+          "zhuyin": "ㄩˇ"
+        },
+        {
+          "char": "水",
+          "zhuyin": "ㄕㄨㄟˇ"
+        },
+        {
+          "char": "果",
+          "zhuyin": "ㄍㄨㄛˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "animals, fruits, family words",
+      "qtype": "english_vocab",
+      "difficulty": 1,
+      "prompt": "看圖選英文單字",
+      "prompt_zhuyin": [
+        {
+          "char": "看",
+          "zhuyin": ""
+        },
+        {
+          "char": "圖",
+          "zhuyin": ""
+        },
+        {
+          "char": "選",
+          "zhuyin": ""
+        },
+        {
+          "char": "英",
+          "zhuyin": ""
+        },
+        {
+          "char": "文",
+          "zhuyin": ""
+        },
+        {
+          "char": "單",
+          "zhuyin": ""
+        },
+        {
+          "char": "字",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Bird"
+        },
+        {
+          "id": "b",
+          "text": "Apple"
+        },
+        {
+          "id": "c",
+          "text": "Fish"
+        }
+      ],
+      "answer": "b",
+      "explain": "Apple 是蘋果。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一顆紅蘋果",
+      "speech_en": "Apple"
+    },
+    {
+      "id": "G1-ENG-S1-U4-09",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 4,
+      "unit_title": "動物與水果",
+      "unit_title_zhuyin": [
+        {
+          "char": "動",
+          "zhuyin": "ㄉㄨㄥˋ"
+        },
+        {
+          "char": "物",
+          "zhuyin": "ㄨˋ"
+        },
+        {
+          "char": "與",
+          "zhuyin": "ㄩˇ"
+        },
+        {
+          "char": "水",
+          "zhuyin": "ㄕㄨㄟˇ"
+        },
+        {
+          "char": "果",
+          "zhuyin": "ㄍㄨㄛˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "animals, fruits, family words",
+      "qtype": "english_vocab",
+      "difficulty": 1,
+      "prompt": "看圖選英文單字",
+      "prompt_zhuyin": [
+        {
+          "char": "看",
+          "zhuyin": ""
+        },
+        {
+          "char": "圖",
+          "zhuyin": ""
+        },
+        {
+          "char": "選",
+          "zhuyin": ""
+        },
+        {
+          "char": "英",
+          "zhuyin": ""
+        },
+        {
+          "char": "文",
+          "zhuyin": ""
+        },
+        {
+          "char": "單",
+          "zhuyin": ""
+        },
+        {
+          "char": "字",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Fish"
+        },
+        {
+          "id": "b",
+          "text": "Bird"
+        },
+        {
+          "id": "c",
+          "text": "Horse"
+        }
+      ],
+      "answer": "c",
+      "explain": "Horse 是馬。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "image": "一匹棕色小馬",
+      "speech_en": "Horse"
+    },
+    {
+      "id": "G1-ENG-S1-U5-01",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 5,
+      "unit_title": "簡單打招呼",
+      "unit_title_zhuyin": [
+        {
+          "char": "簡",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": "單",
+          "zhuyin": "ㄉㄢ"
+        },
+        {
+          "char": "打",
+          "zhuyin": "ㄉㄚˇ"
+        },
+        {
+          "char": "招",
+          "zhuyin": "ㄓㄠ"
+        },
+        {
+          "char": "呼",
+          "zhuyin": "ㄏㄨ"
+        }
+      ],
+      "unit_subtitle_teacher": "Hi, Thank you",
+      "qtype": "english_phrase",
+      "difficulty": 1,
+      "prompt": "見到朋友要說什麼？",
+      "prompt_zhuyin": [
+        {
+          "char": "見",
+          "zhuyin": ""
+        },
+        {
+          "char": "到",
+          "zhuyin": ""
+        },
+        {
+          "char": "朋",
+          "zhuyin": ""
+        },
+        {
+          "char": "友",
+          "zhuyin": ""
+        },
+        {
+          "char": "要",
+          "zhuyin": ""
+        },
+        {
+          "char": "說",
+          "zhuyin": ""
+        },
+        {
+          "char": "什",
+          "zhuyin": ""
+        },
+        {
+          "char": "麼",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Hi"
+        },
+        {
+          "id": "b",
+          "text": "Thank you"
+        },
+        {
+          "id": "c",
+          "text": "Bye"
+        }
+      ],
+      "answer": "a",
+      "explain": "見面說 Hi。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "speech_en": "Hi"
+    },
+    {
+      "id": "G1-ENG-S1-U5-02",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 5,
+      "unit_title": "簡單打招呼",
+      "unit_title_zhuyin": [
+        {
+          "char": "簡",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": "單",
+          "zhuyin": "ㄉㄢ"
+        },
+        {
+          "char": "打",
+          "zhuyin": "ㄉㄚˇ"
+        },
+        {
+          "char": "招",
+          "zhuyin": "ㄓㄠ"
+        },
+        {
+          "char": "呼",
+          "zhuyin": "ㄏㄨ"
+        }
+      ],
+      "unit_subtitle_teacher": "Hi, Thank you",
+      "qtype": "english_phrase",
+      "difficulty": 1,
+      "prompt": "別人幫你要說？",
+      "prompt_zhuyin": [
+        {
+          "char": "別",
+          "zhuyin": ""
+        },
+        {
+          "char": "人",
+          "zhuyin": ""
+        },
+        {
+          "char": "幫",
+          "zhuyin": ""
+        },
+        {
+          "char": "你",
+          "zhuyin": ""
+        },
+        {
+          "char": "要",
+          "zhuyin": ""
+        },
+        {
+          "char": "說",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Hi"
+        },
+        {
+          "id": "b",
+          "text": "Thank you"
+        },
+        {
+          "id": "c",
+          "text": "Bye"
+        }
+      ],
+      "answer": "b",
+      "explain": "要說 Thank you。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "speech_en": "Thank"
+    },
+    {
+      "id": "G1-ENG-S1-U5-03",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 5,
+      "unit_title": "簡單打招呼",
+      "unit_title_zhuyin": [
+        {
+          "char": "簡",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": "單",
+          "zhuyin": "ㄉㄢ"
+        },
+        {
+          "char": "打",
+          "zhuyin": "ㄉㄚˇ"
+        },
+        {
+          "char": "招",
+          "zhuyin": "ㄓㄠ"
+        },
+        {
+          "char": "呼",
+          "zhuyin": "ㄏㄨ"
+        }
+      ],
+      "unit_subtitle_teacher": "Hi, Thank you",
+      "qtype": "english_phrase",
+      "difficulty": 1,
+      "prompt": "早上面對老師？",
+      "prompt_zhuyin": [
+        {
+          "char": "早",
+          "zhuyin": ""
+        },
+        {
+          "char": "上",
+          "zhuyin": ""
+        },
+        {
+          "char": "面",
+          "zhuyin": ""
+        },
+        {
+          "char": "對",
+          "zhuyin": ""
+        },
+        {
+          "char": "老",
+          "zhuyin": ""
+        },
+        {
+          "char": "師",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Good morning"
+        },
+        {
+          "id": "b",
+          "text": "Hi"
+        },
+        {
+          "id": "c",
+          "text": "No"
+        }
+      ],
+      "answer": "a",
+      "explain": "早上 Good morning。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "speech_en": "Good"
+    },
+    {
+      "id": "G1-ENG-S1-U5-04",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 5,
+      "unit_title": "簡單打招呼",
+      "unit_title_zhuyin": [
+        {
+          "char": "簡",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": "單",
+          "zhuyin": "ㄉㄢ"
+        },
+        {
+          "char": "打",
+          "zhuyin": "ㄉㄚˇ"
+        },
+        {
+          "char": "招",
+          "zhuyin": "ㄓㄠ"
+        },
+        {
+          "char": "呼",
+          "zhuyin": "ㄏㄨ"
+        }
+      ],
+      "unit_subtitle_teacher": "Hi, Thank you",
+      "qtype": "english_phrase",
+      "difficulty": 1,
+      "prompt": "道別時？",
+      "prompt_zhuyin": [
+        {
+          "char": "道",
+          "zhuyin": ""
+        },
+        {
+          "char": "別",
+          "zhuyin": ""
+        },
+        {
+          "char": "時",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Hi"
+        },
+        {
+          "id": "b",
+          "text": "Thank you"
+        },
+        {
+          "id": "c",
+          "text": "Bye"
+        }
+      ],
+      "answer": "c",
+      "explain": "離開說 Bye。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "speech_en": "Bye"
+    },
+    {
+      "id": "G1-ENG-S1-U5-05",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 5,
+      "unit_title": "簡單打招呼",
+      "unit_title_zhuyin": [
+        {
+          "char": "簡",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": "單",
+          "zhuyin": "ㄉㄢ"
+        },
+        {
+          "char": "打",
+          "zhuyin": "ㄉㄚˇ"
+        },
+        {
+          "char": "招",
+          "zhuyin": "ㄓㄠ"
+        },
+        {
+          "char": "呼",
+          "zhuyin": "ㄏㄨ"
+        }
+      ],
+      "unit_subtitle_teacher": "Hi, Thank you",
+      "qtype": "english_phrase",
+      "difficulty": 1,
+      "prompt": "這是什麼禮貌用語？",
+      "prompt_zhuyin": [
+        {
+          "char": "這",
+          "zhuyin": ""
+        },
+        {
+          "char": "是",
+          "zhuyin": ""
+        },
+        {
+          "char": "什",
+          "zhuyin": ""
+        },
+        {
+          "char": "麼",
+          "zhuyin": ""
+        },
+        {
+          "char": "禮",
+          "zhuyin": ""
+        },
+        {
+          "char": "貌",
+          "zhuyin": ""
+        },
+        {
+          "char": "用",
+          "zhuyin": ""
+        },
+        {
+          "char": "語",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Please"
+        },
+        {
+          "id": "b",
+          "text": "Hi"
+        },
+        {
+          "id": "c",
+          "text": "No"
+        }
+      ],
+      "answer": "a",
+      "explain": "請求用 Please。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "speech_en": "Please"
+    },
+    {
+      "id": "G1-ENG-S1-U5-06",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 5,
+      "unit_title": "簡單打招呼",
+      "unit_title_zhuyin": [
+        {
+          "char": "簡",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": "單",
+          "zhuyin": "ㄉㄢ"
+        },
+        {
+          "char": "打",
+          "zhuyin": "ㄉㄚˇ"
+        },
+        {
+          "char": "招",
+          "zhuyin": "ㄓㄠ"
+        },
+        {
+          "char": "呼",
+          "zhuyin": "ㄏㄨ"
+        }
+      ],
+      "unit_subtitle_teacher": "Hi, Thank you",
+      "qtype": "english_phrase",
+      "difficulty": 1,
+      "prompt": "收到禮物？",
+      "prompt_zhuyin": [
+        {
+          "char": "收",
+          "zhuyin": ""
+        },
+        {
+          "char": "到",
+          "zhuyin": ""
+        },
+        {
+          "char": "禮",
+          "zhuyin": ""
+        },
+        {
+          "char": "物",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Hi"
+        },
+        {
+          "id": "b",
+          "text": "Thank you"
+        },
+        {
+          "id": "c",
+          "text": "Bye"
+        }
+      ],
+      "answer": "b",
+      "explain": "說 Thank you。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "speech_en": "Thank"
+    },
+    {
+      "id": "G1-ENG-S1-U5-07",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 5,
+      "unit_title": "簡單打招呼",
+      "unit_title_zhuyin": [
+        {
+          "char": "簡",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": "單",
+          "zhuyin": "ㄉㄢ"
+        },
+        {
+          "char": "打",
+          "zhuyin": "ㄉㄚˇ"
+        },
+        {
+          "char": "招",
+          "zhuyin": "ㄓㄠ"
+        },
+        {
+          "char": "呼",
+          "zhuyin": "ㄏㄨ"
+        }
+      ],
+      "unit_subtitle_teacher": "Hi, Thank you",
+      "qtype": "english_phrase",
+      "difficulty": 1,
+      "prompt": "同學名字是 Tom，怎麼叫他？",
+      "prompt_zhuyin": [
+        {
+          "char": "同",
+          "zhuyin": ""
+        },
+        {
+          "char": "學",
+          "zhuyin": ""
+        },
+        {
+          "char": "名",
+          "zhuyin": ""
+        },
+        {
+          "char": "字",
+          "zhuyin": ""
+        },
+        {
+          "char": "是",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "T",
+          "zhuyin": ""
+        },
+        {
+          "char": "o",
+          "zhuyin": ""
+        },
+        {
+          "char": "m",
+          "zhuyin": ""
+        },
+        {
+          "char": "，",
+          "zhuyin": ""
+        },
+        {
+          "char": "怎",
+          "zhuyin": ""
+        },
+        {
+          "char": "麼",
+          "zhuyin": ""
+        },
+        {
+          "char": "叫",
+          "zhuyin": ""
+        },
+        {
+          "char": "他",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Hi Tom"
+        },
+        {
+          "id": "b",
+          "text": "Hi"
+        },
+        {
+          "id": "c",
+          "text": "No"
+        }
+      ],
+      "answer": "a",
+      "explain": "Hi 加名字。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "speech_en": "Hi"
+    },
+    {
+      "id": "G1-ENG-S1-U5-08",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 5,
+      "unit_title": "簡單打招呼",
+      "unit_title_zhuyin": [
+        {
+          "char": "簡",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": "單",
+          "zhuyin": "ㄉㄢ"
+        },
+        {
+          "char": "打",
+          "zhuyin": "ㄉㄚˇ"
+        },
+        {
+          "char": "招",
+          "zhuyin": "ㄓㄠ"
+        },
+        {
+          "char": "呼",
+          "zhuyin": "ㄏㄨ"
+        }
+      ],
+      "unit_subtitle_teacher": "Hi, Thank you",
+      "qtype": "english_phrase",
+      "difficulty": 1,
+      "prompt": "晚安？",
+      "prompt_zhuyin": [
+        {
+          "char": "晚",
+          "zhuyin": ""
+        },
+        {
+          "char": "安",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Good night"
+        },
+        {
+          "id": "b",
+          "text": "Hi"
+        },
+        {
+          "id": "c",
+          "text": "No"
+        }
+      ],
+      "answer": "a",
+      "explain": "睡前 Good night。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "speech_en": "Good"
+    },
+    {
+      "id": "G1-ENG-S1-U5-09",
+      "grade": 1,
+      "semester": "上學期",
+      "unit": 5,
+      "unit_title": "簡單打招呼",
+      "unit_title_zhuyin": [
+        {
+          "char": "簡",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": "單",
+          "zhuyin": "ㄉㄢ"
+        },
+        {
+          "char": "打",
+          "zhuyin": "ㄉㄚˇ"
+        },
+        {
+          "char": "招",
+          "zhuyin": "ㄓㄠ"
+        },
+        {
+          "char": "呼",
+          "zhuyin": "ㄏㄨ"
+        }
+      ],
+      "unit_subtitle_teacher": "Hi, Thank you",
+      "qtype": "english_phrase",
+      "difficulty": 1,
+      "prompt": "想問好？",
+      "prompt_zhuyin": [
+        {
+          "char": "想",
+          "zhuyin": ""
+        },
+        {
+          "char": "問",
+          "zhuyin": ""
+        },
+        {
+          "char": "好",
+          "zhuyin": ""
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Hello"
+        },
+        {
+          "id": "b",
+          "text": "Hi"
+        },
+        {
+          "id": "c",
+          "text": "No"
+        }
+      ],
+      "answer": "a",
+      "explain": "Hello 也是打招呼。",
+      "target_zhuyin": "",
+      "skills": [],
+      "source": "原創｜v9.23",
+      "license": "專案內使用",
+      "speech_en": "Hello"
+    }
+  ]
+}

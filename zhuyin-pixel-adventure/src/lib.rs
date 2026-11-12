@@ -22,6 +22,7 @@ pub mod island_walk;
 pub mod walk_sprite;
 pub mod map_input;
 pub mod kid_text;
+pub mod tts;
 
 pub use app::App;
 
