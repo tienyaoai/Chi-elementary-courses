@@ -1,9 +1,10 @@
-use crate::components::{BpmfAside, PixelPicture, PromptZhuyin};
+use crate::components::{question_has_prompt_visual, BpmfAside, PixelPicture, PromptZhuyin, QuestionVisual};
 use crate::grade1::{Grade1Bank, Grade1Option, UnitPack};
 use crate::pixel_art_manifest::image_url;
 use crate::pixel_art_preload::preload_urls;
 use crate::progress::PixelProgress;
 use crate::sounds::{play_correct, play_wrong};
+use crate::tts;
 use std::rc::Rc;
 use yew::prelude::*;
 use zhuyin_island_wasm::data::GameData;
@@ -13,6 +14,8 @@ pub struct Grade1HubProps {
     pub game: Rc<GameData>,
     pub bank: Rc<Grade1Bank>,
     pub progress: PixelProgress,
+    pub hub_title: String,
+    pub hub_subtitle: String,
     pub on_exit: Callback<MouseEvent>,
     pub on_pick_unit: Callback<String>,
 }
@@ -33,8 +36,8 @@ pub fn grade1_hub(props: &Grade1HubProps) -> Html {
     }
     html! {
         <section class="panel-pixel lesson-read hub-panel">
-            <h1 class="pixel-title"><BpmfAside text={ "國語小島".to_string() } game={props.game.clone()} read=true /></h1>
-            <p class="pixel-sub"><BpmfAside text={ "選一個小島，從簡單題開始挑戰。".to_string() } game={props.game.clone()} read=true /></p>
+            <h1 class="pixel-title"><BpmfAside text={props.hub_title.clone()} game={props.game.clone()} read=true /></h1>
+            <p class="pixel-sub"><BpmfAside text={props.hub_subtitle.clone()} game={props.game.clone()} read=true /></p>
             <details class="teacher-note">
                 <summary class="teacher-note-summary">{"給家長／老師看的單元說明"}</summary>
                 <ul class="teacher-unit-list">
@@ -99,6 +102,7 @@ pub fn grade1_unit(props: &Grade1UnitProps) -> Html {
     let feedback = use_state(String::new);
     let explain = use_state(|| None::<String>);
     let wrong = use_state(Vec::<String>::new);
+    let tts_ok = use_state(tts::speech_supported);
 
     let question = props.unit.questions.get(*q_idx).cloned();
 
@@ -160,14 +164,24 @@ pub fn grade1_unit(props: &Grade1UnitProps) -> Html {
             if let Some(ref q) = question {
                 <p class="lesson-step">{ format!("{} / {}", *q_idx + 1, props.unit.questions.len()) }</p>
                 <p class="qtype-pill">{ qtype_label(&q.qtype) }</p>
-                if let Some(img) = &q.image {
-                    if should_show_prompt_picture(q, img) {
-                        <PixelPicture description={img.clone()} />
-                    }
+                if question_has_prompt_visual(q) {
+                    <QuestionVisual question={q.clone()} />
                 }
                 <p class="lesson-ask">
                     <PromptZhuyin glyphs={q.prompt_zhuyin.clone()} read=true />
                 </p>
+                if *tts_ok {
+                    if let Some(ref say) = q.speech_en {
+                        if !say.trim().is_empty() {
+                            <button type="button" class="pixel-btn listen-en-btn" onclick={Callback::from({
+                                let say = say.clone();
+                                move |_| tts::speak_english(&say)
+                            })}>
+                                {"🔊 聽發音"}
+                            </button>
+                        }
+                    }
+                }
                 <div class={classes!("opt-grid", options_are_pictorial(q).then_some("opt-grid-image-match"))}>
                     { for q.options.iter().map(|opt| render_option(opt, &wrong, pick.clone())) }
                 </div>
@@ -213,6 +227,16 @@ fn qtype_label(t: &str) -> &'static str {
         "match_image" => "看圖配音",
         "tone" => "聲調",
         "fill" => "填空",
+        "count_image" => "數一數",
+        "compare_num" => "比大小",
+        "add_within_10" => "加法",
+        "subtract_within_10" => "減法",
+        "shape_time" => "形狀時間",
+        "english_letter" => "英文字母",
+        "english_color" => "顏色",
+        "english_number" => "英文數字",
+        "english_vocab" => "單字",
+        "english_phrase" => "會話",
         _ => "挑戰",
     }
 }

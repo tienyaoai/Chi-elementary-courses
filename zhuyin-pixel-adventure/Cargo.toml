@@ -37,6 +37,8 @@ web-sys = { version = "0.3", features = [
   "OscillatorNode",
   "OscillatorType",
   "Window",
+  "SpeechSynthesis",
+  "SpeechSynthesisUtterance",
 ] }
 yew = { version = "0.21", features = ["csr"] }
 zhuyin-island-wasm = { path = "../zhuyin-island-wasm", default-features = false, features = [] }

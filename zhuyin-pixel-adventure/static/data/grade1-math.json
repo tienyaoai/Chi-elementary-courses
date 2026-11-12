@@ -1,0 +1,4943 @@
+{
+  "title": "學習冒險島｜一年級數學題庫",
+  "version": "v2",
+  "grade": 1,
+  "subject": "數學",
+  "notes": [
+    "全部原創；未複製 tcool、均一教育平台或任何出版社題目。",
+    "注音依教育部《重編國語辭典修訂本》標準音：標本調（不標變調），「一」固定標 ㄧ；一聲不另標符號；輕聲點在音節前（如 ˙ㄍㄜ）。「星星」＝ㄒㄧㄥ ˙ㄒㄧㄥ。英文字母與阿拉伯數字不標注音。",
+    "prompt_zhuyin 與 unit_title_zhuyin 逐字對應原文；題幹與按鈕裡的國字皆有注音。",
+    "image 欄位是 pixel-art/manifest.json 的中文圖名，遊戲會對應到 /pixel-art/<檔名>.png。若題目另有 count、add_groups、subtract、clock、shape、color_swatch，請見 dev-requests.md。"
+  ],
+  "questions": [
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U1-01",
+      "unit": 1,
+      "unit_title": "看圖數一數",
+      "unit_title_zhuyin": [
+        {
+          "char": "看",
+          "zhuyin": "ㄎㄢˋ"
+        },
+        {
+          "char": "圖",
+          "zhuyin": "ㄊㄨˊ"
+        },
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "認識 1 到 10、看圖數數",
+      "qtype": "count_image",
+      "prompt": "圖裡有幾個蘋果？",
+      "prompt_zhuyin": [
+        {
+          "char": "圖",
+          "zhuyin": "ㄊㄨˊ"
+        },
+        {
+          "char": "裡",
+          "zhuyin": "ㄌㄧˇ"
+        },
+        {
+          "char": "有",
+          "zhuyin": "ㄧㄡˇ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "個",
+          "zhuyin": "˙ㄍㄜ"
+        },
+        {
+          "char": "蘋",
+          "zhuyin": "ㄆㄧㄥˊ"
+        },
+        {
+          "char": "果",
+          "zhuyin": "ㄍㄨㄛˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "1"
+        },
+        {
+          "id": "b",
+          "text": "2"
+        },
+        {
+          "id": "c",
+          "text": "3"
+        }
+      ],
+      "answer": "a",
+      "explain": "圖上有 1 個蘋果。",
+      "skills": [
+        "數數",
+        "一一對應"
+      ],
+      "image": "一顆紅蘋果",
+      "count": 1
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U1-02",
+      "unit": 1,
+      "unit_title": "看圖數一數",
+      "unit_title_zhuyin": [
+        {
+          "char": "看",
+          "zhuyin": "ㄎㄢˋ"
+        },
+        {
+          "char": "圖",
+          "zhuyin": "ㄊㄨˊ"
+        },
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "認識 1 到 10、看圖數數",
+      "qtype": "count_image",
+      "prompt": "圖裡有幾顆皮球？",
+      "prompt_zhuyin": [
+        {
+          "char": "圖",
+          "zhuyin": "ㄊㄨˊ"
+        },
+        {
+          "char": "裡",
+          "zhuyin": "ㄌㄧˇ"
+        },
+        {
+          "char": "有",
+          "zhuyin": "ㄧㄡˇ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "顆",
+          "zhuyin": "ㄎㄜ"
+        },
+        {
+          "char": "皮",
+          "zhuyin": "ㄆㄧˊ"
+        },
+        {
+          "char": "球",
+          "zhuyin": "ㄑㄧㄡˊ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "3"
+        },
+        {
+          "id": "b",
+          "text": "2"
+        },
+        {
+          "id": "c",
+          "text": "4"
+        }
+      ],
+      "answer": "b",
+      "explain": "數一數，圖上有 2 顆皮球。",
+      "skills": [
+        "數數",
+        "一一對應"
+      ],
+      "image": "一顆紅色皮球",
+      "count": 2
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U1-03",
+      "unit": 1,
+      "unit_title": "看圖數一數",
+      "unit_title_zhuyin": [
+        {
+          "char": "看",
+          "zhuyin": "ㄎㄢˋ"
+        },
+        {
+          "char": "圖",
+          "zhuyin": "ㄊㄨˊ"
+        },
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "認識 1 到 10、看圖數數",
+      "qtype": "count_image",
+      "prompt": "圖裡有幾座山？",
+      "prompt_zhuyin": [
+        {
+          "char": "圖",
+          "zhuyin": "ㄊㄨˊ"
+        },
+        {
+          "char": "裡",
+          "zhuyin": "ㄌㄧˇ"
+        },
+        {
+          "char": "有",
+          "zhuyin": "ㄧㄡˇ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "座",
+          "zhuyin": "ㄗㄨㄛˋ"
+        },
+        {
+          "char": "山",
+          "zhuyin": "ㄕㄢ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "2"
+        },
+        {
+          "id": "b",
+          "text": "4"
+        },
+        {
+          "id": "c",
+          "text": "3"
+        }
+      ],
+      "answer": "c",
+      "explain": "圖上連在一起的山有 3 座。",
+      "skills": [
+        "數數",
+        "一一對應"
+      ],
+      "image": "三座連在一起的山",
+      "count_in_image": 3
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U1-04",
+      "unit": 1,
+      "unit_title": "看圖數一數",
+      "unit_title_zhuyin": [
+        {
+          "char": "看",
+          "zhuyin": "ㄎㄢˋ"
+        },
+        {
+          "char": "圖",
+          "zhuyin": "ㄊㄨˊ"
+        },
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "認識 1 到 10、看圖數數",
+      "qtype": "count_image",
+      "prompt": "圖裡有幾顆星星？",
+      "prompt_zhuyin": [
+        {
+          "char": "圖",
+          "zhuyin": "ㄊㄨˊ"
+        },
+        {
+          "char": "裡",
+          "zhuyin": "ㄌㄧˇ"
+        },
+        {
+          "char": "有",
+          "zhuyin": "ㄧㄡˇ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "顆",
+          "zhuyin": "ㄎㄜ"
+        },
+        {
+          "char": "星",
+          "zhuyin": "ㄒㄧㄥ"
+        },
+        {
+          "char": "星",
+          "zhuyin": "˙ㄒㄧㄥ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "4"
+        },
+        {
+          "id": "b",
+          "text": "3"
+        },
+        {
+          "id": "c",
+          "text": "5"
+        }
+      ],
+      "answer": "a",
+      "explain": "數一數，圖上有 4 顆星星。",
+      "skills": [
+        "數數",
+        "一一對應"
+      ],
+      "image": "一顆黃色星星",
+      "count": 4
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U1-05",
+      "unit": 1,
+      "unit_title": "看圖數一數",
+      "unit_title_zhuyin": [
+        {
+          "char": "看",
+          "zhuyin": "ㄎㄢˋ"
+        },
+        {
+          "char": "圖",
+          "zhuyin": "ㄊㄨˊ"
+        },
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "認識 1 到 10、看圖數數",
+      "qtype": "count_image",
+      "prompt": "這隻手上有幾根手指？",
+      "prompt_zhuyin": [
+        {
+          "char": "這",
+          "zhuyin": "ㄓㄜˋ"
+        },
+        {
+          "char": "隻",
+          "zhuyin": "ㄓ"
+        },
+        {
+          "char": "手",
+          "zhuyin": "ㄕㄡˇ"
+        },
+        {
+          "char": "上",
+          "zhuyin": "ㄕㄤˋ"
+        },
+        {
+          "char": "有",
+          "zhuyin": "ㄧㄡˇ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "根",
+          "zhuyin": "ㄍㄣ"
+        },
+        {
+          "char": "手",
+          "zhuyin": "ㄕㄡˇ"
+        },
+        {
+          "char": "指",
+          "zhuyin": "ㄓˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "4"
+        },
+        {
+          "id": "b",
+          "text": "6"
+        },
+        {
+          "id": "c",
+          "text": "5"
+        }
+      ],
+      "answer": "c",
+      "explain": "張開的手上有 5 根手指。",
+      "skills": [
+        "數數",
+        "一一對應"
+      ],
+      "image": "一隻張開五指的手",
+      "count_in_image": 5
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 2,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U1-06",
+      "unit": 1,
+      "unit_title": "看圖數一數",
+      "unit_title_zhuyin": [
+        {
+          "char": "看",
+          "zhuyin": "ㄎㄢˋ"
+        },
+        {
+          "char": "圖",
+          "zhuyin": "ㄊㄨˊ"
+        },
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "認識 1 到 10、看圖數數",
+      "qtype": "count_image",
+      "prompt": "圖裡有幾隻小雞？",
+      "prompt_zhuyin": [
+        {
+          "char": "圖",
+          "zhuyin": "ㄊㄨˊ"
+        },
+        {
+          "char": "裡",
+          "zhuyin": "ㄌㄧˇ"
+        },
+        {
+          "char": "有",
+          "zhuyin": "ㄧㄡˇ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "隻",
+          "zhuyin": "ㄓ"
+        },
+        {
+          "char": "小",
+          "zhuyin": "ㄒㄧㄠˇ"
+        },
+        {
+          "char": "雞",
+          "zhuyin": "ㄐㄧ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "5"
+        },
+        {
+          "id": "b",
+          "text": "6"
+        },
+        {
+          "id": "c",
+          "text": "8"
+        }
+      ],
+      "answer": "b",
+      "explain": "數一數，圖上有 6 隻小雞。",
+      "skills": [
+        "數數",
+        "一一對應"
+      ],
+      "image": "一隻黃色小雞",
+      "count": 6
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 2,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U1-07",
+      "unit": 1,
+      "unit_title": "看圖數一數",
+      "unit_title_zhuyin": [
+        {
+          "char": "看",
+          "zhuyin": "ㄎㄢˋ"
+        },
+        {
+          "char": "圖",
+          "zhuyin": "ㄊㄨˊ"
+        },
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "認識 1 到 10、看圖數數",
+      "qtype": "count_image",
+      "prompt": "圖裡有幾朵花？",
+      "prompt_zhuyin": [
+        {
+          "char": "圖",
+          "zhuyin": "ㄊㄨˊ"
+        },
+        {
+          "char": "裡",
+          "zhuyin": "ㄌㄧˇ"
+        },
+        {
+          "char": "有",
+          "zhuyin": "ㄧㄡˇ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "朵",
+          "zhuyin": "ㄉㄨㄛˇ"
+        },
+        {
+          "char": "花",
+          "zhuyin": "ㄏㄨㄚ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "6"
+        },
+        {
+          "id": "b",
+          "text": "8"
+        },
+        {
+          "id": "c",
+          "text": "7"
+        }
+      ],
+      "answer": "c",
+      "explain": "數一數，圖上有 7 朵花。",
+      "skills": [
+        "數數",
+        "一一對應"
+      ],
+      "image": "一朵紅色的花",
+      "count": 7
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 2,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U1-08",
+      "unit": 1,
+      "unit_title": "看圖數一數",
+      "unit_title_zhuyin": [
+        {
+          "char": "看",
+          "zhuyin": "ㄎㄢˋ"
+        },
+        {
+          "char": "圖",
+          "zhuyin": "ㄊㄨˊ"
+        },
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "認識 1 到 10、看圖數數",
+      "qtype": "count_image",
+      "prompt": "圖裡有幾條魚？",
+      "prompt_zhuyin": [
+        {
+          "char": "圖",
+          "zhuyin": "ㄊㄨˊ"
+        },
+        {
+          "char": "裡",
+          "zhuyin": "ㄌㄧˇ"
+        },
+        {
+          "char": "有",
+          "zhuyin": "ㄧㄡˇ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "條",
+          "zhuyin": "ㄊㄧㄠˊ"
+        },
+        {
+          "char": "魚",
+          "zhuyin": "ㄩˊ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "8"
+        },
+        {
+          "id": "b",
+          "text": "7"
+        },
+        {
+          "id": "c",
+          "text": "10"
+        }
+      ],
+      "answer": "a",
+      "explain": "數一數，圖上有 8 條魚。",
+      "skills": [
+        "數數",
+        "一一對應"
+      ],
+      "image": "一條橘色小魚",
+      "count": 8
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 2,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U1-09",
+      "unit": 1,
+      "unit_title": "看圖數一數",
+      "unit_title_zhuyin": [
+        {
+          "char": "看",
+          "zhuyin": "ㄎㄢˋ"
+        },
+        {
+          "char": "圖",
+          "zhuyin": "ㄊㄨˊ"
+        },
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "認識 1 到 10、看圖數數",
+      "qtype": "count_image",
+      "prompt": "圖裡有幾個蘋果？",
+      "prompt_zhuyin": [
+        {
+          "char": "圖",
+          "zhuyin": "ㄊㄨˊ"
+        },
+        {
+          "char": "裡",
+          "zhuyin": "ㄌㄧˇ"
+        },
+        {
+          "char": "有",
+          "zhuyin": "ㄧㄡˇ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "個",
+          "zhuyin": "˙ㄍㄜ"
+        },
+        {
+          "char": "蘋",
+          "zhuyin": "ㄆㄧㄥˊ"
+        },
+        {
+          "char": "果",
+          "zhuyin": "ㄍㄨㄛˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "8"
+        },
+        {
+          "id": "b",
+          "text": "9"
+        },
+        {
+          "id": "c",
+          "text": "10"
+        }
+      ],
+      "answer": "b",
+      "explain": "數一數，圖上有 9 個蘋果。",
+      "skills": [
+        "數數",
+        "一一對應"
+      ],
+      "image": "一顆紅蘋果",
+      "count": 9
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 2,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U1-10",
+      "unit": 1,
+      "unit_title": "看圖數一數",
+      "unit_title_zhuyin": [
+        {
+          "char": "看",
+          "zhuyin": "ㄎㄢˋ"
+        },
+        {
+          "char": "圖",
+          "zhuyin": "ㄊㄨˊ"
+        },
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "數",
+          "zhuyin": "ㄕㄨˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "認識 1 到 10、看圖數數",
+      "qtype": "count_image",
+      "prompt": "圖裡有幾顆皮球？",
+      "prompt_zhuyin": [
+        {
+          "char": "圖",
+          "zhuyin": "ㄊㄨˊ"
+        },
+        {
+          "char": "裡",
+          "zhuyin": "ㄌㄧˇ"
+        },
+        {
+          "char": "有",
+          "zhuyin": "ㄧㄡˇ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "顆",
+          "zhuyin": "ㄎㄜ"
+        },
+        {
+          "char": "皮",
+          "zhuyin": "ㄆㄧˊ"
+        },
+        {
+          "char": "球",
+          "zhuyin": "ㄑㄧㄡˊ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "9"
+        },
+        {
+          "id": "b",
+          "text": "8"
+        },
+        {
+          "id": "c",
+          "text": "10"
+        }
+      ],
+      "answer": "c",
+      "explain": "數一數，圖上有 10 顆皮球。",
+      "skills": [
+        "數數",
+        "一一對應"
+      ],
+      "image": "一顆紅色皮球",
+      "count": 10
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U2-01",
+      "unit": 2,
+      "unit_title": "誰比較大",
+      "unit_title_zhuyin": [
+        {
+          "char": "誰",
+          "zhuyin": "ㄕㄟˊ"
+        },
+        {
+          "char": "比",
+          "zhuyin": "ㄅㄧˇ"
+        },
+        {
+          "char": "較",
+          "zhuyin": "ㄐㄧㄠˋ"
+        },
+        {
+          "char": "大",
+          "zhuyin": "ㄉㄚˋ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內比大小",
+      "qtype": "compare_num",
+      "prompt": "4 和 9，哪一個比較大？",
+      "prompt_zhuyin": [
+        {
+          "char": "4",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "和",
+          "zhuyin": "ㄏㄢˋ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "9",
+          "zhuyin": ""
+        },
+        {
+          "char": "，",
+          "zhuyin": ""
+        },
+        {
+          "char": "哪",
+          "zhuyin": "ㄋㄚˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "個",
+          "zhuyin": "ㄍㄜˋ"
+        },
+        {
+          "char": "比",
+          "zhuyin": "ㄅㄧˇ"
+        },
+        {
+          "char": "較",
+          "zhuyin": "ㄐㄧㄠˋ"
+        },
+        {
+          "char": "大",
+          "zhuyin": "ㄉㄚˋ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "4"
+        },
+        {
+          "id": "b",
+          "text": "9"
+        },
+        {
+          "id": "c",
+          "text": "一樣大",
+          "zhuyin": "ㄧ ㄧㄤˋ ㄉㄚˋ"
+        }
+      ],
+      "answer": "b",
+      "explain": "9 比 4 大。",
+      "skills": [
+        "比大小",
+        "相等"
+      ],
+      "image": null
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U2-02",
+      "unit": 2,
+      "unit_title": "誰比較大",
+      "unit_title_zhuyin": [
+        {
+          "char": "誰",
+          "zhuyin": "ㄕㄟˊ"
+        },
+        {
+          "char": "比",
+          "zhuyin": "ㄅㄧˇ"
+        },
+        {
+          "char": "較",
+          "zhuyin": "ㄐㄧㄠˋ"
+        },
+        {
+          "char": "大",
+          "zhuyin": "ㄉㄚˋ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內比大小",
+      "qtype": "compare_num",
+      "prompt": "6 和 6，哪一句是對的？",
+      "prompt_zhuyin": [
+        {
+          "char": "6",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "和",
+          "zhuyin": "ㄏㄢˋ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "6",
+          "zhuyin": ""
+        },
+        {
+          "char": "，",
+          "zhuyin": ""
+        },
+        {
+          "char": "哪",
+          "zhuyin": "ㄋㄚˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "句",
+          "zhuyin": "ㄐㄩˋ"
+        },
+        {
+          "char": "是",
+          "zhuyin": "ㄕˋ"
+        },
+        {
+          "char": "對",
+          "zhuyin": "ㄉㄨㄟˋ"
+        },
+        {
+          "char": "的",
+          "zhuyin": "˙ㄉㄜ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "6 比較大",
+          "zhuyin": "6 ㄅㄧˇ ㄐㄧㄠˋ ㄉㄚˋ"
+        },
+        {
+          "id": "b",
+          "text": "6 比較小",
+          "zhuyin": "6 ㄅㄧˇ ㄐㄧㄠˋ ㄒㄧㄠˇ"
+        },
+        {
+          "id": "c",
+          "text": "一樣大",
+          "zhuyin": "ㄧ ㄧㄤˋ ㄉㄚˋ"
+        }
+      ],
+      "answer": "c",
+      "explain": "兩個都是 6，一樣大。",
+      "skills": [
+        "比大小",
+        "相等"
+      ],
+      "image": null
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U2-03",
+      "unit": 2,
+      "unit_title": "誰比較大",
+      "unit_title_zhuyin": [
+        {
+          "char": "誰",
+          "zhuyin": "ㄕㄟˊ"
+        },
+        {
+          "char": "比",
+          "zhuyin": "ㄅㄧˇ"
+        },
+        {
+          "char": "較",
+          "zhuyin": "ㄐㄧㄠˋ"
+        },
+        {
+          "char": "大",
+          "zhuyin": "ㄉㄚˋ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內比大小",
+      "qtype": "compare_num",
+      "prompt": "8 和 3，哪一個比較大？",
+      "prompt_zhuyin": [
+        {
+          "char": "8",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "和",
+          "zhuyin": "ㄏㄢˋ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "3",
+          "zhuyin": ""
+        },
+        {
+          "char": "，",
+          "zhuyin": ""
+        },
+        {
+          "char": "哪",
+          "zhuyin": "ㄋㄚˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "個",
+          "zhuyin": "ㄍㄜˋ"
+        },
+        {
+          "char": "比",
+          "zhuyin": "ㄅㄧˇ"
+        },
+        {
+          "char": "較",
+          "zhuyin": "ㄐㄧㄠˋ"
+        },
+        {
+          "char": "大",
+          "zhuyin": "ㄉㄚˋ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "8"
+        },
+        {
+          "id": "b",
+          "text": "3"
+        },
+        {
+          "id": "c",
+          "text": "一樣大",
+          "zhuyin": "ㄧ ㄧㄤˋ ㄉㄚˋ"
+        }
+      ],
+      "answer": "a",
+      "explain": "8 比 3 大。",
+      "skills": [
+        "比大小",
+        "相等"
+      ],
+      "image": null
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U2-04",
+      "unit": 2,
+      "unit_title": "誰比較大",
+      "unit_title_zhuyin": [
+        {
+          "char": "誰",
+          "zhuyin": "ㄕㄟˊ"
+        },
+        {
+          "char": "比",
+          "zhuyin": "ㄅㄧˇ"
+        },
+        {
+          "char": "較",
+          "zhuyin": "ㄐㄧㄠˋ"
+        },
+        {
+          "char": "大",
+          "zhuyin": "ㄉㄚˋ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內比大小",
+      "qtype": "compare_num",
+      "prompt": "1 和 10，哪一個比較小？",
+      "prompt_zhuyin": [
+        {
+          "char": "1",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "和",
+          "zhuyin": "ㄏㄢˋ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "1",
+          "zhuyin": ""
+        },
+        {
+          "char": "0",
+          "zhuyin": ""
+        },
+        {
+          "char": "，",
+          "zhuyin": ""
+        },
+        {
+          "char": "哪",
+          "zhuyin": "ㄋㄚˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "個",
+          "zhuyin": "ㄍㄜˋ"
+        },
+        {
+          "char": "比",
+          "zhuyin": "ㄅㄧˇ"
+        },
+        {
+          "char": "較",
+          "zhuyin": "ㄐㄧㄠˋ"
+        },
+        {
+          "char": "小",
+          "zhuyin": "ㄒㄧㄠˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "10"
+        },
+        {
+          "id": "b",
+          "text": "1"
+        },
+        {
+          "id": "c",
+          "text": "一樣大",
+          "zhuyin": "ㄧ ㄧㄤˋ ㄉㄚˋ"
+        }
+      ],
+      "answer": "b",
+      "explain": "1 比 10 小。",
+      "skills": [
+        "比大小",
+        "相等"
+      ],
+      "image": null
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U2-05",
+      "unit": 2,
+      "unit_title": "誰比較大",
+      "unit_title_zhuyin": [
+        {
+          "char": "誰",
+          "zhuyin": "ㄕㄟˊ"
+        },
+        {
+          "char": "比",
+          "zhuyin": "ㄅㄧˇ"
+        },
+        {
+          "char": "較",
+          "zhuyin": "ㄐㄧㄠˋ"
+        },
+        {
+          "char": "大",
+          "zhuyin": "ㄉㄚˋ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內比大小",
+      "qtype": "compare_num",
+      "prompt": "7 和 2，哪一個比較大？",
+      "prompt_zhuyin": [
+        {
+          "char": "7",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "和",
+          "zhuyin": "ㄏㄢˋ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "2",
+          "zhuyin": ""
+        },
+        {
+          "char": "，",
+          "zhuyin": ""
+        },
+        {
+          "char": "哪",
+          "zhuyin": "ㄋㄚˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "個",
+          "zhuyin": "ㄍㄜˋ"
+        },
+        {
+          "char": "比",
+          "zhuyin": "ㄅㄧˇ"
+        },
+        {
+          "char": "較",
+          "zhuyin": "ㄐㄧㄠˋ"
+        },
+        {
+          "char": "大",
+          "zhuyin": "ㄉㄚˋ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "7"
+        },
+        {
+          "id": "b",
+          "text": "2"
+        },
+        {
+          "id": "c",
+          "text": "一樣大",
+          "zhuyin": "ㄧ ㄧㄤˋ ㄉㄚˋ"
+        }
+      ],
+      "answer": "a",
+      "explain": "7 比 2 大。",
+      "skills": [
+        "比大小",
+        "相等"
+      ],
+      "image": null
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U2-06",
+      "unit": 2,
+      "unit_title": "誰比較大",
+      "unit_title_zhuyin": [
+        {
+          "char": "誰",
+          "zhuyin": "ㄕㄟˊ"
+        },
+        {
+          "char": "比",
+          "zhuyin": "ㄅㄧˇ"
+        },
+        {
+          "char": "較",
+          "zhuyin": "ㄐㄧㄠˋ"
+        },
+        {
+          "char": "大",
+          "zhuyin": "ㄉㄚˋ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內比大小",
+      "qtype": "compare_num",
+      "prompt": "4 和 4，哪一句是對的？",
+      "prompt_zhuyin": [
+        {
+          "char": "4",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "和",
+          "zhuyin": "ㄏㄢˋ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "4",
+          "zhuyin": ""
+        },
+        {
+          "char": "，",
+          "zhuyin": ""
+        },
+        {
+          "char": "哪",
+          "zhuyin": "ㄋㄚˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "句",
+          "zhuyin": "ㄐㄩˋ"
+        },
+        {
+          "char": "是",
+          "zhuyin": "ㄕˋ"
+        },
+        {
+          "char": "對",
+          "zhuyin": "ㄉㄨㄟˋ"
+        },
+        {
+          "char": "的",
+          "zhuyin": "˙ㄉㄜ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "4 比較大",
+          "zhuyin": "4 ㄅㄧˇ ㄐㄧㄠˋ ㄉㄚˋ"
+        },
+        {
+          "id": "b",
+          "text": "4 比較小",
+          "zhuyin": "4 ㄅㄧˇ ㄐㄧㄠˋ ㄒㄧㄠˇ"
+        },
+        {
+          "id": "c",
+          "text": "一樣大",
+          "zhuyin": "ㄧ ㄧㄤˋ ㄉㄚˋ"
+        }
+      ],
+      "answer": "c",
+      "explain": "兩個都是 4，一樣大。",
+      "skills": [
+        "比大小",
+        "相等"
+      ],
+      "image": null
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U2-07",
+      "unit": 2,
+      "unit_title": "誰比較大",
+      "unit_title_zhuyin": [
+        {
+          "char": "誰",
+          "zhuyin": "ㄕㄟˊ"
+        },
+        {
+          "char": "比",
+          "zhuyin": "ㄅㄧˇ"
+        },
+        {
+          "char": "較",
+          "zhuyin": "ㄐㄧㄠˋ"
+        },
+        {
+          "char": "大",
+          "zhuyin": "ㄉㄚˋ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內比大小",
+      "qtype": "compare_num",
+      "prompt": "5 和 8，哪一個比較小？",
+      "prompt_zhuyin": [
+        {
+          "char": "5",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "和",
+          "zhuyin": "ㄏㄢˋ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "8",
+          "zhuyin": ""
+        },
+        {
+          "char": "，",
+          "zhuyin": ""
+        },
+        {
+          "char": "哪",
+          "zhuyin": "ㄋㄚˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "個",
+          "zhuyin": "ㄍㄜˋ"
+        },
+        {
+          "char": "比",
+          "zhuyin": "ㄅㄧˇ"
+        },
+        {
+          "char": "較",
+          "zhuyin": "ㄐㄧㄠˋ"
+        },
+        {
+          "char": "小",
+          "zhuyin": "ㄒㄧㄠˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "8"
+        },
+        {
+          "id": "b",
+          "text": "5"
+        },
+        {
+          "id": "c",
+          "text": "一樣大",
+          "zhuyin": "ㄧ ㄧㄤˋ ㄉㄚˋ"
+        }
+      ],
+      "answer": "b",
+      "explain": "5 比 8 小。",
+      "skills": [
+        "比大小",
+        "相等"
+      ],
+      "image": null
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U2-08",
+      "unit": 2,
+      "unit_title": "誰比較大",
+      "unit_title_zhuyin": [
+        {
+          "char": "誰",
+          "zhuyin": "ㄕㄟˊ"
+        },
+        {
+          "char": "比",
+          "zhuyin": "ㄅㄧˇ"
+        },
+        {
+          "char": "較",
+          "zhuyin": "ㄐㄧㄠˋ"
+        },
+        {
+          "char": "大",
+          "zhuyin": "ㄉㄚˋ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內比大小",
+      "qtype": "compare_num",
+      "prompt": "10 和 10，哪一句是對的？",
+      "prompt_zhuyin": [
+        {
+          "char": "1",
+          "zhuyin": ""
+        },
+        {
+          "char": "0",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "和",
+          "zhuyin": "ㄏㄢˋ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "1",
+          "zhuyin": ""
+        },
+        {
+          "char": "0",
+          "zhuyin": ""
+        },
+        {
+          "char": "，",
+          "zhuyin": ""
+        },
+        {
+          "char": "哪",
+          "zhuyin": "ㄋㄚˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "句",
+          "zhuyin": "ㄐㄩˋ"
+        },
+        {
+          "char": "是",
+          "zhuyin": "ㄕˋ"
+        },
+        {
+          "char": "對",
+          "zhuyin": "ㄉㄨㄟˋ"
+        },
+        {
+          "char": "的",
+          "zhuyin": "˙ㄉㄜ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "10 比較大",
+          "zhuyin": "1 0 ㄅㄧˇ ㄐㄧㄠˋ ㄉㄚˋ"
+        },
+        {
+          "id": "b",
+          "text": "10 比較小",
+          "zhuyin": "1 0 ㄅㄧˇ ㄐㄧㄠˋ ㄒㄧㄠˇ"
+        },
+        {
+          "id": "c",
+          "text": "一樣大",
+          "zhuyin": "ㄧ ㄧㄤˋ ㄉㄚˋ"
+        }
+      ],
+      "answer": "c",
+      "explain": "兩個都是 10，一樣大。",
+      "skills": [
+        "比大小",
+        "相等"
+      ],
+      "image": null
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U2-09",
+      "unit": 2,
+      "unit_title": "誰比較大",
+      "unit_title_zhuyin": [
+        {
+          "char": "誰",
+          "zhuyin": "ㄕㄟˊ"
+        },
+        {
+          "char": "比",
+          "zhuyin": "ㄅㄧˇ"
+        },
+        {
+          "char": "較",
+          "zhuyin": "ㄐㄧㄠˋ"
+        },
+        {
+          "char": "大",
+          "zhuyin": "ㄉㄚˋ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內比大小",
+      "qtype": "compare_num",
+      "prompt": "9 和 5，哪一個比較大？",
+      "prompt_zhuyin": [
+        {
+          "char": "9",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "和",
+          "zhuyin": "ㄏㄢˋ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "5",
+          "zhuyin": ""
+        },
+        {
+          "char": "，",
+          "zhuyin": ""
+        },
+        {
+          "char": "哪",
+          "zhuyin": "ㄋㄚˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "個",
+          "zhuyin": "ㄍㄜˋ"
+        },
+        {
+          "char": "比",
+          "zhuyin": "ㄅㄧˇ"
+        },
+        {
+          "char": "較",
+          "zhuyin": "ㄐㄧㄠˋ"
+        },
+        {
+          "char": "大",
+          "zhuyin": "ㄉㄚˋ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "9"
+        },
+        {
+          "id": "b",
+          "text": "5"
+        },
+        {
+          "id": "c",
+          "text": "一樣大",
+          "zhuyin": "ㄧ ㄧㄤˋ ㄉㄚˋ"
+        }
+      ],
+      "answer": "a",
+      "explain": "9 比 5 大。",
+      "skills": [
+        "比大小",
+        "相等"
+      ],
+      "image": null
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U2-10",
+      "unit": 2,
+      "unit_title": "誰比較大",
+      "unit_title_zhuyin": [
+        {
+          "char": "誰",
+          "zhuyin": "ㄕㄟˊ"
+        },
+        {
+          "char": "比",
+          "zhuyin": "ㄅㄧˇ"
+        },
+        {
+          "char": "較",
+          "zhuyin": "ㄐㄧㄠˋ"
+        },
+        {
+          "char": "大",
+          "zhuyin": "ㄉㄚˋ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內比大小",
+      "qtype": "compare_num",
+      "prompt": "3 和 7，哪一個比較小？",
+      "prompt_zhuyin": [
+        {
+          "char": "3",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "和",
+          "zhuyin": "ㄏㄢˋ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "7",
+          "zhuyin": ""
+        },
+        {
+          "char": "，",
+          "zhuyin": ""
+        },
+        {
+          "char": "哪",
+          "zhuyin": "ㄋㄚˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "個",
+          "zhuyin": "ㄍㄜˋ"
+        },
+        {
+          "char": "比",
+          "zhuyin": "ㄅㄧˇ"
+        },
+        {
+          "char": "較",
+          "zhuyin": "ㄐㄧㄠˋ"
+        },
+        {
+          "char": "小",
+          "zhuyin": "ㄒㄧㄠˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "7"
+        },
+        {
+          "id": "b",
+          "text": "3"
+        },
+        {
+          "id": "c",
+          "text": "一樣大",
+          "zhuyin": "ㄧ ㄧㄤˋ ㄉㄚˋ"
+        }
+      ],
+      "answer": "b",
+      "explain": "3 比 7 小。",
+      "skills": [
+        "比大小",
+        "相等"
+      ],
+      "image": null
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U3-01",
+      "unit": 3,
+      "unit_title": "加一加",
+      "unit_title_zhuyin": [
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內加法",
+      "qtype": "add_within_10",
+      "prompt": "2 加 3 等於幾？",
+      "prompt_zhuyin": [
+        {
+          "char": "2",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "3",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "等",
+          "zhuyin": "ㄉㄥˇ"
+        },
+        {
+          "char": "於",
+          "zhuyin": "ㄩˊ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "4"
+        },
+        {
+          "id": "b",
+          "text": "6"
+        },
+        {
+          "id": "c",
+          "text": "5"
+        }
+      ],
+      "answer": "c",
+      "explain": "2 加 3 等於 5。",
+      "skills": [
+        "10 以內加法"
+      ],
+      "image": "一顆紅蘋果",
+      "add_groups": [
+        2,
+        3
+      ]
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U3-02",
+      "unit": 3,
+      "unit_title": "加一加",
+      "unit_title_zhuyin": [
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內加法",
+      "qtype": "add_within_10",
+      "prompt": "1 加 1 等於幾？",
+      "prompt_zhuyin": [
+        {
+          "char": "1",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "1",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "等",
+          "zhuyin": "ㄉㄥˇ"
+        },
+        {
+          "char": "於",
+          "zhuyin": "ㄩˊ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "2"
+        },
+        {
+          "id": "b",
+          "text": "1"
+        },
+        {
+          "id": "c",
+          "text": "3"
+        }
+      ],
+      "answer": "a",
+      "explain": "1 加 1 等於 2。",
+      "skills": [
+        "10 以內加法"
+      ],
+      "image": "一顆紅色皮球",
+      "add_groups": [
+        1,
+        1
+      ]
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U3-03",
+      "unit": 3,
+      "unit_title": "加一加",
+      "unit_title_zhuyin": [
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內加法",
+      "qtype": "add_within_10",
+      "prompt": "4 加 4 等於幾？",
+      "prompt_zhuyin": [
+        {
+          "char": "4",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "4",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "等",
+          "zhuyin": "ㄉㄥˇ"
+        },
+        {
+          "char": "於",
+          "zhuyin": "ㄩˊ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "7"
+        },
+        {
+          "id": "b",
+          "text": "8"
+        },
+        {
+          "id": "c",
+          "text": "9"
+        }
+      ],
+      "answer": "b",
+      "explain": "4 加 4 等於 8。",
+      "skills": [
+        "10 以內加法"
+      ],
+      "image": "一顆黃色星星",
+      "add_groups": [
+        4,
+        4
+      ]
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U3-04",
+      "unit": 3,
+      "unit_title": "加一加",
+      "unit_title_zhuyin": [
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內加法",
+      "qtype": "add_within_10",
+      "prompt": "5 加 2 等於幾？",
+      "prompt_zhuyin": [
+        {
+          "char": "5",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "2",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "等",
+          "zhuyin": "ㄉㄥˇ"
+        },
+        {
+          "char": "於",
+          "zhuyin": "ㄩˊ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "6"
+        },
+        {
+          "id": "b",
+          "text": "8"
+        },
+        {
+          "id": "c",
+          "text": "7"
+        }
+      ],
+      "answer": "c",
+      "explain": "5 加 2 等於 7。",
+      "skills": [
+        "10 以內加法"
+      ],
+      "image": "一朵紅色的花",
+      "add_groups": [
+        5,
+        2
+      ]
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U3-05",
+      "unit": 3,
+      "unit_title": "加一加",
+      "unit_title_zhuyin": [
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內加法",
+      "qtype": "add_within_10",
+      "prompt": "3 加 5 等於幾？",
+      "prompt_zhuyin": [
+        {
+          "char": "3",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "5",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "等",
+          "zhuyin": "ㄉㄥˇ"
+        },
+        {
+          "char": "於",
+          "zhuyin": "ㄩˊ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "7"
+        },
+        {
+          "id": "b",
+          "text": "8"
+        },
+        {
+          "id": "c",
+          "text": "9"
+        }
+      ],
+      "answer": "b",
+      "explain": "3 加 5 等於 8。",
+      "skills": [
+        "10 以內加法"
+      ],
+      "image": "一隻黃色小雞",
+      "add_groups": [
+        3,
+        5
+      ]
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 2,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U3-06",
+      "unit": 3,
+      "unit_title": "加一加",
+      "unit_title_zhuyin": [
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內加法",
+      "qtype": "add_within_10",
+      "prompt": "6 加 3 等於幾？",
+      "prompt_zhuyin": [
+        {
+          "char": "6",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "3",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "等",
+          "zhuyin": "ㄉㄥˇ"
+        },
+        {
+          "char": "於",
+          "zhuyin": "ㄩˊ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "9"
+        },
+        {
+          "id": "b",
+          "text": "8"
+        },
+        {
+          "id": "c",
+          "text": "10"
+        }
+      ],
+      "answer": "a",
+      "explain": "6 加 3 等於 9。",
+      "skills": [
+        "10 以內加法"
+      ],
+      "image": "一條橘色小魚",
+      "add_groups": [
+        6,
+        3
+      ]
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 2,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U3-07",
+      "unit": 3,
+      "unit_title": "加一加",
+      "unit_title_zhuyin": [
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內加法",
+      "qtype": "add_within_10",
+      "prompt": "7 加 3 等於幾？",
+      "prompt_zhuyin": [
+        {
+          "char": "7",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "3",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "等",
+          "zhuyin": "ㄉㄥˇ"
+        },
+        {
+          "char": "於",
+          "zhuyin": "ㄩˊ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "9"
+        },
+        {
+          "id": "b",
+          "text": "8"
+        },
+        {
+          "id": "c",
+          "text": "10"
+        }
+      ],
+      "answer": "c",
+      "explain": "7 加 3 等於 10。",
+      "skills": [
+        "10 以內加法"
+      ],
+      "image": "一顆紅色皮球",
+      "add_groups": [
+        7,
+        3
+      ]
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U3-08",
+      "unit": 3,
+      "unit_title": "加一加",
+      "unit_title_zhuyin": [
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內加法",
+      "qtype": "add_within_10",
+      "prompt": "4 加 2 等於幾？",
+      "prompt_zhuyin": [
+        {
+          "char": "4",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "2",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "等",
+          "zhuyin": "ㄉㄥˇ"
+        },
+        {
+          "char": "於",
+          "zhuyin": "ㄩˊ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "6"
+        },
+        {
+          "id": "b",
+          "text": "5"
+        },
+        {
+          "id": "c",
+          "text": "7"
+        }
+      ],
+      "answer": "a",
+      "explain": "4 加 2 等於 6。",
+      "skills": [
+        "10 以內加法"
+      ],
+      "image": "一顆紅蘋果",
+      "add_groups": [
+        4,
+        2
+      ]
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 2,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U3-09",
+      "unit": 3,
+      "unit_title": "加一加",
+      "unit_title_zhuyin": [
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內加法",
+      "qtype": "add_within_10",
+      "prompt": "8 加 1 等於幾？",
+      "prompt_zhuyin": [
+        {
+          "char": "8",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "1",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "等",
+          "zhuyin": "ㄉㄥˇ"
+        },
+        {
+          "char": "於",
+          "zhuyin": "ㄩˊ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "10"
+        },
+        {
+          "id": "b",
+          "text": "9"
+        },
+        {
+          "id": "c",
+          "text": "8"
+        }
+      ],
+      "answer": "b",
+      "explain": "8 加 1 等於 9。",
+      "skills": [
+        "10 以內加法"
+      ],
+      "image": "一顆黃色星星",
+      "add_groups": [
+        8,
+        1
+      ]
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 2,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U3-10",
+      "unit": 3,
+      "unit_title": "加一加",
+      "unit_title_zhuyin": [
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內加法",
+      "qtype": "add_within_10",
+      "prompt": "5 加 5 等於幾？",
+      "prompt_zhuyin": [
+        {
+          "char": "5",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "加",
+          "zhuyin": "ㄐㄧㄚ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "5",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "等",
+          "zhuyin": "ㄉㄥˇ"
+        },
+        {
+          "char": "於",
+          "zhuyin": "ㄩˊ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "9"
+        },
+        {
+          "id": "b",
+          "text": "8"
+        },
+        {
+          "id": "c",
+          "text": "10"
+        }
+      ],
+      "answer": "c",
+      "explain": "5 加 5 等於 10。",
+      "skills": [
+        "10 以內加法"
+      ],
+      "image": "一朵紅色的花",
+      "add_groups": [
+        5,
+        5
+      ]
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U4-01",
+      "unit": 4,
+      "unit_title": "減一減",
+      "unit_title_zhuyin": [
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內減法",
+      "qtype": "subtract_within_10",
+      "prompt": "7 減 2 還剩幾？",
+      "prompt_zhuyin": [
+        {
+          "char": "7",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "2",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "還",
+          "zhuyin": "ㄏㄞˊ"
+        },
+        {
+          "char": "剩",
+          "zhuyin": "ㄕㄥˋ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "5"
+        },
+        {
+          "id": "b",
+          "text": "4"
+        },
+        {
+          "id": "c",
+          "text": "6"
+        }
+      ],
+      "answer": "a",
+      "explain": "7 減 2 還剩 5。",
+      "skills": [
+        "10 以內減法"
+      ],
+      "image": "一顆紅色皮球",
+      "subtract": {
+        "from": 7,
+        "take": 2
+      }
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U4-02",
+      "unit": 4,
+      "unit_title": "減一減",
+      "unit_title_zhuyin": [
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內減法",
+      "qtype": "subtract_within_10",
+      "prompt": "5 減 3 還剩幾？",
+      "prompt_zhuyin": [
+        {
+          "char": "5",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "3",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "還",
+          "zhuyin": "ㄏㄞˊ"
+        },
+        {
+          "char": "剩",
+          "zhuyin": "ㄕㄥˋ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "3"
+        },
+        {
+          "id": "b",
+          "text": "1"
+        },
+        {
+          "id": "c",
+          "text": "2"
+        }
+      ],
+      "answer": "c",
+      "explain": "5 減 3 還剩 2。",
+      "skills": [
+        "10 以內減法"
+      ],
+      "image": "一顆紅蘋果",
+      "subtract": {
+        "from": 5,
+        "take": 3
+      }
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 2,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U4-03",
+      "unit": 4,
+      "unit_title": "減一減",
+      "unit_title_zhuyin": [
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內減法",
+      "qtype": "subtract_within_10",
+      "prompt": "9 減 4 還剩幾？",
+      "prompt_zhuyin": [
+        {
+          "char": "9",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "4",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "還",
+          "zhuyin": "ㄏㄞˊ"
+        },
+        {
+          "char": "剩",
+          "zhuyin": "ㄕㄥˋ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "6"
+        },
+        {
+          "id": "b",
+          "text": "5"
+        },
+        {
+          "id": "c",
+          "text": "4"
+        }
+      ],
+      "answer": "b",
+      "explain": "9 減 4 還剩 5。",
+      "skills": [
+        "10 以內減法"
+      ],
+      "image": "一顆黃色星星",
+      "subtract": {
+        "from": 9,
+        "take": 4
+      }
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U4-04",
+      "unit": 4,
+      "unit_title": "減一減",
+      "unit_title_zhuyin": [
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內減法",
+      "qtype": "subtract_within_10",
+      "prompt": "6 減 6 還剩幾？",
+      "prompt_zhuyin": [
+        {
+          "char": "6",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "6",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "還",
+          "zhuyin": "ㄏㄞˊ"
+        },
+        {
+          "char": "剩",
+          "zhuyin": "ㄕㄥˋ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "0"
+        },
+        {
+          "id": "b",
+          "text": "1"
+        },
+        {
+          "id": "c",
+          "text": "6"
+        }
+      ],
+      "answer": "a",
+      "explain": "6 減 6 還剩 0。",
+      "skills": [
+        "10 以內減法"
+      ],
+      "image": "一隻黃色小雞",
+      "subtract": {
+        "from": 6,
+        "take": 6
+      }
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 2,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U4-05",
+      "unit": 4,
+      "unit_title": "減一減",
+      "unit_title_zhuyin": [
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內減法",
+      "qtype": "subtract_within_10",
+      "prompt": "10 減 3 還剩幾？",
+      "prompt_zhuyin": [
+        {
+          "char": "1",
+          "zhuyin": ""
+        },
+        {
+          "char": "0",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "3",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "還",
+          "zhuyin": "ㄏㄞˊ"
+        },
+        {
+          "char": "剩",
+          "zhuyin": "ㄕㄥˋ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "8"
+        },
+        {
+          "id": "b",
+          "text": "6"
+        },
+        {
+          "id": "c",
+          "text": "7"
+        }
+      ],
+      "answer": "c",
+      "explain": "10 減 3 還剩 7。",
+      "skills": [
+        "10 以內減法"
+      ],
+      "image": "一顆紅色皮球",
+      "subtract": {
+        "from": 10,
+        "take": 3
+      }
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U4-06",
+      "unit": 4,
+      "unit_title": "減一減",
+      "unit_title_zhuyin": [
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內減法",
+      "qtype": "subtract_within_10",
+      "prompt": "8 減 2 還剩幾？",
+      "prompt_zhuyin": [
+        {
+          "char": "8",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "2",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "還",
+          "zhuyin": "ㄏㄞˊ"
+        },
+        {
+          "char": "剩",
+          "zhuyin": "ㄕㄥˋ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "7"
+        },
+        {
+          "id": "b",
+          "text": "6"
+        },
+        {
+          "id": "c",
+          "text": "5"
+        }
+      ],
+      "answer": "b",
+      "explain": "8 減 2 還剩 6。",
+      "skills": [
+        "10 以內減法"
+      ],
+      "image": "一朵紅色的花",
+      "subtract": {
+        "from": 8,
+        "take": 2
+      }
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U4-07",
+      "unit": 4,
+      "unit_title": "減一減",
+      "unit_title_zhuyin": [
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內減法",
+      "qtype": "subtract_within_10",
+      "prompt": "4 減 1 還剩幾？",
+      "prompt_zhuyin": [
+        {
+          "char": "4",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "1",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "還",
+          "zhuyin": "ㄏㄞˊ"
+        },
+        {
+          "char": "剩",
+          "zhuyin": "ㄕㄥˋ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "3"
+        },
+        {
+          "id": "b",
+          "text": "2"
+        },
+        {
+          "id": "c",
+          "text": "4"
+        }
+      ],
+      "answer": "a",
+      "explain": "4 減 1 還剩 3。",
+      "skills": [
+        "10 以內減法"
+      ],
+      "image": "一條橘色小魚",
+      "subtract": {
+        "from": 4,
+        "take": 1
+      }
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 2,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U4-08",
+      "unit": 4,
+      "unit_title": "減一減",
+      "unit_title_zhuyin": [
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內減法",
+      "qtype": "subtract_within_10",
+      "prompt": "10 減 6 還剩幾？",
+      "prompt_zhuyin": [
+        {
+          "char": "1",
+          "zhuyin": ""
+        },
+        {
+          "char": "0",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "6",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "還",
+          "zhuyin": "ㄏㄞˊ"
+        },
+        {
+          "char": "剩",
+          "zhuyin": "ㄕㄥˋ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "5"
+        },
+        {
+          "id": "b",
+          "text": "4"
+        },
+        {
+          "id": "c",
+          "text": "3"
+        }
+      ],
+      "answer": "b",
+      "explain": "10 減 6 還剩 4。",
+      "skills": [
+        "10 以內減法"
+      ],
+      "image": "一顆紅蘋果",
+      "subtract": {
+        "from": 10,
+        "take": 6
+      }
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 2,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U4-09",
+      "unit": 4,
+      "unit_title": "減一減",
+      "unit_title_zhuyin": [
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內減法",
+      "qtype": "subtract_within_10",
+      "prompt": "9 減 9 還剩幾？",
+      "prompt_zhuyin": [
+        {
+          "char": "9",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "9",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "還",
+          "zhuyin": "ㄏㄞˊ"
+        },
+        {
+          "char": "剩",
+          "zhuyin": "ㄕㄥˋ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "1"
+        },
+        {
+          "id": "b",
+          "text": "9"
+        },
+        {
+          "id": "c",
+          "text": "0"
+        }
+      ],
+      "answer": "c",
+      "explain": "9 減 9 還剩 0。",
+      "skills": [
+        "10 以內減法"
+      ],
+      "image": "一顆黃色星星",
+      "subtract": {
+        "from": 9,
+        "take": 9
+      }
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U4-10",
+      "unit": 4,
+      "unit_title": "減一減",
+      "unit_title_zhuyin": [
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": "一",
+          "zhuyin": "ㄧ"
+        },
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        }
+      ],
+      "unit_subtitle_teacher": "10 以內減法",
+      "qtype": "subtract_within_10",
+      "prompt": "8 減 3 還剩幾？",
+      "prompt_zhuyin": [
+        {
+          "char": "8",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "減",
+          "zhuyin": "ㄐㄧㄢˇ"
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "3",
+          "zhuyin": ""
+        },
+        {
+          "char": " ",
+          "zhuyin": ""
+        },
+        {
+          "char": "還",
+          "zhuyin": "ㄏㄞˊ"
+        },
+        {
+          "char": "剩",
+          "zhuyin": "ㄕㄥˋ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "5"
+        },
+        {
+          "id": "b",
+          "text": "6"
+        },
+        {
+          "id": "c",
+          "text": "4"
+        }
+      ],
+      "answer": "a",
+      "explain": "8 減 3 還剩 5。",
+      "skills": [
+        "10 以內減法"
+      ],
+      "image": "一顆紅色皮球",
+      "subtract": {
+        "from": 8,
+        "take": 3
+      }
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U5-01",
+      "unit": 5,
+      "unit_title": "圓圓方方幾點鐘",
+      "unit_title_zhuyin": [
+        {
+          "char": "圓",
+          "zhuyin": "ㄩㄢˊ"
+        },
+        {
+          "char": "圓",
+          "zhuyin": "ㄩㄢˊ"
+        },
+        {
+          "char": "方",
+          "zhuyin": "ㄈㄤ"
+        },
+        {
+          "char": "方",
+          "zhuyin": "ㄈㄤ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "點",
+          "zhuyin": "ㄉㄧㄢˇ"
+        },
+        {
+          "char": "鐘",
+          "zhuyin": "ㄓㄨㄥ"
+        }
+      ],
+      "unit_subtitle_teacher": "認形狀、認整點鐘面",
+      "qtype": "shape_time",
+      "prompt": "這是什麼形狀？",
+      "prompt_zhuyin": [
+        {
+          "char": "這",
+          "zhuyin": "ㄓㄜˋ"
+        },
+        {
+          "char": "是",
+          "zhuyin": "ㄕˋ"
+        },
+        {
+          "char": "什",
+          "zhuyin": "ㄕㄣˊ"
+        },
+        {
+          "char": "麼",
+          "zhuyin": "˙ㄇㄜ"
+        },
+        {
+          "char": "形",
+          "zhuyin": "ㄒㄧㄥˊ"
+        },
+        {
+          "char": "狀",
+          "zhuyin": "ㄓㄨㄤˋ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "方形",
+          "zhuyin": "ㄈㄤ ㄒㄧㄥˊ"
+        },
+        {
+          "id": "b",
+          "text": "圓形",
+          "zhuyin": "ㄩㄢˊ ㄒㄧㄥˊ"
+        },
+        {
+          "id": "c",
+          "text": "星形",
+          "zhuyin": "ㄒㄧㄥ ㄒㄧㄥˊ"
+        }
+      ],
+      "answer": "b",
+      "explain": "皮球是圓圓的，是圓形。",
+      "skills": [
+        "認形狀"
+      ],
+      "image": "一顆紅色皮球"
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U5-02",
+      "unit": 5,
+      "unit_title": "圓圓方方幾點鐘",
+      "unit_title_zhuyin": [
+        {
+          "char": "圓",
+          "zhuyin": "ㄩㄢˊ"
+        },
+        {
+          "char": "圓",
+          "zhuyin": "ㄩㄢˊ"
+        },
+        {
+          "char": "方",
+          "zhuyin": "ㄈㄤ"
+        },
+        {
+          "char": "方",
+          "zhuyin": "ㄈㄤ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "點",
+          "zhuyin": "ㄉㄧㄢˇ"
+        },
+        {
+          "char": "鐘",
+          "zhuyin": "ㄓㄨㄥ"
+        }
+      ],
+      "unit_subtitle_teacher": "認形狀、認整點鐘面",
+      "qtype": "shape_time",
+      "prompt": "這扇窗戶是什麼形狀？",
+      "prompt_zhuyin": [
+        {
+          "char": "這",
+          "zhuyin": "ㄓㄜˋ"
+        },
+        {
+          "char": "扇",
+          "zhuyin": "ㄕㄢˋ"
+        },
+        {
+          "char": "窗",
+          "zhuyin": "ㄔㄨㄤ"
+        },
+        {
+          "char": "戶",
+          "zhuyin": "˙ㄏㄨ"
+        },
+        {
+          "char": "是",
+          "zhuyin": "ㄕˋ"
+        },
+        {
+          "char": "什",
+          "zhuyin": "ㄕㄣˊ"
+        },
+        {
+          "char": "麼",
+          "zhuyin": "˙ㄇㄜ"
+        },
+        {
+          "char": "形",
+          "zhuyin": "ㄒㄧㄥˊ"
+        },
+        {
+          "char": "狀",
+          "zhuyin": "ㄓㄨㄤˋ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "方形",
+          "zhuyin": "ㄈㄤ ㄒㄧㄥˊ"
+        },
+        {
+          "id": "b",
+          "text": "圓形",
+          "zhuyin": "ㄩㄢˊ ㄒㄧㄥˊ"
+        },
+        {
+          "id": "c",
+          "text": "星形",
+          "zhuyin": "ㄒㄧㄥ ㄒㄧㄥˊ"
+        }
+      ],
+      "answer": "a",
+      "explain": "窗戶是方方的，是方形。",
+      "skills": [
+        "認形狀"
+      ],
+      "image": "一扇窗戶"
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U5-03",
+      "unit": 5,
+      "unit_title": "圓圓方方幾點鐘",
+      "unit_title_zhuyin": [
+        {
+          "char": "圓",
+          "zhuyin": "ㄩㄢˊ"
+        },
+        {
+          "char": "圓",
+          "zhuyin": "ㄩㄢˊ"
+        },
+        {
+          "char": "方",
+          "zhuyin": "ㄈㄤ"
+        },
+        {
+          "char": "方",
+          "zhuyin": "ㄈㄤ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "點",
+          "zhuyin": "ㄉㄧㄢˇ"
+        },
+        {
+          "char": "鐘",
+          "zhuyin": "ㄓㄨㄥ"
+        }
+      ],
+      "unit_subtitle_teacher": "認形狀、認整點鐘面",
+      "qtype": "shape_time",
+      "prompt": "這顆星星是什麼形狀？",
+      "prompt_zhuyin": [
+        {
+          "char": "這",
+          "zhuyin": "ㄓㄜˋ"
+        },
+        {
+          "char": "顆",
+          "zhuyin": "ㄎㄜ"
+        },
+        {
+          "char": "星",
+          "zhuyin": "ㄒㄧㄥ"
+        },
+        {
+          "char": "星",
+          "zhuyin": "˙ㄒㄧㄥ"
+        },
+        {
+          "char": "是",
+          "zhuyin": "ㄕˋ"
+        },
+        {
+          "char": "什",
+          "zhuyin": "ㄕㄣˊ"
+        },
+        {
+          "char": "麼",
+          "zhuyin": "˙ㄇㄜ"
+        },
+        {
+          "char": "形",
+          "zhuyin": "ㄒㄧㄥˊ"
+        },
+        {
+          "char": "狀",
+          "zhuyin": "ㄓㄨㄤˋ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "圓形",
+          "zhuyin": "ㄩㄢˊ ㄒㄧㄥˊ"
+        },
+        {
+          "id": "b",
+          "text": "方形",
+          "zhuyin": "ㄈㄤ ㄒㄧㄥˊ"
+        },
+        {
+          "id": "c",
+          "text": "星形",
+          "zhuyin": "ㄒㄧㄥ ㄒㄧㄥˊ"
+        }
+      ],
+      "answer": "c",
+      "explain": "星星有尖尖的角，是星形。",
+      "skills": [
+        "認形狀"
+      ],
+      "image": "一顆黃色星星"
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U5-04",
+      "unit": 5,
+      "unit_title": "圓圓方方幾點鐘",
+      "unit_title_zhuyin": [
+        {
+          "char": "圓",
+          "zhuyin": "ㄩㄢˊ"
+        },
+        {
+          "char": "圓",
+          "zhuyin": "ㄩㄢˊ"
+        },
+        {
+          "char": "方",
+          "zhuyin": "ㄈㄤ"
+        },
+        {
+          "char": "方",
+          "zhuyin": "ㄈㄤ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "點",
+          "zhuyin": "ㄉㄧㄢˇ"
+        },
+        {
+          "char": "鐘",
+          "zhuyin": "ㄓㄨㄥ"
+        }
+      ],
+      "unit_subtitle_teacher": "認形狀、認整點鐘面",
+      "qtype": "shape_time",
+      "prompt": "現在是幾點？",
+      "prompt_zhuyin": [
+        {
+          "char": "現",
+          "zhuyin": "ㄒㄧㄢˋ"
+        },
+        {
+          "char": "在",
+          "zhuyin": "ㄗㄞˋ"
+        },
+        {
+          "char": "是",
+          "zhuyin": "ㄕˋ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "點",
+          "zhuyin": "ㄉㄧㄢˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "2 點",
+          "zhuyin": "2 ㄉㄧㄢˇ"
+        },
+        {
+          "id": "b",
+          "text": "3 點",
+          "zhuyin": "3 ㄉㄧㄢˇ"
+        },
+        {
+          "id": "c",
+          "text": "5 點",
+          "zhuyin": "5 ㄉㄧㄢˇ"
+        }
+      ],
+      "answer": "b",
+      "explain": "短針指 3，長針指 12，是 3 點。",
+      "skills": [
+        "認整點"
+      ],
+      "image": null,
+      "clock": {
+        "hour": 3,
+        "minute": 0
+      }
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U5-05",
+      "unit": 5,
+      "unit_title": "圓圓方方幾點鐘",
+      "unit_title_zhuyin": [
+        {
+          "char": "圓",
+          "zhuyin": "ㄩㄢˊ"
+        },
+        {
+          "char": "圓",
+          "zhuyin": "ㄩㄢˊ"
+        },
+        {
+          "char": "方",
+          "zhuyin": "ㄈㄤ"
+        },
+        {
+          "char": "方",
+          "zhuyin": "ㄈㄤ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "點",
+          "zhuyin": "ㄉㄧㄢˇ"
+        },
+        {
+          "char": "鐘",
+          "zhuyin": "ㄓㄨㄥ"
+        }
+      ],
+      "unit_subtitle_teacher": "認形狀、認整點鐘面",
+      "qtype": "shape_time",
+      "prompt": "這張桌子的桌面是什麼形狀？",
+      "prompt_zhuyin": [
+        {
+          "char": "這",
+          "zhuyin": "ㄓㄜˋ"
+        },
+        {
+          "char": "張",
+          "zhuyin": "ㄓㄤ"
+        },
+        {
+          "char": "桌",
+          "zhuyin": "ㄓㄨㄛ"
+        },
+        {
+          "char": "子",
+          "zhuyin": "˙ㄗ"
+        },
+        {
+          "char": "的",
+          "zhuyin": "˙ㄉㄜ"
+        },
+        {
+          "char": "桌",
+          "zhuyin": "ㄓㄨㄛ"
+        },
+        {
+          "char": "面",
+          "zhuyin": "ㄇㄧㄢˋ"
+        },
+        {
+          "char": "是",
+          "zhuyin": "ㄕˋ"
+        },
+        {
+          "char": "什",
+          "zhuyin": "ㄕㄣˊ"
+        },
+        {
+          "char": "麼",
+          "zhuyin": "˙ㄇㄜ"
+        },
+        {
+          "char": "形",
+          "zhuyin": "ㄒㄧㄥˊ"
+        },
+        {
+          "char": "狀",
+          "zhuyin": "ㄓㄨㄤˋ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "長方形",
+          "zhuyin": "ㄔㄤˊ ㄈㄤ ㄒㄧㄥˊ"
+        },
+        {
+          "id": "b",
+          "text": "圓形",
+          "zhuyin": "ㄩㄢˊ ㄒㄧㄥˊ"
+        },
+        {
+          "id": "c",
+          "text": "星形",
+          "zhuyin": "ㄒㄧㄥ ㄒㄧㄥˊ"
+        }
+      ],
+      "answer": "a",
+      "explain": "桌面長長方方的，是長方形。",
+      "skills": [
+        "認形狀"
+      ],
+      "image": "一張木頭桌子"
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U5-06",
+      "unit": 5,
+      "unit_title": "圓圓方方幾點鐘",
+      "unit_title_zhuyin": [
+        {
+          "char": "圓",
+          "zhuyin": "ㄩㄢˊ"
+        },
+        {
+          "char": "圓",
+          "zhuyin": "ㄩㄢˊ"
+        },
+        {
+          "char": "方",
+          "zhuyin": "ㄈㄤ"
+        },
+        {
+          "char": "方",
+          "zhuyin": "ㄈㄤ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "點",
+          "zhuyin": "ㄉㄧㄢˇ"
+        },
+        {
+          "char": "鐘",
+          "zhuyin": "ㄓㄨㄥ"
+        }
+      ],
+      "unit_subtitle_teacher": "認形狀、認整點鐘面",
+      "qtype": "shape_time",
+      "prompt": "現在是幾點？",
+      "prompt_zhuyin": [
+        {
+          "char": "現",
+          "zhuyin": "ㄒㄧㄢˋ"
+        },
+        {
+          "char": "在",
+          "zhuyin": "ㄗㄞˋ"
+        },
+        {
+          "char": "是",
+          "zhuyin": "ㄕˋ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "點",
+          "zhuyin": "ㄉㄧㄢˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "3 點",
+          "zhuyin": "3 ㄉㄧㄢˇ"
+        },
+        {
+          "id": "b",
+          "text": "12 點",
+          "zhuyin": "1 2 ㄉㄧㄢˇ"
+        },
+        {
+          "id": "c",
+          "text": "6 點",
+          "zhuyin": "6 ㄉㄧㄢˇ"
+        }
+      ],
+      "answer": "c",
+      "explain": "短針指 6，長針指 12，是 6 點。",
+      "skills": [
+        "認整點"
+      ],
+      "image": null,
+      "clock": {
+        "hour": 6,
+        "minute": 0
+      }
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U5-07",
+      "unit": 5,
+      "unit_title": "圓圓方方幾點鐘",
+      "unit_title_zhuyin": [
+        {
+          "char": "圓",
+          "zhuyin": "ㄩㄢˊ"
+        },
+        {
+          "char": "圓",
+          "zhuyin": "ㄩㄢˊ"
+        },
+        {
+          "char": "方",
+          "zhuyin": "ㄈㄤ"
+        },
+        {
+          "char": "方",
+          "zhuyin": "ㄈㄤ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "點",
+          "zhuyin": "ㄉㄧㄢˇ"
+        },
+        {
+          "char": "鐘",
+          "zhuyin": "ㄓㄨㄥ"
+        }
+      ],
+      "unit_subtitle_teacher": "認形狀、認整點鐘面",
+      "qtype": "shape_time",
+      "prompt": "這塊田是什麼形狀？",
+      "prompt_zhuyin": [
+        {
+          "char": "這",
+          "zhuyin": "ㄓㄜˋ"
+        },
+        {
+          "char": "塊",
+          "zhuyin": "ㄎㄨㄞˋ"
+        },
+        {
+          "char": "田",
+          "zhuyin": "ㄊㄧㄢˊ"
+        },
+        {
+          "char": "是",
+          "zhuyin": "ㄕˋ"
+        },
+        {
+          "char": "什",
+          "zhuyin": "ㄕㄣˊ"
+        },
+        {
+          "char": "麼",
+          "zhuyin": "˙ㄇㄜ"
+        },
+        {
+          "char": "形",
+          "zhuyin": "ㄒㄧㄥˊ"
+        },
+        {
+          "char": "狀",
+          "zhuyin": "ㄓㄨㄤˋ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "方形",
+          "zhuyin": "ㄈㄤ ㄒㄧㄥˊ"
+        },
+        {
+          "id": "b",
+          "text": "圓形",
+          "zhuyin": "ㄩㄢˊ ㄒㄧㄥˊ"
+        },
+        {
+          "id": "c",
+          "text": "三角形",
+          "zhuyin": "ㄙㄢ ㄐㄧㄠˇ ㄒㄧㄥˊ"
+        }
+      ],
+      "answer": "a",
+      "explain": "這塊田是方方的，是方形。",
+      "skills": [
+        "認形狀"
+      ],
+      "image": "一塊方方的稻田"
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U5-08",
+      "unit": 5,
+      "unit_title": "圓圓方方幾點鐘",
+      "unit_title_zhuyin": [
+        {
+          "char": "圓",
+          "zhuyin": "ㄩㄢˊ"
+        },
+        {
+          "char": "圓",
+          "zhuyin": "ㄩㄢˊ"
+        },
+        {
+          "char": "方",
+          "zhuyin": "ㄈㄤ"
+        },
+        {
+          "char": "方",
+          "zhuyin": "ㄈㄤ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "點",
+          "zhuyin": "ㄉㄧㄢˇ"
+        },
+        {
+          "char": "鐘",
+          "zhuyin": "ㄓㄨㄥ"
+        }
+      ],
+      "unit_subtitle_teacher": "認形狀、認整點鐘面",
+      "qtype": "shape_time",
+      "prompt": "現在是幾點？",
+      "prompt_zhuyin": [
+        {
+          "char": "現",
+          "zhuyin": "ㄒㄧㄢˋ"
+        },
+        {
+          "char": "在",
+          "zhuyin": "ㄗㄞˋ"
+        },
+        {
+          "char": "是",
+          "zhuyin": "ㄕˋ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "點",
+          "zhuyin": "ㄉㄧㄢˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "6 點",
+          "zhuyin": "6 ㄉㄧㄢˇ"
+        },
+        {
+          "id": "b",
+          "text": "12 點",
+          "zhuyin": "1 2 ㄉㄧㄢˇ"
+        },
+        {
+          "id": "c",
+          "text": "9 點",
+          "zhuyin": "9 ㄉㄧㄢˇ"
+        }
+      ],
+      "answer": "c",
+      "explain": "短針指 9，長針指 12，是 9 點。",
+      "skills": [
+        "認整點"
+      ],
+      "image": null,
+      "clock": {
+        "hour": 9,
+        "minute": 0
+      }
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U5-09",
+      "unit": 5,
+      "unit_title": "圓圓方方幾點鐘",
+      "unit_title_zhuyin": [
+        {
+          "char": "圓",
+          "zhuyin": "ㄩㄢˊ"
+        },
+        {
+          "char": "圓",
+          "zhuyin": "ㄩㄢˊ"
+        },
+        {
+          "char": "方",
+          "zhuyin": "ㄈㄤ"
+        },
+        {
+          "char": "方",
+          "zhuyin": "ㄈㄤ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "點",
+          "zhuyin": "ㄉㄧㄢˇ"
+        },
+        {
+          "char": "鐘",
+          "zhuyin": "ㄓㄨㄥ"
+        }
+      ],
+      "unit_subtitle_teacher": "認形狀、認整點鐘面",
+      "qtype": "shape_time",
+      "prompt": "這是什麼形狀？",
+      "prompt_zhuyin": [
+        {
+          "char": "這",
+          "zhuyin": "ㄓㄜˋ"
+        },
+        {
+          "char": "是",
+          "zhuyin": "ㄕˋ"
+        },
+        {
+          "char": "什",
+          "zhuyin": "ㄕㄣˊ"
+        },
+        {
+          "char": "麼",
+          "zhuyin": "˙ㄇㄜ"
+        },
+        {
+          "char": "形",
+          "zhuyin": "ㄒㄧㄥˊ"
+        },
+        {
+          "char": "狀",
+          "zhuyin": "ㄓㄨㄤˋ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "圓形",
+          "zhuyin": "ㄩㄢˊ ㄒㄧㄥˊ"
+        },
+        {
+          "id": "b",
+          "text": "三角形",
+          "zhuyin": "ㄙㄢ ㄐㄧㄠˇ ㄒㄧㄥˊ"
+        },
+        {
+          "id": "c",
+          "text": "方形",
+          "zhuyin": "ㄈㄤ ㄒㄧㄥˊ"
+        }
+      ],
+      "answer": "b",
+      "explain": "有三個尖尖角的是三角形。",
+      "skills": [
+        "認形狀"
+      ],
+      "image": null,
+      "shape": "triangle"
+    },
+    {
+      "grade": 1,
+      "semester": "上學期",
+      "difficulty": 1,
+      "target_zhuyin": "",
+      "source": "original",
+      "license": "學習冒險島原創",
+      "id": "G1-MATH-S1-U5-10",
+      "unit": 5,
+      "unit_title": "圓圓方方幾點鐘",
+      "unit_title_zhuyin": [
+        {
+          "char": "圓",
+          "zhuyin": "ㄩㄢˊ"
+        },
+        {
+          "char": "圓",
+          "zhuyin": "ㄩㄢˊ"
+        },
+        {
+          "char": "方",
+          "zhuyin": "ㄈㄤ"
+        },
+        {
+          "char": "方",
+          "zhuyin": "ㄈㄤ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "點",
+          "zhuyin": "ㄉㄧㄢˇ"
+        },
+        {
+          "char": "鐘",
+          "zhuyin": "ㄓㄨㄥ"
+        }
+      ],
+      "unit_subtitle_teacher": "認形狀、認整點鐘面",
+      "qtype": "shape_time",
+      "prompt": "現在是幾點？",
+      "prompt_zhuyin": [
+        {
+          "char": "現",
+          "zhuyin": "ㄒㄧㄢˋ"
+        },
+        {
+          "char": "在",
+          "zhuyin": "ㄗㄞˋ"
+        },
+        {
+          "char": "是",
+          "zhuyin": "ㄕˋ"
+        },
+        {
+          "char": "幾",
+          "zhuyin": "ㄐㄧˇ"
+        },
+        {
+          "char": "點",
+          "zhuyin": "ㄉㄧㄢˇ"
+        },
+        {
+          "char": "？",
+          "zhuyin": ""
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "12 點",
+          "zhuyin": "1 2 ㄉㄧㄢˇ"
+        },
+        {
+          "id": "b",
+          "text": "1 點",
+          "zhuyin": "1 ㄉㄧㄢˇ"
+        },
+        {
+          "id": "c",
+          "text": "10 點",
+          "zhuyin": "1 0 ㄉㄧㄢˇ"
+        }
+      ],
+      "answer": "a",
+      "explain": "短針和長針都指 12，是 12 點。",
+      "skills": [
+        "認整點"
+      ],
+      "image": null,
+      "clock": {
+        "hour": 12,
+        "minute": 0
+      }
+    }
+  ]
+}

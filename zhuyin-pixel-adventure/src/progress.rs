@@ -197,18 +197,17 @@ impl PixelProgress {
     }
 }
 
-pub fn reward_catalog(bank: &Grade1Bank) -> Vec<(String, String, String)> {
-    let mut list: Vec<(String, String, String)> = bank
-        .units
-        .iter()
-        .map(|u| {
-            (
+pub fn reward_catalog(banks: &[&Grade1Bank]) -> Vec<(String, String, String)> {
+    let mut list: Vec<(String, String, String)> = Vec::new();
+    for bank in banks {
+        for u in &bank.units {
+            list.push((
                 u.key.reward_id(),
                 format!("{}小星星", u.title),
                 u.teacher_subtitle.clone(),
-            )
-        })
-        .collect();
+            ));
+        }
+    }
     list.push((
         "ribbon-zh".to_string(),
         "注音緞帶".to_string(),

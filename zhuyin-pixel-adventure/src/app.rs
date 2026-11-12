@@ -75,15 +75,26 @@ fn apply_player_pos(
     progress.set(p);
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum SubjectTrack {
+    Chinese,
+    Math,
+    English,
+}
+
 #[derive(Clone, PartialEq)]
 enum View {
     Select,
     Map,
-    ChineseHub,
-    ChineseUnit {
+    SubjectHub {
+        track: SubjectTrack,
+    },
+    SubjectUnit {
+        track: SubjectTrack,
         unit_id: String,
     },
     UnitClaim {
+        track: SubjectTrack,
         unit_id: String,
     },
     Collection,
@@ -92,10 +103,42 @@ enum View {
     },
 }
 
+fn bank_for<'a>(
+    track: SubjectTrack,
+    chinese: &'a Rc<Grade1Bank>,
+    math: &'a Rc<Grade1Bank>,
+    english: &'a Rc<Grade1Bank>,
+) -> &'a Grade1Bank {
+    match track {
+        SubjectTrack::Chinese => chinese.as_ref(),
+        SubjectTrack::Math => math.as_ref(),
+        SubjectTrack::English => english.as_ref(),
+    }
+}
+
+fn hub_labels(track: SubjectTrack) -> (String, String) {
+    match track {
+        SubjectTrack::Chinese => (
+            "國語小島".to_string(),
+            "選一個小島，從簡單題開始挑戰。".to_string(),
+        ),
+        SubjectTrack::Math => (
+            "數學工坊".to_string(),
+            "用圖片想一想，慢慢答題通關。".to_string(),
+        ),
+        SubjectTrack::English => (
+            "英文燈塔".to_string(),
+            "看圖學單字，可以按聽發音。".to_string(),
+        ),
+    }
+}
+
 #[function_component(App)]
 pub fn app() -> Html {
     let game = use_state(|| None::<Rc<zhuyin_island_wasm::data::GameData>>);
-    let bank = use_state(|| Rc::new(Grade1Bank::from_embedded()));
+    let bank_chinese = use_state(|| Rc::new(Grade1Bank::from_embedded_chinese()));
+    let bank_math = use_state(|| Rc::new(Grade1Bank::from_embedded_math()));
+    let bank_english = use_state(|| Rc::new(Grade1Bank::from_embedded_english()));
     let progress = use_state(PixelProgress::load);
     let view = use_state(|| {
         if progress.character_id.is_empty() {
@@ -262,9 +305,15 @@ pub fn app() -> Html {
         move |portal: Portal| {
             portal_blip();
             match portal {
-                Portal::Chinese => view.set(View::ChineseHub),
-                Portal::English => view.set(View::Locked { subject: "英語" }),
-                Portal::Math => view.set(View::Locked { subject: "數學" }),
+                Portal::Chinese => view.set(View::SubjectHub {
+                    track: SubjectTrack::Chinese,
+                }),
+                Portal::English => view.set(View::SubjectHub {
+                    track: SubjectTrack::English,
+                }),
+                Portal::Math => view.set(View::SubjectHub {
+                    track: SubjectTrack::Math,
+                }),
                 Portal::Treasure => view.set(View::Collection),
             }
         }
@@ -571,8 +620,17 @@ pub fn app() -> Html {
             </div>
             }
         }
-        View::ChineseHub => html! {
-            <Grade1Hub game={game.clone()} bank={(*bank).clone()} progress={(*progress).clone()}
+        View::SubjectHub { track } => {
+            let bank = Rc::new(bank_for(
+                *track,
+                &bank_chinese,
+                &bank_math,
+                &bank_english,
+            ).clone());
+            let (hub_title, hub_subtitle) = hub_labels(*track);
+            html! {
+            <Grade1Hub game={game.clone()} bank={bank} progress={(*progress).clone()}
+                hub_title={hub_title} hub_subtitle={hub_subtitle}
                 on_exit={Callback::from({
                     let view = view.clone();
                     let progress = progress.clone();
@@ -583,26 +641,33 @@ pub fn app() -> Html {
                 })}
                 on_pick_unit={Callback::from({
                     let view = view.clone();
-                    move |unit_id| view.set(View::ChineseUnit { unit_id })
+                    let track = *track;
+                    move |unit_id| view.set(View::SubjectUnit { track, unit_id })
                 })} />
+            }
         },
-        View::ChineseUnit { unit_id } => {
-            if let Some(unit) = bank.unit_by_id(unit_id) {
+        View::SubjectUnit { track, unit_id } => {
+            let bank_ref = bank_for(*track, &bank_chinese, &bank_math, &bank_english);
+            if let Some(unit) = bank_ref.unit_by_id(unit_id) {
+                let bank = Rc::new(bank_ref.clone());
+                let bank_claim = bank.clone();
                 html! {
-                    <Grade1Unit game={game.clone()} bank={(*bank).clone()} unit={unit.clone()} progress={(*progress).clone()}
+                    <Grade1Unit game={game.clone()} bank={bank} unit={unit.clone()} progress={(*progress).clone()}
                         on_exit={Callback::from({
                             let view = view.clone();
                             let progress = progress.clone();
+                            let track = *track;
                             move |_| {
                                 progress.set(PixelProgress::load());
-                                view.set(View::ChineseHub);
+                                view.set(View::SubjectHub { track });
                             }
                         })}
                         on_unit_complete={Callback::from({
                             let progress = progress.clone();
                             let view = view.clone();
-                            let bank = bank.clone();
+                            let bank = bank_claim.clone();
                             let unit_id = unit_id.clone();
+                            let track = *track;
                             move |_| {
                                 let mut claimed = false;
                                 let p = PixelProgress::patch_saved(|p| {
@@ -615,7 +680,7 @@ pub fn app() -> Html {
                                     play_reward();
                                 }
                                 progress.set(p);
-                                view.set(View::UnitClaim { unit_id: unit_id.clone() });
+                                view.set(View::UnitClaim { track, unit_id: unit_id.clone() });
                             }
                         })} />
                 }
@@ -623,8 +688,9 @@ pub fn app() -> Html {
                 html! { <p>{"找不到小島"}</p> }
             }
         }
-        View::UnitClaim { unit_id } => {
-            let title = bank
+        View::UnitClaim { track, unit_id } => {
+            let bank_ref = bank_for(*track, &bank_chinese, &bank_math, &bank_english);
+            let title = bank_ref
                 .unit_by_id(unit_id)
                 .map(|u| u.title.clone())
                 .unwrap_or_else(|| "小島".to_string());
@@ -634,7 +700,8 @@ pub fn app() -> Html {
                     <p><BpmfAside text={ format!("{title}小星星已入收藏") } game={game.clone()} read=true /></p>
                     <button type="button" class="pixel-btn primary big-touch" onclick={Callback::from({
                         let view = view.clone();
-                        move |_| view.set(View::ChineseHub)
+                        let track = *track;
+                        move |_| view.set(View::SubjectHub { track })
                     })}>
                         <BpmfAside text={ "回選關".to_string() } game={game.clone()} read=true />
                     </button>
@@ -642,7 +709,7 @@ pub fn app() -> Html {
             }
         }
         View::Collection => html! {
-            <CollectionScreen game={game.clone()} bank={(*bank).clone()} progress={(*progress).clone()}
+            <CollectionScreen game={game.clone()} banks={vec![(*bank_chinese).clone(), (*bank_math).clone(), (*bank_english).clone()]} progress={(*progress).clone()}
                 on_back={Callback::from({
                     let view = view.clone();
                     move |_| view.set(if progress.character_id.is_empty() { View::Select } else { View::Map })

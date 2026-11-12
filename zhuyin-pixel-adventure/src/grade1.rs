@@ -43,6 +43,32 @@ pub struct Grade1Question {
     pub source: String,
     #[serde(default)]
     pub license: String,
+    #[serde(default)]
+    pub speech_en: Option<String>,
+    #[serde(default)]
+    pub count: Option<u8>,
+    #[serde(default)]
+    pub add_groups: Option<Vec<u8>>,
+    #[serde(default)]
+    pub subtract: Option<SubtractSpec>,
+    #[serde(default)]
+    pub clock: Option<ClockSpec>,
+    #[serde(default)]
+    pub shape: Option<String>,
+    #[serde(default)]
+    pub color_swatch: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+pub struct SubtractSpec {
+    pub from: u8,
+    pub take: u8,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+pub struct ClockSpec {
+    pub hour: u8,
+    pub minute: u8,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
@@ -58,6 +84,7 @@ pub struct Grade1BankFile {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct UnitKey {
+    pub subject: String,
     pub semester: String,
     pub unit: u8,
 }
@@ -65,7 +92,11 @@ pub struct UnitKey {
 impl UnitKey {
     pub fn level_id(&self) -> String {
         let sem = if self.semester == "上學期" { "S1" } else { "S2" };
-        format!("G1-{sem}-U{}", self.unit)
+        match self.subject.as_str() {
+            "數學" => format!("G1-MATH-{sem}-U{}", self.unit),
+            "英語" => format!("G1-ENG-{sem}-U{}", self.unit),
+            _ => format!("G1-{sem}-U{}", self.unit),
+        }
     }
 
     pub fn reward_id(&self) -> String {
@@ -96,8 +127,22 @@ pub struct Grade1Bank {
 
 impl Grade1Bank {
     pub fn from_embedded() -> Self {
+        Self::from_embedded_chinese()
+    }
+
+    pub fn from_embedded_chinese() -> Self {
         let raw = include_str!("../static/data/grade1-chinese.json");
-        Self::from_json(raw).expect("embedded grade1 bank json")
+        Self::from_json(raw).expect("embedded grade1 chinese json")
+    }
+
+    pub fn from_embedded_math() -> Self {
+        let raw = include_str!("../static/data/grade1-math.json");
+        Self::from_json(raw).expect("embedded grade1 math json")
+    }
+
+    pub fn from_embedded_english() -> Self {
+        let raw = include_str!("../static/data/grade1-english.json");
+        Self::from_json(raw).expect("embedded grade1 english json")
     }
 
     pub fn from_json(raw: &str) -> Result<Self, serde_json::Error> {
@@ -107,6 +152,7 @@ impl Grade1Bank {
         for q in &file.questions {
             by_id.insert(q.id.clone(), q.clone());
             let key = UnitKey {
+                subject: file.subject.clone(),
                 semester: q.semester.clone(),
                 unit: q.unit,
             };
@@ -190,6 +236,45 @@ mod tests {
             };
             let path = art_root.join(fname);
             assert!(path.is_file(), "missing file: {}", path.display());
+        }
+    }
+
+    #[test]
+    fn math_bank_five_units_ten_each() {
+        let bank = Grade1Bank::from_embedded_math();
+        assert_eq!(bank.units.len(), 5);
+        assert_eq!(bank.file.questions.len(), 50);
+        for u in &bank.units {
+            assert_eq!(u.questions.len(), 10, "{}", u.key.level_id());
+        }
+    }
+
+    #[test]
+    fn english_bank_five_units_ten_each() {
+        let bank = Grade1Bank::from_embedded_english();
+        assert_eq!(bank.units.len(), 5);
+        assert_eq!(bank.file.questions.len(), 50);
+        for u in &bank.units {
+            assert_eq!(u.questions.len(), 10, "{}", u.key.level_id());
+        }
+    }
+
+    #[test]
+    fn math_english_images_have_pixel_art() {
+        for raw in [
+            include_str!("../static/data/grade1-math.json"),
+            include_str!("../static/data/grade1-english.json"),
+        ] {
+            let bank = Grade1Bank::from_json(raw).unwrap();
+            let art_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("static/pixel-art");
+            for desc in bank.all_image_descriptions() {
+                assert!(art_supported(&desc), "missing manifest for: {desc}");
+                let Some(fname) = file_for(&desc) else {
+                    continue;
+                };
+                let path = art_root.join(fname);
+                assert!(path.is_file(), "missing file: {}", path.display());
+            }
         }
     }
 

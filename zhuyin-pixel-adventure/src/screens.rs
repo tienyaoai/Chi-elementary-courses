@@ -294,7 +294,7 @@ fn picture_block(p: &zhuyin_island_wasm::data::Picture) -> Html {
 #[derive(Properties, PartialEq)]
 pub struct CollectionProps {
     pub game: Rc<GameData>,
-    pub bank: Rc<Grade1Bank>,
+    pub banks: Vec<Rc<Grade1Bank>>,
     pub progress: PixelProgress,
     pub on_back: Callback<MouseEvent>,
 }
@@ -305,7 +305,7 @@ pub fn collection_screen(props: &CollectionProps) -> Html {
         <section class="panel-pixel collection-panel">
             <h2 class="pixel-title"><BpmfAside text={ "我的收藏".to_string() } game={props.game.clone()} read=true /></h2>
             <ul class="reward-list">
-                { for reward_catalog(&props.bank).iter().map(|(id, name, desc)| {
+                { for reward_catalog(&props.banks.iter().map(|b| &**b).collect::<Vec<_>>()).iter().map(|(id, name, desc)| {
                     let owned = props.progress.rewards.iter().any(|r| r == id);
                     html! {
                         <li class={classes!("reward-item", owned.then_some("owned"))}>

@@ -1520,6 +1520,133 @@ body:has(.map-screen:not(.map-screen-fit)) {
 }
 
 /* v5 國語小島選關與題圖 */
+.listen-en-btn {
+  margin: 0.5rem 0 0.75rem;
+  font-size: 1rem;
+}
+
+.q-visual {
+  margin: 0.75rem auto 1rem;
+  max-width: 100%;
+}
+
+.count-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--count-cols, 5), minmax(64px, 1fr));
+  gap: 0.35rem;
+  justify-items: center;
+}
+
+.count-cell .pixel-picture-frame.large {
+  max-width: 72px;
+}
+
+.add-groups {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.add-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  justify-content: center;
+  max-width: 48%;
+}
+
+.add-groups-plus {
+  font-size: 1.75rem;
+  font-weight: bold;
+  padding: 0 0.25rem;
+}
+
+.subtract-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(56px, 1fr));
+  gap: 0.35rem;
+  justify-items: center;
+}
+
+.subtract-taken .pixel-picture-img {
+  opacity: 0.35;
+  filter: grayscale(0.6);
+}
+
+.subtract-taken::after {
+  content: "";
+  position: absolute;
+  inset: 12% 8%;
+  border-top: 3px solid #c62828;
+  transform: rotate(-12deg);
+  pointer-events: none;
+}
+
+.subtract-taken {
+  position: relative;
+}
+
+.clock-face {
+  display: flex;
+  justify-content: center;
+}
+
+.clock-svg {
+  width: min(220px, 72vw);
+  height: auto;
+}
+
+.clock-dial {
+  fill: #fff8e8;
+  stroke: #3e2723;
+  stroke-width: 3;
+}
+
+.clock-num {
+  font-size: 11px;
+  fill: #3e2723;
+  font-family: "BpmfHuninn", sans-serif;
+}
+
+.clock-hand {
+  stroke: #3e2723;
+  stroke-linecap: round;
+}
+
+.clock-minute {
+  stroke-width: 2;
+}
+
+.clock-hour {
+  stroke-width: 4;
+}
+
+.clock-center {
+  fill: #3e2723;
+}
+
+.shape-svg {
+  width: min(200px, 70vw);
+  height: auto;
+}
+
+.shape-fill {
+  fill: #64b5f6;
+  stroke: #1565c0;
+  stroke-width: 3;
+}
+
+.color-swatch {
+  width: min(160px, 50vw);
+  height: 120px;
+  margin: 0 auto;
+  border: 4px solid #3e2723;
+  border-radius: 12px;
+  box-shadow: 2px 3px 0 #5d4037;
+}
+
 .hub-panel .pixel-title {
   margin-bottom: 0.5rem;
 }
