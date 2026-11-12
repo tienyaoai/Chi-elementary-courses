@@ -1522,29 +1522,240 @@ body:has(.map-screen:not(.map-screen-fit)) {
 /* v5 國語小島選關與題圖 */
 .island-bulletin-sign {
   position: absolute;
-  width: 72px;
-  height: 56px;
-  background: linear-gradient(#f8e8c8, #d4a574);
-  border: 3px solid #5a3e28;
-  border-radius: 4px;
-  box-shadow: 2px 3px 0 #3d2916;
+  width: 80px;
+  height: 102px;
+  pointer-events: none;
+  image-rendering: pixelated;
 }
 
-.island-bulletin-sign::after {
+.island-bulletin-sign .bulletin-sign-post {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 10px;
+  height: 26px;
+  margin-left: -5px;
+  background: #6b4423;
+  border: 2px solid #3d2916;
+  box-shadow: 2px 0 0 #3d2916;
+}
+
+.island-bulletin-sign .bulletin-sign-frame {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 22px;
+  height: 78px;
+}
+
+.island-bulletin-sign .bulletin-sign-eaves {
+  position: absolute;
+  top: 0;
+  left: -4px;
+  right: -4px;
+  height: 10px;
+  background: #8b5a2b;
+  border: 2px solid #3d2916;
+  box-shadow: 0 2px 0 #3d2916;
+}
+
+.island-bulletin-sign .bulletin-sign-eaves::before,
+.island-bulletin-sign .bulletin-sign-eaves::after {
   content: "";
-  display: block;
-  width: 56px;
-  height: 8px;
-  margin: 4px auto;
-  background: #fdf6e8;
-  border: 2px solid #5a3e28;
+  position: absolute;
+  top: -4px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 6px solid #a56d32;
 }
 
-.bulletin-panel .leaderboard-list,
-.bulletin-panel .announcement-list {
+.island-bulletin-sign .bulletin-sign-eaves::before {
+  left: 2px;
+}
+
+.island-bulletin-sign .bulletin-sign-eaves::after {
+  right: 2px;
+}
+
+.island-bulletin-sign .bulletin-sign-board {
+  position: absolute;
+  top: 8px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, #f3d9a8 0%, #c9955e 100%);
+  border: 3px solid #3d2916;
+  box-shadow: inset 0 -3px 0 #a56d32;
+}
+
+.island-bulletin-sign .bulletin-sign-paper {
+  position: absolute;
+  width: 22px;
+  height: 18px;
+  background: #fffef6;
+  border: 2px solid #3d2916;
+  transform: rotate(-6deg);
+  box-shadow: 1px 2px 0 rgba(26, 26, 46, 0.25);
+}
+
+.island-bulletin-sign .bulletin-sign-paper-a {
+  left: 8px;
+  top: 22px;
+}
+
+.island-bulletin-sign .bulletin-sign-paper-b {
+  right: 6px;
+  top: 34px;
+  transform: rotate(5deg);
+  width: 26px;
+  height: 20px;
+}
+
+.bulletin-shell {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 0.5rem);
+  padding-bottom: 0.35rem;
+}
+
+.bulletin-top {
+  flex-shrink: 0;
+}
+
+.bulletin-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0.35rem 0;
+}
+
+.bulletin-footer {
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  padding-top: 0.45rem;
+  background: var(--panel);
+  border-top: 3px solid var(--ink);
+}
+
+.bulletin-back {
+  width: 100%;
+}
+
+.bulletin-login-hint {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.15rem 0.35rem;
+  align-items: baseline;
+}
+
+.bulletin-nowrap-phrase {
+  white-space: nowrap;
+  display: inline-flex;
+}
+
+.bulletin-scope,
+.bulletin-tabs,
+.bulletin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  justify-content: center;
+  margin: 0.45rem 0;
+}
+
+.bulletin-scope .scope-btn,
+.bulletin-tabs .pixel-btn {
+  font-size: 0.95rem;
+  padding: 0.35rem 0.55rem;
+}
+
+.announcement-list,
+.leaderboard-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
   text-align: left;
-  font-size: 1.05rem;
-  line-height: 1.5;
+}
+
+.announcement-item {
+  padding: 0.65rem 0;
+  border-bottom: 2px dashed #d4c4a8;
+}
+
+.announcement-title-plain {
+  margin: 0 0 0.35rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.announcement-body-plain {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.45;
+}
+
+.leaderboard-row {
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr) auto;
+  gap: 0.35rem 0.65rem;
+  align-items: center;
+  padding: 0.55rem 0.15rem;
+  border-bottom: 2px solid #e0d0b8;
+  font-size: 1.38rem;
+  line-height: 1.35;
+}
+
+.lb-rank {
+  text-align: center;
+  font-weight: 700;
+}
+
+.lb-medal {
+  font-size: 1.55rem;
+  line-height: 1;
+}
+
+.lb-nick {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lb-pts {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  min-width: 2.5rem;
+  text-align: right;
+}
+
+.bulletin-nickname-plain,
+.announcement-title-plain,
+.announcement-body-plain {
+  font-size: inherit;
+}
+
+.account-sub-full {
+  max-width: 22rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.account-label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 1.08rem;
+}
+
+.account-mode {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin: 0.75rem 0;
 }
 
 .account-panel .pixel-input {

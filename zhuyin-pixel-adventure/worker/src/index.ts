@@ -11,7 +11,34 @@ const LOCK_MINUTES = 15;
 const MAX_SCORE_PER_UNIT = 50;
 const SCORE_COOLDOWN_SEC = 30;
 
-const ADMIN_DEMO_HTML = `<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>管理者發公告</title><style>body{font-family:system-ui,sans-serif;max-width:420px;margin:2rem auto;padding:1rem}label{display:block;margin:.75rem 0 .25rem}input,textarea{width:100%;font-size:1rem;padding:.5rem}button{margin-top:1rem;padding:.6rem 1.2rem;font-size:1rem}.msg{color:#2e7d32;margin-top:1rem}</style></head><body><h1>管理者發公告</h1><p>預覽用；正式環境請用 API + Secret。</p><label>Admin Token<input id="tok" type="password"/></label><label>標題<input id="title" value="親師座談通知"/></label><label>內容<textarea id="body" rows="4">週六上午十點社區中心見。</textarea></label><button id="send">發布</button><p class="msg" id="msg"></p><script>document.getElementById('send').onclick=async()=>{const r=await fetch('/api/admin/announcement',{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Token':document.getElementById('tok').value},body:JSON.stringify({title:document.getElementById('title').value,body:document.getElementById('body').value})});document.getElementById('msg').textContent=r.ok?'已發布':'失敗 '+r.status};</script></body></html>`;
+const ADMIN_DEMO_HTML = `<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>管理者發公告</title><style>
+:root{--pixel-bg:#5c94fc;--ink:#1a1a2e;--panel:#fff8e8;--accent:#e86a3c}
+*{box-sizing:border-box}
+body{margin:0;min-height:100dvh;font-family:"Noto Sans TC","PingFang TC",sans-serif;font-size:1.05rem;color:var(--ink);background:linear-gradient(180deg,#87ceeb 0%,#b8e0ff 42%,#7ad84f 42%,#5cbd3a 100%);background-attachment:fixed;padding:1rem;display:flex;justify-content:center}
+.shell{width:min(100%,24rem)}
+.panel{background:var(--panel);border:4px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:1.1rem 1rem 1.25rem}
+h1{margin:0 0 .6rem;font-size:1.35rem;text-align:center}
+.hint{margin:0 0 1rem;line-height:1.45;font-size:.95rem;text-align:center;color:#444}
+label{display:block;margin:.7rem 0 .3rem;font-weight:700}
+input,textarea{width:100%;font:inherit;font-size:1rem;padding:.5rem .55rem;border:3px solid var(--ink);background:#fff;box-shadow:inset 2px 2px 0 #e8dcc8}
+textarea{resize:vertical;min-height:5.5rem}
+.pixel-btn{display:block;width:100%;margin-top:.85rem;padding:.6rem 1rem;font:inherit;font-size:1.05rem;font-weight:700;cursor:pointer;border:3px solid var(--ink);background:var(--accent);color:#fff;box-shadow:3px 3px 0 var(--ink)}
+.pixel-btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.msg{margin-top:.85rem;text-align:center;font-weight:700;color:#2e7d32;min-height:1.4rem}
+.msg.err{color:#b42318}
+</style></head><body><div class="shell"><div class="panel">
+<h1>管理者發公告</h1>
+<p class="hint">預覽用；正式環境請用 API + Secret。</p>
+<label for="tok">Admin Token</label>
+<input id="tok" type="password" autocomplete="off"/>
+<label for="title">標題</label>
+<input id="title" value="親師座談通知"/>
+<label for="body">內容</label>
+<textarea id="body" rows="4">週六上午十點社區中心見。</textarea>
+<button type="button" class="pixel-btn" id="send">發布</button>
+<p class="msg" id="msg"></p>
+</div></div>
+<script>document.getElementById('send').onclick=async()=>{const m=document.getElementById('msg');m.className='msg';const r=await fetch('/api/admin/announcement',{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Token':document.getElementById('tok').value},body:JSON.stringify({title:document.getElementById('title').value,body:document.getElementById('body').value})});if(r.ok){m.textContent='已發布';}else{m.textContent='失敗 '+r.status;m.classList.add('err');}};</script></body></html>`;
 
 const BAD_NICK = new Set(
   "幹,操,婊,死,糞,屎,靠,媽的,爸媽,fuck,shit,damn".split(/[,，]/)

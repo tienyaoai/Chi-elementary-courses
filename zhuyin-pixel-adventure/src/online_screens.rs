@@ -8,6 +8,31 @@ use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 use zhuyin_island_wasm::data::GameData;
 
+#[derive(Clone, PartialEq)]
+enum BulletinTab {
+    Leaderboard,
+    Announcements,
+}
+
+fn medal_icon(rank: usize) -> Option<&'static str> {
+    match rank {
+        0 => Some("🥇"),
+        1 => Some("🥈"),
+        2 => Some("🥉"),
+        _ => None,
+    }
+}
+
+fn scope_label(id: &str) -> &'static str {
+    match id {
+        "total" => "總分",
+        "chinese" => "國語",
+        "math" => "數學",
+        "english" => "英語",
+        _ => "總分",
+    }
+}
+
 #[derive(Properties, PartialEq)]
 pub struct BulletinProps {
     pub game: Rc<GameData>,
@@ -18,6 +43,7 @@ pub struct BulletinProps {
 #[function_component(BulletinScreen)]
 pub fn bulletin_screen(props: &BulletinProps) -> Html {
     let scope = use_state(|| "total".to_string());
+    let tab = use_state(|| BulletinTab::Announcements);
     let leaders = use_state(Vec::<LeaderRow>::new);
     let announcements = use_state(Vec::<Announcement>::new);
     let err = use_state(String::new);
@@ -48,76 +74,124 @@ pub fn bulletin_screen(props: &BulletinProps) -> Html {
         });
     }
 
+    let game = props.game.clone();
     html! {
-        <section class="panel-pixel bulletin-panel lesson-read">
-            <h1 class="pixel-title"><BpmfAside text={ "佈告欄".to_string() } game={props.game.clone()} read=true /></h1>
-            if let Some(ref s) = *session {
-                <p class="pixel-sub">{ format!("已登入：{}", s.nickname) }</p>
-            } else {
-                <p class="pixel-sub"><BpmfAside text={ "不登入也能玩；登入後才會上榜。".to_string() } game={props.game.clone()} read=true /></p>
-            }
-            <div class="bulletin-actions">
-                <button type="button" class="pixel-btn ghost" onclick={props.on_open_account.clone()}>
-                    { if session.is_some() { "帳號" } else { "登入／註冊" } }
-                </button>
-                if session.is_some() {
-                    <button type="button" class="pixel-btn ghost" onclick={Callback::from({
-                        let session = session.clone();
-                        move |_| {
-                            spawn_local(async move {
-                                logout().await;
-                            });
-                            session.set(None);
-                        }
-                    })}>
-                        {"登出"}
-                    </button>
+        <section class="panel-pixel bulletin-panel lesson-read bulletin-shell">
+            <div class="bulletin-top">
+                <h1 class="pixel-title bulletin-title"><BpmfAside text={ "佈告欄".to_string() } game={game.clone()} read=true /></h1>
+                if let Some(ref s) = *session {
+                    <p class="pixel-sub bulletin-logged-in">
+                        <BpmfAside text={ "已登入：".to_string() } game={game.clone()} read=true />
+                        <span class="bulletin-nickname-plain">{ &s.nickname }</span>
+                    </p>
+                } else {
+                    <p class="pixel-sub bulletin-login-hint">
+                        <BpmfAside text={ "不登入也能玩；".to_string() } game={game.clone()} read=true />
+                        <span class="bulletin-nowrap-phrase">
+                            <BpmfAside text={ "登入後才會上榜。".to_string() } game={game.clone()} read=true />
+                        </span>
+                    </p>
                 }
-            </div>
-            <div class="bulletin-scope">
-                { for ["total", "chinese", "math", "english"].iter().map(|s| {
-                    let label = match *s {
-                        "total" => "總分",
-                        "chinese" => "國語",
-                        "math" => "數學",
-                        "english" => "英語",
-                        _ => *s,
-                    };
-                    let scope = scope.clone();
-                    let id = s.to_string();
-                    html! {
-                        <button type="button" class={classes!("pixel-btn", ((*scope) == id).then_some("primary"))}
-                            onclick={Callback::from(move |_| scope.set(id.clone()))}>
-                            { label }
+                <div class="bulletin-actions">
+                    <button type="button" class="pixel-btn ghost" onclick={props.on_open_account.clone()}>
+                        if session.is_some() {
+                            <BpmfAside text={ "帳號".to_string() } game={game.clone()} read=true />
+                        } else {
+                            <BpmfAside text={ "登入／註冊".to_string() } game={game.clone()} read=true />
+                        }
+                    </button>
+                    if session.is_some() {
+                        <button type="button" class="pixel-btn ghost" onclick={Callback::from({
+                            let session = session.clone();
+                            move |_| {
+                                spawn_local(async move { logout().await; });
+                                session.set(None);
+                            }
+                        })}>
+                            <BpmfAside text={ "登出".to_string() } game={game.clone()} read=true />
                         </button>
                     }
-                })}
+                </div>
+                <div class="bulletin-scope">
+                    { for ["total", "chinese", "math", "english"].iter().map(|s| {
+                        let label = scope_label(s);
+                        let scope = scope.clone();
+                        let id = s.to_string();
+                        let game = game.clone();
+                        html! {
+                            <button type="button" class={classes!("pixel-btn", "scope-btn", ((*scope) == id).then_some("primary"))}
+                                onclick={Callback::from(move |_| scope.set(id.clone()))}>
+                                <BpmfAside text={ label.to_string() } game={game.clone()} read=true />
+                            </button>
+                        }
+                    })}
+                </div>
+                <div class="bulletin-tabs">
+                    <button type="button" class={classes!("pixel-btn", matches!(*tab, BulletinTab::Announcements).then_some("primary"))}
+                        onclick={Callback::from({
+                            let tab = tab.clone();
+                            move |_| tab.set(BulletinTab::Announcements)
+                        })}>
+                        <BpmfAside text={ "公告".to_string() } game={game.clone()} read=true />
+                    </button>
+                    <button type="button" class={classes!("pixel-btn", matches!(*tab, BulletinTab::Leaderboard).then_some("primary"))}
+                        onclick={Callback::from({
+                            let tab = tab.clone();
+                            move |_| tab.set(BulletinTab::Leaderboard)
+                        })}>
+                        <BpmfAside text={ "排行榜".to_string() } game={game.clone()} read=true />
+                    </button>
+                </div>
             </div>
-            if !err.is_empty() {
-                <p class="feedback-soft">{ &*err }</p>
-            }
-            <h2 class="bulletin-h2">{"排行榜"}</h2>
-            <ol class="leaderboard-list">
-                { for leaders.iter().enumerate().map(|(i, r)| html! {
-                    <li key={format!("{}-{}", r.nickname, i)}>
-                        <span class="rank">{ format!("{}.", i + 1) }</span>
-                        <span class="nick">{ &r.nickname }</span>
-                        <span class="pts">{ r.points }</span>
-                    </li>
-                })}
-            </ol>
-            <h2 class="bulletin-h2">{"公告"}</h2>
-            <ul class="announcement-list">
-                { for announcements.iter().map(|a| html! {
-                    <li key={a.id}>
-                        <h3>{ &a.title }</h3>
-                        <p>{ &a.body }</p>
-                    </li>
-                })}
-            </ul>
-            <button type="button" class="pixel-btn primary big-touch" onclick={props.on_back.clone()}>
-                <BpmfAside text={ "回地圖".to_string() } game={props.game.clone()} read=true />
-            </button>
+
+            <div class="bulletin-body">
+                if !err.is_empty() {
+                    <p class="feedback-soft bulletin-err">
+                        <BpmfAside text={(*err).clone()} game={game.clone()} read=true />
+                    </p>
+                }
+                if matches!(*tab, BulletinTab::Announcements) {
+                    <ul class="announcement-list">
+                        { for announcements.iter().map(|a| html! {
+                            <li key={a.id} class="announcement-item">
+                                <p class="announcement-title-plain">{ &a.title }</p>
+                                <p class="announcement-body-plain">{ &a.body }</p>
+                            </li>
+                        })}
+                        if announcements.is_empty() {
+                            <li class="announcement-item muted">
+                                <BpmfAside text={ "目前沒有公告。".to_string() } game={game.clone()} read=true />
+                            </li>
+                        }
+                    </ul>
+                } else {
+                    <ul class="leaderboard-list">
+                        { for leaders.iter().enumerate().map(|(i, r)| {
+                            let rank = i + 1;
+                            let medal = medal_icon(i);
+                            html! {
+                                <li key={format!("{}-{}", r.nickname, i)} class="leaderboard-row">
+                                    <span class="lb-col lb-rank" aria-label={format!("第{rank}名")}>
+                                        if let Some(m) = medal {
+                                            <span class="lb-medal" aria-hidden="true">{ m }</span>
+                                        } else {
+                                            <span class="lb-rank-num">{ rank }</span>
+                                        }
+                                    </span>
+                                    <span class="lb-col lb-nick">{ &r.nickname }</span>
+                                    <span class="lb-col lb-pts">{ r.points }</span>
+                                </li>
+                            }
+                        })}
+                    </ul>
+                }
+            </div>
+
+            <div class="bulletin-footer">
+                <button type="button" class="pixel-btn primary big-touch bulletin-back" onclick={props.on_back.clone()}>
+                    <BpmfAside text={ "回地圖".to_string() } game={game.clone()} read=true />
+                </button>
+            </div>
         </section>
     }
 }
@@ -135,6 +209,7 @@ pub fn account_screen(props: &AccountProps) -> Html {
     let nickname = use_state(String::new);
     let password = use_state(String::new);
     let msg = use_state(String::new);
+    let game = props.game.clone();
 
     let submit = {
         let mode = mode.clone();
@@ -164,19 +239,22 @@ pub fn account_screen(props: &AccountProps) -> Html {
 
     html! {
         <section class="panel-pixel account-panel lesson-read">
-            <h1 class="pixel-title"><BpmfAside text={ "冒險帳號".to_string() } game={props.game.clone()} read=true /></h1>
-            <p class="pixel-sub"><BpmfAside text={ "自訂暱稱與密碼，不需 Email。".to_string() } game={props.game.clone()} read=true /></p>
+            <h1 class="pixel-title"><BpmfAside text={ "冒險帳號".to_string() } game={game.clone()} read=true /></h1>
+            <p class="pixel-sub account-sub-full">
+                <BpmfAside text={ "自訂暱稱與密碼，不需 Email。".to_string() } game={game.clone()} read=true />
+            </p>
             <div class="account-mode">
                 <button type="button" class={classes!("pixel-btn", ((*mode) == "login").then_some("primary"))}
                     onclick={Callback::from({ let mode = mode.clone(); move |_| mode.set("login".into()) })}>
-                    {"登入"}
+                    <BpmfAside text={ "登入".to_string() } game={game.clone()} read=true />
                 </button>
                 <button type="button" class={classes!("pixel-btn", ((*mode) == "register").then_some("primary"))}
                     onclick={Callback::from({ let mode = mode.clone(); move |_| mode.set("register".into()) })}>
-                    {"註冊"}
+                    <BpmfAside text={ "註冊".to_string() } game={game.clone()} read=true />
                 </button>
             </div>
-            <label class="account-field">{"暱稱"}
+            <label class="account-field">
+                <span class="account-label"><BpmfAside text={ "暱稱".to_string() } game={game.clone()} read=true /></span>
                 <input type="text" class="pixel-input" value={(*nickname).clone()}
                     oninput={Callback::from({ let nickname = nickname.clone(); move |e: InputEvent| {
                         if let Some(t) = e.target_dyn_into::<web_sys::HtmlInputElement>() {
@@ -184,7 +262,8 @@ pub fn account_screen(props: &AccountProps) -> Html {
                         }
                     }})} />
             </label>
-            <label class="account-field">{"密碼"}
+            <label class="account-field">
+                <span class="account-label"><BpmfAside text={ "密碼".to_string() } game={game.clone()} read=true /></span>
                 <input type="password" class="pixel-input" value={(*password).clone()}
                     oninput={Callback::from({ let password = password.clone(); move |e: InputEvent| {
                         if let Some(t) = e.target_dyn_into::<web_sys::HtmlInputElement>() {
@@ -193,13 +272,19 @@ pub fn account_screen(props: &AccountProps) -> Html {
                     }})} />
             </label>
             if !msg.is_empty() {
-                <p class="feedback-soft">{ &*msg }</p>
+                <p class="feedback-soft">
+                    <BpmfAside text={(*msg).clone()} game={game.clone()} read=true />
+                </p>
             }
-            <button type="button" class="pixel-btn primary big-touch" onclick={submit}>
-                { if *mode == "register" { "建立帳號" } else { "登入" } }
+            <button type="button" class="pixel-btn primary big-touch" onclick={submit.clone()}>
+                if *mode == "register" {
+                    <BpmfAside text={ "建立帳號".to_string() } game={game.clone()} read=true />
+                } else {
+                    <BpmfAside text={ "登入".to_string() } game={game.clone()} read=true />
+                }
             </button>
             <button type="button" class="pixel-btn ghost" onclick={props.on_back.clone()}>
-                <BpmfAside text={ "返回".to_string() } game={props.game.clone()} read=true />
+                <BpmfAside text={ "返回".to_string() } game={game.clone()} read=true />
             </button>
         </section>
     }
