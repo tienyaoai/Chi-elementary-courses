@@ -4,20 +4,23 @@
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { inDoorTrigger } from "./door_trigger.mjs";
+import {
+  DOOR_TRIGGER_HALF_W,
+  DOOR_TRIGGER_HALF_H_DOWN,
+  DOOR_TRIGGER_HALF_H_UP,
+  inDoorTrigger,
+} from "./door_trigger.mjs";
 
 const ART = "/opt/cursor/artifacts";
 const TAG = process.env.E2E_TAG || "v9.21h";
 const MAP_CFG = JSON.parse(
   readFileSync(path.resolve("..", "src", "map_config.json"), "utf8")
 );
-const TRIGGER_HW = 30;
-const TRIGGER_HH = 26;
 const ORIENT_P = "portrait";
 const ORIENT_L = "landscape";
 const APPROACH_START = 120;
 const APPROACH_STEP = 8;
-const MAX_APPEAR_PX = 30;
+const MAX_APPEAR_PX = 20;
 /** Max difference between buildings' worst-axis appear distance on the same viewport. */
 const BUILDING_SPREAD_TOL_PX = 12;
 
@@ -105,10 +108,10 @@ async function measureApproaches(page, building, door) {
 async function assertEnterBlockedOutside(page, building, door, errors, ctx) {
   const [dx, dy] = door;
   const outside = [
-    [dx + TRIGGER_HW + 24, dy],
-    [dx, dy + TRIGGER_HH + 24],
-    [dx - TRIGGER_HW - 24, dy],
-    [dx, dy - TRIGGER_HH - 24],
+    [dx + DOOR_TRIGGER_HALF_W + 12, dy],
+    [dx, dy + DOOR_TRIGGER_HALF_H_DOWN + 12],
+    [dx - DOOR_TRIGGER_HALF_W - 12, dy],
+    [dx, dy - DOOR_TRIGGER_HALF_H_UP - 12],
   ];
   for (const [x, y] of outside) {
     if (inDoorRect(x, y, building, ctx.includes("1280") || ctx.includes("1920") ? ORIENT_L : ORIENT_P))
@@ -173,11 +176,8 @@ export async function runDoorBubbleApproach(page, errors = []) {
         const d = buildings[key].byDir[dir].firstAppearDistPx;
         if (d == null) {
           errors.push(`${vp.tag} ${key} ${dir}: bubble never appeared along approach`);
-        } else if (
-          d >
-          (key === "chinese" && vp.tag === "390x844" && dir === "west" ? 62 : MAX_APPEAR_PX + 2)
-        ) {
-          errors.push(`${vp.tag} ${key} ${dir}: bubble at ${d}px > max`);
+        } else if (d > MAX_APPEAR_PX + 2) {
+          errors.push(`${vp.tag} ${key} ${dir}: bubble at ${d}px > ${MAX_APPEAR_PX}px`);
         } else {
           worst = Math.max(worst, d);
         }
