@@ -45,6 +45,30 @@ pub struct Grade1Question {
     pub license: String,
     #[serde(default)]
     pub speech_en: Option<String>,
+    #[serde(default)]
+    pub count: Option<u8>,
+    #[serde(default)]
+    pub add_groups: Option<Vec<u8>>,
+    #[serde(default)]
+    pub subtract: Option<SubtractSpec>,
+    #[serde(default)]
+    pub clock: Option<ClockSpec>,
+    #[serde(default)]
+    pub shape: Option<String>,
+    #[serde(default)]
+    pub color_swatch: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+pub struct SubtractSpec {
+    pub from: u8,
+    pub take: u8,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+pub struct ClockSpec {
+    pub hour: u8,
+    pub minute: u8,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
@@ -216,22 +240,22 @@ mod tests {
     }
 
     #[test]
-    fn math_bank_five_units_nine_each() {
+    fn math_bank_five_units_ten_each() {
         let bank = Grade1Bank::from_embedded_math();
         assert_eq!(bank.units.len(), 5);
-        assert_eq!(bank.file.questions.len(), 45);
+        assert_eq!(bank.file.questions.len(), 50);
         for u in &bank.units {
-            assert_eq!(u.questions.len(), 9, "{}", u.key.level_id());
+            assert_eq!(u.questions.len(), 10, "{}", u.key.level_id());
         }
     }
 
     #[test]
-    fn english_bank_five_units_nine_each() {
+    fn english_bank_five_units_ten_each() {
         let bank = Grade1Bank::from_embedded_english();
         assert_eq!(bank.units.len(), 5);
-        assert_eq!(bank.file.questions.len(), 45);
+        assert_eq!(bank.file.questions.len(), 50);
         for u in &bank.units {
-            assert_eq!(u.questions.len(), 9, "{}", u.key.level_id());
+            assert_eq!(u.questions.len(), 10, "{}", u.key.level_id());
         }
     }
 

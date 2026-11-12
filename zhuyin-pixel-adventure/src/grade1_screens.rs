@@ -1,4 +1,4 @@
-use crate::components::{BpmfAside, PixelPicture, PromptZhuyin};
+use crate::components::{question_has_prompt_visual, BpmfAside, PixelPicture, PromptZhuyin, QuestionVisual};
 use crate::grade1::{Grade1Bank, Grade1Option, UnitPack};
 use crate::pixel_art_manifest::image_url;
 use crate::pixel_art_preload::preload_urls;
@@ -164,10 +164,8 @@ pub fn grade1_unit(props: &Grade1UnitProps) -> Html {
             if let Some(ref q) = question {
                 <p class="lesson-step">{ format!("{} / {}", *q_idx + 1, props.unit.questions.len()) }</p>
                 <p class="qtype-pill">{ qtype_label(&q.qtype) }</p>
-                if let Some(img) = &q.image {
-                    if should_show_prompt_picture(q, img) {
-                        <PixelPicture description={img.clone()} />
-                    }
+                if question_has_prompt_visual(q) {
+                    <QuestionVisual question={q.clone()} />
                 }
                 <p class="lesson-ask">
                     <PromptZhuyin glyphs={q.prompt_zhuyin.clone()} read=true />
