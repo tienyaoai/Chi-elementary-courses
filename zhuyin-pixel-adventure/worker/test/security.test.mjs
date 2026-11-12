@@ -2,7 +2,8 @@
  * Security checks — run: npm install && npm run test:security
  * Requires wrangler dev on 127.0.0.1:8787 (second terminal: npm run dev)
  */
-import { spawn } from "node:child_process";
+import { spawn, execSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { setTimeout as sleep } from "node:timers/promises";
 
 const BASE = process.env.WORKER_BASE || "http://127.0.0.1:8787";
@@ -104,20 +105,45 @@ async function run() {
   const token = loginOk.json.token;
   record("login after lock reset via good pw", loginOk.status === 200, String(loginOk.status));
 
-  await req("/api/logout", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const th = createHash("sha256").update(token).digest("hex");
+  const workerDir = new URL("..", import.meta.url).pathname;
+  try {
+    execSync(
+      `npx wrangler d1 execute zhuyin-island-db --local --command "UPDATE sessions SET expires_at = '2000-01-01' WHERE token_hash = '${th}'"`,
+      { cwd: workerDir, stdio: "ignore" }
+    );
+  } catch {
+    /* local d1 optional */
+  }
   const expiredUse = await req("/api/score", {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify({ subject: "math", unit_id: "U1", points: 10 }),
   });
-  record("token invalid after logout", expiredUse.status === 401, String(expiredUse.status));
+  record("token expired", expiredUse.status === 401, String(expiredUse.status));
+
+  const loginFresh = await req("/api/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nickname: nick, password: "secret1" }),
+  });
+  const tokenLive = loginFresh.json.token;
+
+  await req("/api/logout", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${tokenLive}` },
+  });
+  const afterLogout = await req("/api/score", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${tokenLive}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ subject: "math", unit_id: "U1", points: 10 }),
+  });
+  record("token invalid after logout", afterLogout.status === 401, String(afterLogout.status));
 
   const fs = await import("node:fs");
   fs.mkdirSync("/opt/cursor/artifacts", { recursive: true });
-  fs.writeFileSync("/opt/cursor/artifacts/v9.24-security-report.json", JSON.stringify(report, null, 2));
+  const tag = process.env.E2E_TAG || "v9.24b";
+  fs.writeFileSync(`/opt/cursor/artifacts/${tag}-security-report.json`, JSON.stringify(report, null, 2));
   console.log(JSON.stringify(report, null, 2));
   process.exit(report.ok ? 0 : 1);
 }

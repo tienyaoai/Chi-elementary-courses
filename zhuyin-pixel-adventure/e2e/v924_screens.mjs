@@ -4,7 +4,7 @@ import { mkdirSync } from "node:fs";
 import path from "node:path";
 
 const ART = "/opt/cursor/artifacts";
-const TAG = "v9.24";
+const TAG = "v9.24b";
 const PORT = process.env.E2E_PORT || "8788";
 const BASE = `http://127.0.0.1:${PORT}`;
 const API = process.env.WORKER_BASE || "http://127.0.0.1:8787";
@@ -57,6 +57,18 @@ async function main() {
   const page = await context.newPage();
   try {
     await pickCharacter(page);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.screenshot({ path: `${ART}/${TAG}-map-bulletin-390.png` });
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.screenshot({ path: `${ART}/${TAG}-map-bulletin-1280.png` });
+    const adminPage = await context.newPage();
+    await adminPage.goto(`${API}/admin-demo`, { waitUntil: "networkidle" });
+    await adminPage.locator("#tok").fill(process.env.ADMIN_TOKEN || "test-admin-token");
+    await adminPage.setViewportSize({ width: 390, height: 844 });
+    await adminPage.screenshot({ path: `${ART}/${TAG}-admin-post-390.png` });
+    await adminPage.setViewportSize({ width: 1280, height: 800 });
+    await adminPage.screenshot({ path: `${ART}/${TAG}-admin-post-1280.png` });
+    await adminPage.close();
     for (const [name, w, h] of [
       ["390", 390, 844],
       ["1280", 1280, 800],
