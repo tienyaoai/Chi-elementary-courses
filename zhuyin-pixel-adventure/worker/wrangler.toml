@@ -1,0 +1,14 @@
+name = "zhuyin-island-api"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+workers_dev = true
+
+# Fill database_id after: wrangler d1 create zhuyin-island-db
+[[d1_databases]]
+binding = "DB"
+database_name = "zhuyin-island-db"
+database_id = ""
+
+[vars]
+# Do NOT put ADMIN_TOKEN here in production — set via `wrangler secret put ADMIN_TOKEN`
+PUBLIC_ORIGIN = "https://example.com"
