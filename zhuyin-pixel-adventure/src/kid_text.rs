@@ -42,6 +42,7 @@ pub fn kid_facing_strings() -> Vec<String> {
         "英語".to_string(),
         "公告".to_string(),
         "排行榜".to_string(),
+        "名次".to_string(),
         "目前沒有公告。".to_string(),
         "回地圖".to_string(),
         "冒險帳號".to_string(),
