@@ -65,11 +65,16 @@ pub struct MapConfigFile {
     pub walk_blocked_portrait: Vec<WalkRect>,
     #[serde(default)]
     pub walk_blocked_landscape: Vec<WalkRect>,
-    /// Optional axis-aligned door triggers (default: ±30×±26 around `door_point`).
+    /// Per-building door triggers: foot at `door_points_*`, box width 44px, ~26px south (+2px north slack in JSON).
     #[serde(default)]
     pub door_trigger_zones_portrait: HashMap<String, WalkRect>,
     #[serde(default)]
     pub door_trigger_zones_landscape: HashMap<String, WalkRect>,
+    /// Standable tile at building threshold (feet); from walk-mask + blocked rects.
+    #[serde(default)]
+    pub door_points_portrait: HashMap<String, [i32; 2]>,
+    #[serde(default)]
+    pub door_points_landscape: HashMap<String, [i32; 2]>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -102,39 +107,44 @@ fn default_enter_treasure() -> u32 {
     88
 }
 
-/// Foot position at building door (smaller than landmark anchor).
+/// Foot position where the hero can stand closest to the wooden door (map_config.json `door_points_*`).
 pub fn door_point(portal: &str, orient: MapOrientation) -> (f32, f32) {
-    let lm = landmarks(orient);
-    let (x, y) = match portal {
-        "chinese" => (lm.chinese.x, lm.chinese.y),
-        "english" => (lm.english.x, lm.english.y),
-        "math" => (lm.math.x, lm.math.y),
-        "treasure" => (lm.treasure.x, lm.treasure.y),
-        _ => return (0.0, 0.0),
+    let c = config();
+    let map = match orient {
+        MapOrientation::Portrait => &c.door_points_portrait,
+        MapOrientation::Landscape => &c.door_points_landscape,
     };
-    let (dx, dy) = match (portal, orient) {
-        ("chinese", MapOrientation::Landscape) => (22.0, 252.0),
-        ("chinese", MapOrientation::Portrait) => (8.0, 102.0),
-        ("english", MapOrientation::Landscape) => (-22.0, 88.0),
-        ("english", MapOrientation::Portrait) => (-12.0, 70.0),
-        ("math", MapOrientation::Landscape) => (10.0, 108.0),
-        ("math", MapOrientation::Portrait) => (4.0, 96.0),
-        ("treasure", MapOrientation::Landscape) => (0.0, 42.0),
-        ("treasure", MapOrientation::Portrait) => (0.0, 38.0),
-        _ => (0.0, 48.0),
-    };
-    (x as f32 + dx, y as f32 + dy)
+    if let Some(pt) = map.get(portal) {
+        return (pt[0] as f32, pt[1] as f32);
+    }
+    (0.0, 0.0)
 }
 
-/// Tight door-step trigger (same for all buildings): feet on the threshold / one tile in front.
-pub const DOOR_TRIGGER_HALF_W: f32 = 16.0;
-/// Map y grows downward: allow a little above the door foot and ~20px onto the step below.
-pub const DOOR_TRIGGER_HALF_H_UP: f32 = 8.0;
-pub const DOOR_TRIGGER_HALF_H_DOWN: f32 = 20.0;
+/// Fallback trigger half-sizes when JSON zone missing (prefer `door_trigger_zones_*`).
+pub const DOOR_TRIGGER_HALF_W: f32 = 22.0;
+/// Blocked above door foot by building collision — no north slack.
+pub const DOOR_TRIGGER_HALF_H_UP: f32 = 0.0;
+/// Step tiles south of door foot (~26px).
+pub const DOOR_TRIGGER_HALF_H_DOWN: f32 = 26.0;
+
+fn point_in_rect(px: f32, py: f32, r: &WalkRect) -> bool {
+    let x0 = r.x as f32;
+    let y0 = r.y as f32;
+    let x1 = x0 + r.w as f32;
+    let y1 = y0 + r.h as f32;
+    px >= x0 && px <= x1 && py >= y0 && py <= y1
+}
 
 /// Whether hero feet are inside this building's door trigger (bubble / Enter).
 pub fn door_trigger_contains(key: &str, px: f32, py: f32, orient: MapOrientation) -> bool {
-    let _ = (key, orient);
+    let c = config();
+    let zones = match orient {
+        MapOrientation::Portrait => &c.door_trigger_zones_portrait,
+        MapOrientation::Landscape => &c.door_trigger_zones_landscape,
+    };
+    if let Some(r) = zones.get(key) {
+        return point_in_rect(px, py, r);
+    }
     let (dx, dy) = door_point(key, orient);
     if (px - dx).abs() > DOOR_TRIGGER_HALF_W {
         return false;
@@ -378,6 +388,16 @@ mod tests {
     }
 
     #[test]
+    fn chinese_door_trigger_at_standable_foot() {
+        let (dx, dy) = door_point("chinese", MapOrientation::Portrait);
+        assert!((dx - 304.0).abs() < 0.5 && (dy - 1149.0).abs() < 0.5);
+        assert!(door_trigger_contains("chinese", 304.0, 1149.0, MapOrientation::Portrait));
+        assert!(!door_trigger_contains("chinese", 304.0, 1149.0 + 60.0, MapOrientation::Portrait));
+        let (lx, ly) = door_point("chinese", MapOrientation::Landscape);
+        assert!((lx - 806.0).abs() < 0.5 && (ly - 999.0).abs() < 0.5);
+        assert!(door_trigger_contains("chinese", 806.0, 999.0, MapOrientation::Landscape));
+    }
+
     fn landmark_and_character_webp_exist() {
         let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("static");
         for ch in &config().characters {
