@@ -7,7 +7,9 @@ workers_dev = true
 [[d1_databases]]
 binding = "DB"
 database_name = "zhuyin-island-db"
-database_id = ""
+# 本機／預覽用占位；雲端請改為 `wrangler d1 create` 產生的 database_id
+database_id = "00000000-0000-0000-0000-000000000001"
+migrations_dir = "migrations"
 
 [vars]
 # Do NOT put ADMIN_TOKEN here in production — set via `wrangler secret put ADMIN_TOKEN`
