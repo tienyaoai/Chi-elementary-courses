@@ -904,7 +904,16 @@ pub fn island_map(props: &IslandMapProps) -> Html {
             by,
             html! {
                 <div key="lm-bulletin" class="island-bulletin-sign" data-testid="landmark-bulletin"
-                    style={format!("left:{}px;top:{}px;z-index:{};", bx - 36.0, by - 72.0, by as i32)} />
+                    style={format!("left:{}px;top:{}px;z-index:{};", bx - 40.0, by - 102.0, by as i32)}
+                    role="presentation" aria-hidden="true">
+                    <span class="bulletin-sign-post"></span>
+                    <span class="bulletin-sign-frame">
+                        <span class="bulletin-sign-eaves"></span>
+                        <span class="bulletin-sign-board"></span>
+                        <span class="bulletin-sign-paper bulletin-sign-paper-a"></span>
+                        <span class="bulletin-sign-paper bulletin-sign-paper-b"></span>
+                    </span>
+                </div>
             },
         ));
     }
