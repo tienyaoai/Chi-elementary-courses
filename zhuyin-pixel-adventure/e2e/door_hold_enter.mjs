@@ -8,7 +8,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { doorPoint, inDoorTrigger } from "./door_trigger.mjs";
 
-const BUILDINGS = ["chinese", "english", "math", "bulletin"];
+const BUILDINGS = (process.env.DOOR_BUILDINGS || "chinese,english,math,bulletin")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
 const FAR_SOUTH = 60;
 
 function sleep(ms) {
