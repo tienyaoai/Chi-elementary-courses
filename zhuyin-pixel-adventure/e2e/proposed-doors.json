@@ -1,0 +1,123 @@
+{
+  "door_points_portrait": {
+    "chinese": [
+      304,
+      1149
+    ],
+    "english": [
+      902,
+      709
+    ],
+    "math": [
+      718,
+      1229
+    ],
+    "treasure": [
+      555,
+      984
+    ],
+    "bulletin": [
+      426,
+      1329
+    ]
+  },
+  "door_points_landscape": {
+    "chinese": [
+      806,
+      999
+    ],
+    "english": [
+      2117,
+      659
+    ],
+    "math": [
+      1687,
+      1052
+    ],
+    "treasure": [
+      1164,
+      777
+    ],
+    "bulletin": [
+      969,
+      1286
+    ]
+  },
+  "door_trigger_zones_portrait": {
+    "chinese": {
+      "x": 282,
+      "y": 1147,
+      "w": 44,
+      "h": 28
+    },
+    "english": {
+      "x": 880,
+      "y": 704,
+      "w": 44,
+      "h": 28
+    },
+    "math": {
+      "x": 696,
+      "y": 1228,
+      "w": 44,
+      "h": 26
+    },
+    "treasure": {
+      "x": 533,
+      "y": 982,
+      "w": 44,
+      "h": 28
+    },
+    "bulletin": {
+      "x": 404,
+      "y": 1324,
+      "w": 44,
+      "h": 28
+    }
+  },
+  "door_trigger_zones_landscape": {
+    "chinese": {
+      "x": 784,
+      "y": 997,
+      "w": 44,
+      "h": 28
+    },
+    "english": {
+      "x": 2095,
+      "y": 657,
+      "w": 44,
+      "h": 28
+    },
+    "math": {
+      "x": 1665,
+      "y": 1050,
+      "w": 44,
+      "h": 28
+    },
+    "treasure": {
+      "x": 1142,
+      "y": 775,
+      "w": 44,
+      "h": 28
+    },
+    "bulletin": {
+      "x": 947,
+      "y": 1280,
+      "w": 44,
+      "h": 28
+    }
+  },
+  "sign_points_portrait": {
+    "bulletin": [
+      418,
+      1272
+    ]
+  },
+  "sign_points_landscape": {
+    "bulletin": [
+      960,
+      1256
+    ]
+  },
+  "_comment": "Synced from map_config.json (v9.24f final)."
+}

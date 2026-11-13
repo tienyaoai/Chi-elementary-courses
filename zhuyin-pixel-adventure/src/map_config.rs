@@ -75,6 +75,11 @@ pub struct MapConfigFile {
     pub door_points_portrait: HashMap<String, [i32; 2]>,
     #[serde(default)]
     pub door_points_landscape: HashMap<String, [i32; 2]>,
+    /// Decorative sign anchor (e.g. bulletin board), separate from standable door foot.
+    #[serde(default)]
+    pub sign_points_portrait: HashMap<String, [i32; 2]>,
+    #[serde(default)]
+    pub sign_points_landscape: HashMap<String, [i32; 2]>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -118,6 +123,19 @@ pub fn door_point(portal: &str, orient: MapOrientation) -> (f32, f32) {
         return (pt[0] as f32, pt[1] as f32);
     }
     (0.0, 0.0)
+}
+
+/// Visual anchor for map signs (bulletin); falls back to `door_point` when missing.
+pub fn sign_point(key: &str, orient: MapOrientation) -> (f32, f32) {
+    let c = config();
+    let map = match orient {
+        MapOrientation::Portrait => &c.sign_points_portrait,
+        MapOrientation::Landscape => &c.sign_points_landscape,
+    };
+    if let Some(pt) = map.get(key) {
+        return (pt[0] as f32, pt[1] as f32);
+    }
+    door_point(key, orient)
 }
 
 /// Fallback trigger half-sizes when JSON zone missing (prefer `door_trigger_zones_*`).
