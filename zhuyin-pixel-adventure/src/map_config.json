@@ -85,9 +85,9 @@
       "slug": "strawhat",
       "bust": "char1-strawhat-bust.webp",
       "full": "char1-strawhat-full.webp",
-      "short": "\u8349\u5e3d",
-      "zhuyin": "\u310b\u3127\u02c7",
-      "gender": "\u7537",
+      "short": "草帽",
+      "zhuyin": "ㄋㄧˇ",
+      "gender": "男",
       "walk": "char1-strawhat-walk.webp"
     },
     {
@@ -95,9 +95,9 @@
       "slug": "bluescarf",
       "bust": "char2-bluescarf-bust.webp",
       "full": "char2-bluescarf-full.webp",
-      "short": "\u85cd\u5dfe",
-      "zhuyin": "\u310b\u3127\u02c7",
-      "gender": "\u7537",
+      "short": "藍巾",
+      "zhuyin": "ㄋㄧˇ",
+      "gender": "男",
       "walk": "char2-bluescarf-walk.webp"
     },
     {
@@ -105,9 +105,9 @@
       "slug": "pinkpigtails",
       "bust": "char3-pinkpigtails-bust.webp",
       "full": "char3-pinkpigtails-full.webp",
-      "short": "\u7c89\u59ae",
-      "zhuyin": "\u310b\u3127\u02c7",
-      "gender": "\u5973",
+      "short": "粉妮",
+      "zhuyin": "ㄋㄧˇ",
+      "gender": "女",
       "walk": "char3-pinkpigtails-walk.webp"
     },
     {
@@ -115,9 +115,9 @@
       "slug": "yellowoveralls",
       "bust": "char4-yellowoveralls-bust.webp",
       "full": "char4-yellowoveralls-full.webp",
-      "short": "\u5c0f\u9ec3",
-      "zhuyin": "\u310b\u3127\u02c7",
-      "gender": "\u7537",
+      "short": "小黃",
+      "zhuyin": "ㄋㄧˇ",
+      "gender": "男",
       "walk": "char4-yellowoveralls-walk.webp"
     },
     {
@@ -125,9 +125,9 @@
       "slug": "glassescloak",
       "bust": "char5-glassescloak-bust.webp",
       "full": "char5-glassescloak-full.webp",
-      "short": "\u5c0f\u535a",
-      "zhuyin": "\u310b\u3127\u02c7",
-      "gender": "\u7537",
+      "short": "小博",
+      "zhuyin": "ㄋㄧˇ",
+      "gender": "男",
       "walk": "char5-glassescloak-walk.webp"
     },
     {
@@ -135,9 +135,9 @@
       "slug": "tealtunic",
       "bust": "char6-tealtunic-bust.webp",
       "full": "char6-tealtunic-full.webp",
-      "short": "\u5c0f\u9752",
-      "zhuyin": "\u310b\u3127\u02c7",
-      "gender": "\u7537",
+      "short": "小青",
+      "zhuyin": "ㄋㄧˇ",
+      "gender": "男",
       "walk": "char6-tealtunic-walk.webp"
     },
     {
@@ -145,9 +145,9 @@
       "slug": "orangehoodie",
       "bust": "char7-orangehoodie-bust.webp",
       "full": "char7-orangehoodie-full.webp",
-      "short": "\u5c0f\u6a58",
-      "zhuyin": "\u310b\u3127\u02c7",
-      "gender": "\u5973",
+      "short": "小橘",
+      "zhuyin": "ㄋㄧˇ",
+      "gender": "女",
       "walk": "char7-orangehoodie-walk.webp"
     },
     {
@@ -155,9 +155,9 @@
       "slug": "redribbon",
       "bust": "char8-redribbon-bust.webp",
       "full": "char8-redribbon-full.webp",
-      "short": "\u5c0f\u7d05",
-      "zhuyin": "\u310b\u3127\u02c7",
-      "gender": "\u5973",
+      "short": "小紅",
+      "zhuyin": "ㄋㄧˇ",
+      "gender": "女",
       "walk": "char8-redribbon-walk.webp"
     },
     {
@@ -165,9 +165,9 @@
       "slug": "sailor",
       "bust": "char9-sailor-bust.webp",
       "full": "char9-sailor-full.webp",
-      "short": "\u5c0f\u8475",
-      "zhuyin": "\u310b\u3127\u02c7",
-      "gender": "\u5973",
+      "short": "小葵",
+      "zhuyin": "ㄋㄧˇ",
+      "gender": "女",
       "walk": "char9-sailor-walk.webp"
     },
     {
@@ -175,9 +175,9 @@
       "slug": "lavenderbuns",
       "bust": "char10-lavenderbuns-bust.webp",
       "full": "char10-lavenderbuns-full.webp",
-      "short": "\u7d2b\u4e38",
-      "zhuyin": "\u310b\u3127\u02c7",
-      "gender": "\u5973",
+      "short": "紫丸",
+      "zhuyin": "ㄋㄧˇ",
+      "gender": "女",
       "walk": "char10-lavenderbuns-walk.webp"
     },
     {
@@ -185,9 +185,9 @@
       "slug": "mintcardigan",
       "bust": "char11-mintcardigan-bust.webp",
       "full": "char11-mintcardigan-full.webp",
-      "short": "\u8584\u8377",
-      "zhuyin": "\u310b\u3127\u02c7",
-      "gender": "\u5973",
+      "short": "薄荷",
+      "zhuyin": "ㄋㄧˇ",
+      "gender": "女",
       "walk": "char11-mintcardigan-walk.webp"
     },
     {
@@ -195,9 +195,9 @@
       "slug": "redcap",
       "bust": "char12-redcap-bust.webp",
       "full": "char12-redcap-full.webp",
-      "short": "\u5c0f\u5e3d",
-      "zhuyin": "\u310b\u3127\u02c7",
-      "gender": "\u7537",
+      "short": "小帽",
+      "zhuyin": "ㄋㄧˇ",
+      "gender": "男",
       "walk": "char12-redcap-walk.webp"
     }
   ],
@@ -399,37 +399,109 @@
   "door_points_portrait": {
     "chinese": [
       304,
-      1200
+      1149
     ],
     "english": [
       884,
-      724
+      679
     ],
     "math": [
       732,
-      1284
+      1229
     ],
     "treasure": [
       555,
-      1024
+      984
+    ],
+    "bulletin": [
+      418,
+      1272
     ]
   },
   "door_points_landscape": {
     "chinese": [
       806,
-      1076
+      999
     ],
     "english": [
       2074,
-      575
+      547
     ],
     "math": [
       1698,
-      999
+      959
     ],
     "treasure": [
       1164,
-      788
+      777
+    ],
+    "bulletin": [
+      960,
+      1256
     ]
+  },
+  "door_trigger_zones_portrait": {
+    "chinese": {
+      "x": 282,
+      "y": 1147,
+      "w": 44,
+      "h": 28
+    },
+    "english": {
+      "x": 862,
+      "y": 677,
+      "w": 44,
+      "h": 28
+    },
+    "math": {
+      "x": 710,
+      "y": 1227,
+      "w": 44,
+      "h": 28
+    },
+    "treasure": {
+      "x": 533,
+      "y": 982,
+      "w": 44,
+      "h": 28
+    },
+    "bulletin": {
+      "x": 396,
+      "y": 1270,
+      "w": 44,
+      "h": 28
+    }
+  },
+  "door_trigger_zones_landscape": {
+    "chinese": {
+      "x": 784,
+      "y": 997,
+      "w": 44,
+      "h": 28
+    },
+    "english": {
+      "x": 2052,
+      "y": 545,
+      "w": 44,
+      "h": 28
+    },
+    "math": {
+      "x": 1676,
+      "y": 957,
+      "w": 44,
+      "h": 28
+    },
+    "treasure": {
+      "x": 1142,
+      "y": 775,
+      "w": 44,
+      "h": 28
+    },
+    "bulletin": {
+      "x": 938,
+      "y": 1254,
+      "w": 44,
+      "h": 28
+    }
   }
 }
