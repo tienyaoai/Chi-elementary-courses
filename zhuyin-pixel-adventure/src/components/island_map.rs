@@ -1,6 +1,6 @@
 use crate::components::{BpmfAside, FitDirPad, TouchPad};
 use crate::island_walk;
-use crate::map_config::{character_by_id, door_point, landmark_url, layer, walk_url, MapOrientation};
+use crate::map_config::{character_by_id, door_point, landmark_url, layer, sign_point, walk_url, MapOrientation};
 use crate::walk_sprite::{sprite_sheet_style, WalkFacing, FRAME_H, FRAME_W};
 use crate::map_display::{
     fit_metrics, follow_camera_x, follow_camera_y, follow_world_to_screen, orient_for_viewport,
@@ -899,7 +899,7 @@ pub fn island_map(props: &IslandMapProps) -> Html {
         ("treasure", lm.treasure.x, lm.treasure.y, Portal::Treasure),
     ];
     {
-        let (bx, by) = crate::map_config::door_point("bulletin", orient);
+        let (bx, by) = sign_point("bulletin", orient);
         layers.push((
             by,
             html! {
@@ -1026,7 +1026,7 @@ pub fn island_map(props: &IslandMapProps) -> Html {
         })
         .collect();
     {
-        let (bx, by) = crate::map_config::door_point("bulletin", orient);
+        let (bx, by) = sign_point("bulletin", orient);
         label_world.push((Portal::Bulletin, bx, by - 88.0));
     }
 

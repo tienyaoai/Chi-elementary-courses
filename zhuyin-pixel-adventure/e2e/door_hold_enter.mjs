@@ -116,13 +116,7 @@ async function testBuilding(page, building, orient, tag, errors, shots) {
     path: shots[`${tag}-${building}-far`],
     fullPage: false,
   });
-  const skipWalkApproach = orient === "landscape" && building === "bulletin";
-  const pos = skipWalkApproach
-    ? await (async () => {
-        await setPos(page, dx, dy);
-        return { x: dx, y: dy };
-      })()
-    : await walkToDoorFromSouth(page, dx, dy);
+  const pos = await walkToDoorFromSouth(page, dx, dy);
   const dist = Math.hypot(pos.x - dx, pos.y - dy);
   await sleep(1000);
   const bubble = await bubbleVisible(page);
