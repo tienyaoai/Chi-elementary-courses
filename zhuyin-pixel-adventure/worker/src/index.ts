@@ -4,7 +4,8 @@ export interface Env {
   PUBLIC_ORIGIN?: string;
 }
 
-const PBKDF2_ITERATIONS = 310_000;
+// Cloudflare Workers Web Crypto caps PBKDF2 iterations at 100_000 (edge); local wrangler may allow more.
+const PBKDF2_ITERATIONS = 100_000;
 const SESSION_DAYS = 14;
 const MAX_LOGIN_FAILS = 5;
 const LOCK_MINUTES = 15;
@@ -384,7 +385,8 @@ export default {
 
       return json({ error: "not found" }, 404, cors);
     } catch (e: unknown) {
-      return json({ error: "server error", detail: String(e) }, 500, cors);
+      console.error(e);
+      return json({ error: "server error" }, 500, cors);
     }
   },
 };
